@@ -40,21 +40,21 @@ class ActiveModelCachersTest < Minitest::Test
     assert_queries(1){ assert_equal 30, cacher.get }
     assert_cache('cacher_key_of_Profile_at_point_2' => 30)
 
-    profile.update(point: 32)
+    profile.update_attributes(point: 32)
     assert_cache({})
 
     assert_queries(1){ assert_equal 32, cacher.get }
     assert_cache('cacher_key_of_Profile_at_point_2' => 32)
   ensure 
-    profile.update(point: 30)
+    profile.update_attributes(point: 30)
   end
 
   def test_clean_profile_attribute_cache_after_destroy
-    profile = Profile.create(id: 0, point: 30)
+    profile = Profile.create(point: 30)
     cacher = Profile.point_cachers[profile.id]
 
     assert_queries(1){ assert_equal 30, cacher.get }  
-    assert_cache('cacher_key_of_Profile_at_point_0' => 30)
+    assert_cache("cacher_key_of_Profile_at_point_#{profile.id}" => 30)
 
     profile.destroy
     assert_cache({})
