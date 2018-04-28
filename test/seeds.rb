@@ -34,7 +34,7 @@ end
 class Profile < ActiveRecord::Base
   belongs_to :user
 
-  cache_at :point, ->(id){ Profile.find_by(id: id).point }
+  cache_at :point, ->(id){ Profile.where(id: id).limit(1).pluck(:point).first }
 end
 
 users = User.create([
@@ -44,7 +44,7 @@ users = User.create([
   {:name => 'John4', :email => 'john4@example.com', :profile => Profile.create(point: 70)},
 ])
 
-posts = Post.create([
+Post.create([
   {:title => "John1's post1", :user_id => users[0].id},
   {:title => "John1's post2", :user_id => users[0].id},
   {:title => "John1's post3", :user_id => users[0].id},
