@@ -23,4 +23,7 @@ def assert_queries(expected_count)
 ensure
   ActiveSupport::Notifications.unsubscribe(subscriber)
 end
-    
+
+def assert_cache(data)
+  assert_equal(data, Rails.cache.all_data)  
+end
