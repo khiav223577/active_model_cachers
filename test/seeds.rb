@@ -34,7 +34,7 @@ end
 class Profile < ActiveRecord::Base
   belongs_to :user
 
-  cache_at :point, ->(id){ where(id: id).limit(1).pluck(:point).first }
+  cache_at :point
 end
 
 users = User.create([

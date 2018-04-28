@@ -19,14 +19,7 @@ module ActiveModelCachers
         end
 
         klass.send(:define_method, :cache_key){ "#{cache_key}_#{@id}" }
-        klass.send(:define_method, :get_without_cache) do 
-          if reflect
-            target = (reflect.belongs_to? ? reflect.active_record : reflect.klass)
-            next target.find_by(id: @id)
-          else
-            next query.call(@id)
-          end
-        end
+        klass.send(:define_method, :get_without_cache){ query.call(@id) }
         return klass
       end
     end
