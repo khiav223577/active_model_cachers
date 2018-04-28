@@ -1,3 +1,5 @@
+require 'active_model_cachers'
+
 ## Fake rails for testing Rails.cache
 class Rails
   class Cache
@@ -8,6 +10,10 @@ class Rails
     def read(key)
       return nil if not exist?(key)
       return @cache[key][:data]
+    end
+
+    def delete(key)
+      @cache.delete(key)
     end
 
     def exist?(key)
@@ -31,3 +37,8 @@ class Rails
     @@cache ||= Cache.new
   end
 end
+
+ActiveModelCachers.config do |config|
+  config.store = Rails.cache
+end
+

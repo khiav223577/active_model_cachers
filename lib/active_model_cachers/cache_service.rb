@@ -24,7 +24,7 @@ module ActiveModelCachers
     end
 
     def get_from_cache
-      Rails.cache.fetch(cache_key, expires_in: 30.minutes){ get_without_cache }
+      ActiveModelCachers.config.store.fetch(cache_key, expires_in: 30.minutes){ get_without_cache }
     end
   end
 end
