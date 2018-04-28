@@ -11,7 +11,10 @@ ActiveRecord::Base.establish_connection(
   "database" => ":memory:"
 )
 
-ActiveRecord::Base.raise_in_transactional_callbacks = true
+if Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new('5') and ActiveRecord::Base.respond_to?(:raise_in_transactional_callbacks=)
+  ActiveRecord::Base.raise_in_transactional_callbacks = true
+end
+
 require 'rails_cache'
 require 'seeds'
 
