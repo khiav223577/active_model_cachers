@@ -14,3 +14,13 @@ ActiveRecord::Base.establish_connection(
 ActiveRecord::Base.raise_in_transactional_callbacks = true
 require 'rails_cache'
 require 'seeds'
+
+def assert_queries(expected_count)
+  count = 0
+  subscriber = ActiveSupport::Notifications.subscribe('sql.active_record'){ count += 1 }
+  yield
+  assert_equal expected_count, count
+ensure
+  ActiveSupport::Notifications.unsubscribe(subscriber)
+end
+    
