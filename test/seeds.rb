@@ -13,21 +13,31 @@ ActiveRecord::Schema.define do
     t.integer :user_id
     t.string :title
   end
+
+  create_table :profiles, :force => true do |t|
+    t.integer :user_id
+    t.integer :point
+  end
 end
 
 class User < ActiveRecord::Base
   has_many :posts
+  has_one :profile
 end
 
 class Post < ActiveRecord::Base
   belongs_to :user
 end
 
+class Profile < ActiveRecord::Base
+  belongs_to :user
+end
+
 users = User.create([
-  {:name => 'John1', :email => 'john1@example.com'},
-  {:name => 'John2', :email => 'john2@example.com'},
-  {:name => 'John3', :email => 'john3@example.com'},
-  {:name => 'John4', :email => 'john4@example.com'},
+  {:name => 'John1', :email => 'john1@example.com', :profile => Profile.create(point: 10)},
+  {:name => 'John2', :email => 'john2@example.com', :profile => Profile.create(point: 30)},
+  {:name => 'John3', :email => 'john3@example.com', :profile => Profile.create(point: 50)},
+  {:name => 'John4', :email => 'john4@example.com', :profile => Profile.create(point: 70)},
 ])
 
 posts = Post.create([
