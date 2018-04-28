@@ -31,6 +31,12 @@ class Rails
     def fetch(key, options = {}, &block)
       read(key) || write(key, block.call)
     end
+
+    def all_data
+      result = {}
+      @cache.keys.select{|k| exist?(k) }.each{|k| result[k] = read(k) }
+      return result
+    end
   end
 
   def self.cache
