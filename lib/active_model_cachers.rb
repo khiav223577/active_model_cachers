@@ -28,4 +28,10 @@ class << ActiveRecord::Base
       service_klass
     end
   end
+
+  if not method_defined?(:find_by) # define #find_by for Rails 3
+    def find_by(*args)
+      where(*args).order('').first
+    end
+  end
 end
