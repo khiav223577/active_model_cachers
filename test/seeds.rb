@@ -23,6 +23,8 @@ end
 class User < ActiveRecord::Base
   has_many :posts
   has_one :profile
+
+  # cache_at :profile
 end
 
 class Post < ActiveRecord::Base
@@ -31,6 +33,8 @@ end
 
 class Profile < ActiveRecord::Base
   belongs_to :user
+
+  cache_at :point, ->(id){ Profile.find_by(id: id).point }
 end
 
 users = User.create([
