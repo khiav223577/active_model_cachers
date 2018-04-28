@@ -4,6 +4,10 @@ require 'active_model_cachers'
 class Rails
   class Cache
     def initialize
+      clear
+    end
+
+    def clear
       @cache = {}
     end
 

@@ -24,7 +24,7 @@ class User < ActiveRecord::Base
   has_many :posts
   has_one :profile
 
-  # cache_at :profile
+  cache_at :profile, ->(id){ Profile.find_by(id: id) }
 end
 
 class Post < ActiveRecord::Base
