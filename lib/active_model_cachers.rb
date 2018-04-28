@@ -13,8 +13,9 @@ module ActiveModelCachers
 end
 
 class << ActiveRecord::Base
-  def cache_at(column, query)
-    service_klass = ActiveModelCachers::CacheServiceFactory.create("cacher_key_of_#{self}_at_#{column}", &query)
+  def cache_at(column, query = nil)
+    reflect = reflect_on_association(column)
+    service_klass = ActiveModelCachers::CacheServiceFactory.create(reflect, "cacher_key_of_#{self}_at_#{column}", &query)
     after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.key?(column) || destroyed? }
 
     define_singleton_method(:"#{column}_cachers") do

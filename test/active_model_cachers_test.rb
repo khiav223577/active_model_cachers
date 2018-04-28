@@ -5,6 +5,9 @@ class ActiveModelCachersTest < Minitest::Test
     Rails.cache.clear
   end
 
+  # ----------------------------------------------------------------
+  # ● association cache
+  # ----------------------------------------------------------------
   def test_cache_profile
     profile = User.find_by(name: 'John1').profile
     cacher = User.profile_cachers[profile.id]
@@ -16,6 +19,9 @@ class ActiveModelCachersTest < Minitest::Test
     assert_cache('cacher_key_of_User_at_profile_1' => profile)
   end
 
+  # ----------------------------------------------------------------
+  # ● attribute cache
+  # ----------------------------------------------------------------
   def test_cache_profile_attribute
     profile = User.find_by(name: 'John1').profile
     cacher = Profile.point_cachers[profile.id]

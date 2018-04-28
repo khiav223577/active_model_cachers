@@ -24,7 +24,7 @@ class User < ActiveRecord::Base
   has_many :posts
   has_one :profile
 
-  cache_at :profile, ->(id){ Profile.find_by(id: id) }
+  cache_at :profile
 end
 
 class Post < ActiveRecord::Base
@@ -34,7 +34,7 @@ end
 class Profile < ActiveRecord::Base
   belongs_to :user
 
-  cache_at :point, ->(id){ Profile.where(id: id).limit(1).pluck(:point).first }
+  cache_at :point, ->(id){ where(id: id).limit(1).pluck(:point).first }
 end
 
 users = User.create([
