@@ -1,7 +1,7 @@
 require 'active_model_cachers'
 
 ## Fake rails for testing Rails.cache
-class Rails
+module Rails
   class Cache
     def initialize
       clear
