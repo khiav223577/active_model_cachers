@@ -22,7 +22,7 @@ end
 
 class User < ActiveRecord::Base
   has_many :posts
-  has_one :profile
+  has_one :profile, dependent: :delete
 
   cache_at :profile
 end
@@ -34,6 +34,7 @@ end
 class Profile < ActiveRecord::Base
   belongs_to :user
 
+  cache_self
   cache_at :point
 end
 

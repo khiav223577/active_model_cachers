@@ -13,16 +13,36 @@ module ActiveModelCachers
 end
 
 class << ActiveRecord::Base
+  def cache_self
+    query = ->(id){ find_by(id: id) }
+    service_klass = ActiveModelCachers::CacheServiceFactory.create("cacher_key_of_#{self}", &query)
+    after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.present? || destroyed? }
+    define_singleton_method(:"cachers") do
+      service_klass
+    end
+  end
+
   def cache_at(column, query = nil)
     reflect = reflect_on_association(column)
     if reflect
       query ||= ->(id){ (reflect.belongs_to? ? reflect.active_record : reflect.klass).find_by(id: id) }
+      cache_key = "cacher_key_of_#{reflect.class_name}"
     else
       query ||= ->(id){ where(id: id).limit(1).pluck(column).first }
+      cache_key = "cacher_key_of_#{self}_at_#{column}"
     end
 
-    service_klass = ActiveModelCachers::CacheServiceFactory.create(reflect, "cacher_key_of_#{self}_at_#{column}", &query)
-    after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.key?(column) || destroyed? }
+    service_klass = ActiveModelCachers::CacheServiceFactory.create(cache_key, &query)
+    if reflect
+      if reflect.options[:dependent] == :delete
+        after_commit ->{ 
+          target = association(column).load_target if destroyed? 
+          service_klass.instance(target.id).clean_cache if target
+        }
+      end
+    else
+      after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.key?(column) || destroyed? }
+    end
 
     define_singleton_method(:"#{column}_cachers") do
       service_klass
