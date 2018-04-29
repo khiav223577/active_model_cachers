@@ -3,6 +3,7 @@ require 'test_helper'
 class ActiveModelCachersTest < Minitest::Test
   def setup
     Rails.cache.clear
+    RequestStore.clear!
   end
 
   # ----------------------------------------------------------------
@@ -17,6 +18,22 @@ class ActiveModelCachersTest < Minitest::Test
 
     assert_queries(0){ assert_equal 10, cacher.get.point }
     assert_cache('cacher_key_of_User_at_profile_1' => profile)
+  end
+
+  def test_cache_profile_after_update
+    profile = User.find_by(name: 'John1').profile
+    cacher = User.profile_cachers[profile.id]
+
+    assert_queries(1){ assert_equal 10, cacher.get.point }
+    assert_cache('cacher_key_of_User_at_profile_1' => profile)
+
+    profile.update_attributes(point: 12)
+    assert_cache({})
+
+    assert_queries(0){ assert_equal 12, cacher.get.point }
+    assert_cache('cacher_key_of_User_at_profile_1' => profile)
+  ensure 
+    profile.update_attributes(point: 12)
   end
 
   # ----------------------------------------------------------------
@@ -45,7 +62,7 @@ class ActiveModelCachersTest < Minitest::Test
 
     assert_queries(1){ assert_equal 32, cacher.get }
     assert_cache('cacher_key_of_Profile_at_point_2' => 32)
-  ensure 
+  ensure
     profile.update_attributes(point: 30)
   end
 
