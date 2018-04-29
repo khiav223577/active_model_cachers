@@ -9,7 +9,7 @@ class ActiveModelCachersTest < Minitest::Test
   # ----------------------------------------------------------------
   # ● association cache
   # ----------------------------------------------------------------
-  def test_cache_has_one_association
+  def test_has_one_cache
     profile = User.find_by(name: 'John1').profile
     cacher = User.profile_cachers[profile.id]
 
@@ -20,7 +20,7 @@ class ActiveModelCachersTest < Minitest::Test
     assert_cache('cacher_key_of_Profile_1' => profile)
   end
 
-  def test_cache_has_one_association_when_update_nothing
+  def test_has_one_cache_when_update_nothing
     profile = User.find_by(name: 'John1').profile
     cacher = User.profile_cachers[profile.id]
 
@@ -34,7 +34,7 @@ class ActiveModelCachersTest < Minitest::Test
     assert_cache('cacher_key_of_Profile_1' => profile)
   end
 
-  def test_cache_has_one_association_when_update
+  def test_has_one_cache_when_update
     profile = User.find_by(name: 'John1').profile
     cacher = User.profile_cachers[profile.id]
 
@@ -50,7 +50,7 @@ class ActiveModelCachersTest < Minitest::Test
     profile.update_attributes(point: 10)
   end
 
-  def test_cache_has_one_association_when_destroy
+  def test_has_one_cache_when_destroy
     profile = Profile.create(point: 13)
     cacher = User.profile_cachers[profile.id]
 
@@ -65,10 +65,28 @@ class ActiveModelCachersTest < Minitest::Test
   ensure
     profile.destroy
   end
+
+  def test_has_one_cache_when_destroyed_by_dependent_delete
+    profile = Profile.create(point: 17)
+    user = User.create(profile: profile)
+    cacher = User.profile_cachers[profile.id]
+
+    assert_queries(1){ assert_equal 17, cacher.get.point }
+    assert_cache("cacher_key_of_Profile_#{profile.id}" => profile)
+
+    user.destroy
+    assert_cache({})
+
+    assert_queries(1){ assert_nil cacher.get }
+    assert_cache({})
+  ensure
+    user.destroy
+  end
+
   # ----------------------------------------------------------------
   # ● attribute cache
   # ----------------------------------------------------------------
-  def test_cache_attribute
+  def test_attribute_cache
     profile = User.find_by(name: 'John1').profile
     cacher = Profile.point_cachers[profile.id]
 
@@ -121,5 +139,7 @@ class ActiveModelCachersTest < Minitest::Test
 
     assert_queries(1){ assert_nil cacher.get }
     assert_cache({})
+  ensure
+    profile.destroy
   end
 end

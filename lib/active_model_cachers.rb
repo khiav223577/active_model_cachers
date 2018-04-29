@@ -33,7 +33,16 @@ class << ActiveRecord::Base
     end
 
     service_klass = ActiveModelCachers::CacheServiceFactory.create(cache_key, &query)
-    after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.key?(column) || destroyed? } if reflect == nil
+    if reflect
+      if reflect.options[:dependent] == :delete
+        after_commit ->{ 
+          target = association(column).load_target if destroyed? 
+          service_klass.instance(target.id).clean_cache if target
+        }
+      end
+    else
+      after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.key?(column) || destroyed? }
+    end
 
     define_singleton_method(:"#{column}_cachers") do
       service_klass
