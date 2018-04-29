@@ -13,6 +13,15 @@ module ActiveModelCachers
 end
 
 class << ActiveRecord::Base
+  def cache_self
+    query = ->(id){ find_by(id: id) }
+    service_klass = ActiveModelCachers::CacheServiceFactory.create(reflect, "cacher_key_of_#{self}", &query)
+    after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.present? || destroyed? }
+    define_singleton_method(:"cachers") do
+      service_klass
+    end
+  end
+
   def cache_at(column, query = nil)
     reflect = reflect_on_association(column)
     if reflect
@@ -22,7 +31,7 @@ class << ActiveRecord::Base
     end
 
     service_klass = ActiveModelCachers::CacheServiceFactory.create(reflect, "cacher_key_of_#{self}_at_#{column}", &query)
-    after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.key?(column) || destroyed? }
+    after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.key?(column) || destroyed? } if reflect == nil
 
     define_singleton_method(:"#{column}_cachers") do
       service_klass
