@@ -6,7 +6,7 @@ module ActiveModelCachers
     @key_class_mapping = {}
 
     class << self
-      def create(reflect, cache_key, &query)
+      def create(cache_key, &query)
         @key_class_mapping[cache_key] ||= ->{
           klass = Class.new(CacheService)
           

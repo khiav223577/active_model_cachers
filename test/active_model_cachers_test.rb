@@ -14,10 +14,10 @@ class ActiveModelCachersTest < Minitest::Test
     cacher = User.profile_cachers[profile.id]
 
     assert_queries(1){ assert_equal 10, cacher.get.point }
-    assert_cache('cacher_key_of_User_at_profile_1' => profile)
+    assert_cache('cacher_key_of_Profile_1' => profile)
 
     assert_queries(0){ assert_equal 10, cacher.get.point }
-    assert_cache('cacher_key_of_User_at_profile_1' => profile)
+    assert_cache('cacher_key_of_Profile_1' => profile)
   end
 
   def test_cache_profile_after_update
@@ -25,15 +25,15 @@ class ActiveModelCachersTest < Minitest::Test
     cacher = User.profile_cachers[profile.id]
 
     assert_queries(1){ assert_equal 10, cacher.get.point }
-    assert_cache('cacher_key_of_User_at_profile_1' => profile)
+    assert_cache('cacher_key_of_Profile_1' => profile)
 
     profile.update_attributes(point: 12)
     assert_cache({})
 
-    assert_queries(0){ assert_equal 12, cacher.get.point }
-    assert_cache('cacher_key_of_User_at_profile_1' => profile)
+    assert_queries(1){ assert_equal 12, cacher.get.point }
+    assert_cache('cacher_key_of_Profile_1' => profile)
   ensure 
-    profile.update_attributes(point: 12)
+    profile.update_attributes(point: 10)
   end
 
   # ----------------------------------------------------------------

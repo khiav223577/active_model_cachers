@@ -15,7 +15,7 @@ end
 class << ActiveRecord::Base
   def cache_self
     query = ->(id){ find_by(id: id) }
-    service_klass = ActiveModelCachers::CacheServiceFactory.create(reflect, "cacher_key_of_#{self}", &query)
+    service_klass = ActiveModelCachers::CacheServiceFactory.create("cacher_key_of_#{self}", &query)
     after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.present? || destroyed? }
     define_singleton_method(:"cachers") do
       service_klass
@@ -26,11 +26,13 @@ class << ActiveRecord::Base
     reflect = reflect_on_association(column)
     if reflect
       query ||= ->(id){ (reflect.belongs_to? ? reflect.active_record : reflect.klass).find_by(id: id) }
+      cache_key = "cacher_key_of_#{reflect.class_name}"
     else
       query ||= ->(id){ where(id: id).limit(1).pluck(column).first }
+      cache_key = "cacher_key_of_#{self}_at_#{column}"
     end
 
-    service_klass = ActiveModelCachers::CacheServiceFactory.create(reflect, "cacher_key_of_#{self}_at_#{column}", &query)
+    service_klass = ActiveModelCachers::CacheServiceFactory.create(cache_key, &query)
     after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.key?(column) || destroyed? } if reflect == nil
 
     define_singleton_method(:"#{column}_cachers") do
