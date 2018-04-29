@@ -20,6 +20,20 @@ class ActiveModelCachersTest < Minitest::Test
     assert_cache('cacher_key_of_Profile_1' => profile)
   end
 
+  def test_cache_profile_after_update_nothing
+    profile = User.find_by(name: 'John1').profile
+    cacher = User.profile_cachers[profile.id]
+
+    assert_queries(1){ assert_equal 10, cacher.get.point }
+    assert_cache('cacher_key_of_Profile_1' => profile)
+
+    profile.save
+    assert_cache('cacher_key_of_Profile_1' => profile)
+
+    assert_queries(0){ assert_equal 10, cacher.get.point }
+    assert_cache('cacher_key_of_Profile_1' => profile)
+  end
+
   def test_cache_profile_after_update
     profile = User.find_by(name: 'John1').profile
     cacher = User.profile_cachers[profile.id]
@@ -48,6 +62,20 @@ class ActiveModelCachersTest < Minitest::Test
 
     assert_queries(0){ assert_equal 10, cacher.get }
     assert_cache('cacher_key_of_Profile_at_point_1' => 10)
+  end
+
+  def test_clean_profile_attribute_cache_after_update_nothing
+    profile = User.find_by(name: 'John2').profile
+    cacher = Profile.point_cachers[profile.id]
+
+    assert_queries(1){ assert_equal 30, cacher.get }
+    assert_cache('cacher_key_of_Profile_at_point_2' => 30)
+
+    profile.save
+    assert_cache('cacher_key_of_Profile_at_point_2' => 30)
+
+    assert_queries(0){ assert_equal 30, cacher.get }
+    assert_cache('cacher_key_of_Profile_at_point_2' => 30)
   end
 
   def test_clean_profile_attribute_cache_after_update
