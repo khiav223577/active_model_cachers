@@ -1,6 +1,7 @@
 require 'active_model_cachers/version'
 require 'active_model_cachers/config'
 require 'active_model_cachers/cache_service_factory'
+require 'active_model_cachers/cacher'
 require 'active_record'
 require 'active_record/relation'
 
@@ -44,6 +45,7 @@ class << ActiveRecord::Base
       after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.key?(column) || destroyed? }
     end
 
+    ActiveModelCachers::Cacher.define_cachers_at(self)
     define_singleton_method(:"#{column}_cachers") do
       service_klass
     end
