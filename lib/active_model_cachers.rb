@@ -45,7 +45,9 @@ class << ActiveRecord::Base
       after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.key?(column) || destroyed? }
     end
 
-    ActiveModelCachers::Cacher.define_cachers_at(self)
+    cacher = ActiveModelCachers::Cacher.define_cacher_at(self)
+    cacher.define_singleton_method(column){ service_klass[@id].get }
+    
     define_singleton_method(:"#{column}_cachers") do
       service_klass
     end

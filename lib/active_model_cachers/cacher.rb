@@ -2,18 +2,20 @@ module ActiveModelCachers
   class Cacher
     @defined_map = {}
 
-    def self.define_cachers_at(klass)
-      return if @defined_map[klass]
-      klass.define_singleton_method(:cachers){ new }
-      @defined_map[klass] = true 
+    def self.define_cacher_at(klass)
+      @defined_map[klass] ||= ->{
+        cacher = new
+        klass.define_singleton_method(:cacher){|id| cacher.with_id(id) }
+        next (@defined_map[klass] = cacher )
+      }[]
     end
 
-    def initialize(id = nil)
+    def initialize
+    end
+
+    def with_id(id)
       @id = id
-    end
-
-    def [](id)
-      Cacher.new(id)
+      return self
     end
   end
 end
