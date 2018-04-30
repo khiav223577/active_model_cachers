@@ -20,7 +20,7 @@ class << ActiveRecord::Base
     after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.present? || destroyed? }
 
     cacher = ActiveModelCachers::Cacher.define_cacher_at(self)
-    cacher.define_singleton_method(:find){|id| service_klass.instance(id).get }
+    cacher.define_singleton_method(:self){ service_klass.instance(@id).get }
   end
 
   def cache_at(column, query = nil)
