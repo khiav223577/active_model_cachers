@@ -19,8 +19,7 @@ class << ActiveRecord::Base
     service_klass = ActiveModelCachers::CacheServiceFactory.create("cacher_key_of_#{self}", &query)
     after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.present? || destroyed? }
 
-    cacher = ActiveModelCachers::Cacher.define_cacher_at(self)
-    cacher.define_singleton_method(:self){ service_klass.instance(@id).get }
+    ActiveModelCachers::Cacher.define_cacher_at(self, :self, service_klass)
   end
 
   def cache_at(column, query = nil)
@@ -45,8 +44,7 @@ class << ActiveRecord::Base
       after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.key?(column) || destroyed? }
     end
 
-    cacher = ActiveModelCachers::Cacher.define_cacher_at(self)
-    cacher.define_singleton_method(column){ service_klass.instance(@id).get }
+    ActiveModelCachers::Cacher.define_cacher_at(self, column, service_klass)
   end
 
   if not method_defined?(:find_by) # define #find_by for Rails 3
