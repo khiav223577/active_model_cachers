@@ -5,7 +5,7 @@ module ActiveModelCachers
     def self.define_cacher_at(klass)
       @defined_map[klass] ||= ->{
         cacher = new
-        klass.define_singleton_method(:cacher){|id| cacher.with_id(id) }
+        klass.define_singleton_method(:cacher){|id = nil| cacher.with_id(id) }
         next (@defined_map[klass] = cacher )
       }[]
     end

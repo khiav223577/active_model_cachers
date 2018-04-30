@@ -18,9 +18,9 @@ class << ActiveRecord::Base
     query = ->(id){ find_by(id: id) }
     service_klass = ActiveModelCachers::CacheServiceFactory.create("cacher_key_of_#{self}", &query)
     after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.present? || destroyed? }
-    define_singleton_method(:"cachers") do
-      service_klass
-    end
+
+    cacher = ActiveModelCachers::Cacher.define_cacher_at(self)
+    cacher.define_singleton_method(:find){|id| service_klass.instance(id).get }
   end
 
   def cache_at(column, query = nil)

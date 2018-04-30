@@ -78,6 +78,20 @@ class ActiveModelCachersTest < Minitest::Test
     user.destroy
   end
 
+
+  # ----------------------------------------------------------------
+  # ● cache_self
+  # ----------------------------------------------------------------
+  def test_cache_self
+    profile = User.find_by(name: 'John1').profile
+
+    assert_queries(1){ assert_equal profile, Profile.cacher.find(profile.id) }
+    assert_cache('cacher_key_of_Profile_1' => profile)
+
+    assert_queries(0){ assert_equal profile, Profile.cacher.find(profile.id) }
+    assert_cache('cacher_key_of_Profile_1' => profile)
+  end
+
   # ----------------------------------------------------------------
   # ● attribute cache
   # ----------------------------------------------------------------
