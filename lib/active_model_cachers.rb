@@ -46,11 +46,7 @@ class << ActiveRecord::Base
     end
 
     cacher = ActiveModelCachers::Cacher.define_cacher_at(self)
-    cacher.define_singleton_method(column){ service_klass[@id].get }
-    
-    define_singleton_method(:"#{column}_cachers") do
-      service_klass
-    end
+    cacher.define_singleton_method(column){ service_klass.instance(@id).get }
   end
 
   if not method_defined?(:find_by) # define #find_by for Rails 3
