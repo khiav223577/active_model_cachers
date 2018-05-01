@@ -8,7 +8,7 @@ module ActiveSupport #:nodoc:
       end
 
       def clear_load_hooks
-        self.load_hooks = Hash.new([])
+        self.load_hooks = Hash.new{|h, k| h[k] = [] }
       end
 
       alias_method :new_constants_in_without_onload_hook, :new_constants_in if not method_defined?(:new_constants_in_without_onload_hook)
