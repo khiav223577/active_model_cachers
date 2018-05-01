@@ -12,7 +12,7 @@ module ActiveModelCachers
           query ||= ->(id){ klass.find_by(id: id) } 
           cache_key = get_cache_key(klass, column)
         when (reflect = klass.reflect_on_association(column))
-          query ||= ->(id){ (reflect.belongs_to? ? reflect.active_record : reflect.klass).find_by(id: id) }
+          query ||= ->(id){ get_klass_from_reflect(reflect).find_by(id: id) }
           cache_key = get_cache_key(reflect.class_name, nil)
         else
           query ||= ->(id){ klass.where(id: id).limit(1).pluck(column).first }
@@ -45,6 +45,11 @@ module ActiveModelCachers
       end
 
       private
+
+      def get_klass_from_reflect(reflect)
+        return reflect.active_record if reflect.belongs_to?
+        return reflect.klass
+      end
 
       def get_cache_key(class_name, column)
         return "active_model_cachers_#{class_name}_at_#{column}" if column
