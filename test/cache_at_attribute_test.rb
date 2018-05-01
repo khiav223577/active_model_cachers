@@ -42,7 +42,7 @@ class CacheAtAttributeTest < BaseTest
   def test_destroy
     profile = Profile.create(point: 30)
 
-    assert_queries(1){ assert_equal 30, Profile.cacher_at(profile.id).point }  
+    assert_queries(1){ assert_equal 30, Profile.cacher_at(profile.id).point }
     assert_cache("cacher_key_of_Profile_at_point_#{profile.id}" => 30)
 
     profile.destroy

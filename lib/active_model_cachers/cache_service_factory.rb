@@ -18,7 +18,7 @@ module ActiveModelCachers
               cache_key = "cacher_key_of_#{self}_at_#{column}"
             end
           else
-            query = ->(id){ find_by(id: id) }
+            query ||= ->(id){ find_by(id: id) }
             cache_key = "cacher_key_of_#{self}"
           end
           service_klass = ActiveModelCachers::CacheServiceFactory.create(cache_key, &query)
