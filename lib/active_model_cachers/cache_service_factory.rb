@@ -6,6 +6,27 @@ module ActiveModelCachers
     @key_class_mapping = {}
 
     class << self
+      def create_for_active_model(model_klass, column, &query)
+        model_klass.instance_exec do
+          if column
+            reflect = reflect_on_association(column)
+            if reflect
+              query ||= ->(id){ (reflect.belongs_to? ? reflect.active_record : reflect.klass).find_by(id: id) }
+              cache_key = "cacher_key_of_#{reflect.class_name}"
+            else
+              query ||= ->(id){ where(id: id).limit(1).pluck(column).first }
+              cache_key = "cacher_key_of_#{self}_at_#{column}"
+            end
+          else
+            query = ->(id){ find_by(id: id) }
+            cache_key = "cacher_key_of_#{self}"
+          end
+          service_klass = ActiveModelCachers::CacheServiceFactory.create(cache_key, &query)
+          ActiveModelCachers::Cacher.define_cacher_at(self, column || :self, service_klass)
+          return service_klass
+        end
+      end
+
       def create(cache_key, &query)
         @key_class_mapping[cache_key] ||= ->{
           klass = Class.new(CacheService)
