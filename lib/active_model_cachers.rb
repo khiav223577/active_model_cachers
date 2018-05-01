@@ -2,6 +2,7 @@ require 'active_model_cachers/version'
 require 'active_model_cachers/config'
 require 'active_model_cachers/cache_service_factory'
 require 'active_model_cachers/cacher'
+require 'active_model_cachers/hook_dependencies'
 require 'active_record'
 require 'active_record/relation'
 
@@ -39,6 +40,9 @@ class << ActiveRecord::Base
           target = association(column).load_target if destroyed? 
           service_klass.instance(target.id).clean_cache if target
         }
+      end
+      ActiveSupport::Dependencies.onload(reflect.class_name) do
+        after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.present? || destroyed? }
       end
     else
       after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.key?(column) || destroyed? }

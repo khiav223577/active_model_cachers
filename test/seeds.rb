@@ -18,28 +18,17 @@ ActiveRecord::Schema.define do
     t.integer :user_id
     t.integer :point
   end
+
+  create_table :contacts, :force => true do |t|
+    t.integer :user_id
+    t.string :phone
+  end
 end
 
-class User < ActiveRecord::Base
-  has_many :posts
-  has_one :profile, dependent: :delete
-
-  cache_at :profile
-end
-
-class Post < ActiveRecord::Base
-  belongs_to :user
-end
-
-class Profile < ActiveRecord::Base
-  belongs_to :user
-
-  cache_self
-  cache_at :point
-end
+ActiveSupport::Dependencies.autoload_paths << File.expand_path('../models/', __FILE__)
 
 users = User.create([
-  {:name => 'John1', :email => 'john1@example.com', :profile => Profile.create(point: 10)},
+  {:name => 'John1', :email => 'john1@example.com', :profile => Profile.create(point: 10), :contact => Contact.create(phone: '12345')},
   {:name => 'John2', :email => 'john2@example.com', :profile => Profile.create(point: 30)},
   {:name => 'John3', :email => 'john3@example.com', :profile => Profile.create(point: 50)},
   {:name => 'John4', :email => 'john4@example.com', :profile => Profile.create(point: 70)},

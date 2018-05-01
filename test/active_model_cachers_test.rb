@@ -47,6 +47,21 @@ class ActiveModelCachersTest < Minitest::Test
     profile.update_attributes(point: 10)
   end
 
+  def test_when_target_association_doesnt_cache_self
+    contact = User.find_by(name: 'John1').contact
+
+    assert_queries(1){ assert_equal '12345', User.cacher_at(contact.id).contact.phone }
+    assert_cache('cacher_key_of_Contact_1' => contact)
+
+    contact.update_attributes(phone: '12346')
+    assert_cache({})
+
+    assert_queries(1){ assert_equal '12346', User.cacher_at(contact.id).contact.phone }
+    assert_cache('cacher_key_of_Contact_1' => contact)
+  ensure 
+    contact.update_attributes(phone: '12345')
+  end
+
   def test_has_one_cache_when_destroy
     profile = Profile.create(point: 13)
 
