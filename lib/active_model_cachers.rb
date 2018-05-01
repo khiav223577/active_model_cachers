@@ -3,6 +3,7 @@ require 'active_model_cachers/config'
 require 'active_model_cachers/cache_service_factory'
 require 'active_model_cachers/cacher'
 require 'active_model_cachers/hook_dependencies'
+require 'active_model_cachers/hook_model_delete'
 require 'active_record'
 require 'active_record/relation'
 
@@ -35,6 +36,7 @@ class << ActiveRecord::Base
       end
     else
       after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.key?(column) || destroyed? }
+      on_delete{|id| service_klass.instance(id).clean_cache }
     end
   end
 
