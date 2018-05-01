@@ -1,7 +1,7 @@
 require 'base_test'
 
 class CacheAtAttributeTest < BaseTest
-  def test_attribute_cache
+  def test_basic_usage
     profile = User.find_by(name: 'John1').profile
 
     assert_queries(1){ assert_equal 10, Profile.cacher_at(profile.id).point }
@@ -11,7 +11,7 @@ class CacheAtAttributeTest < BaseTest
     assert_cache('cacher_key_of_Profile_at_point_1' => 10)
   end
 
-  def test_attribute_cache_when_update_nothing
+  def test_update_nothing
     profile = User.find_by(name: 'John2').profile
 
     assert_queries(1){ assert_equal 30, Profile.cacher_at(profile.id).point }
@@ -24,7 +24,7 @@ class CacheAtAttributeTest < BaseTest
     assert_cache('cacher_key_of_Profile_at_point_2' => 30)
   end
 
-  def test_attribute_cache_when_update
+  def test_update
     profile = User.find_by(name: 'John2').profile
 
     assert_queries(1){ assert_equal 30, Profile.cacher_at(profile.id).point }
@@ -39,7 +39,7 @@ class CacheAtAttributeTest < BaseTest
     profile.update_attributes(point: 30)
   end
 
-  def test_attribute_cache_when_destroy
+  def test_destroy
     profile = Profile.create(point: 30)
 
     assert_queries(1){ assert_equal 30, Profile.cacher_at(profile.id).point }  

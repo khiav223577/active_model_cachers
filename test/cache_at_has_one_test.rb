@@ -1,7 +1,7 @@
 require 'base_test'
 
 class CacheAtHasOneTest < BaseTest
-  def test_has_one_cache
+  def test_basic_usage
     profile = User.find_by(name: 'John1').profile
 
     assert_queries(1){ assert_equal 10, User.cacher_at(profile.id).profile.point }
@@ -11,7 +11,7 @@ class CacheAtHasOneTest < BaseTest
     assert_cache('cacher_key_of_Profile_1' => profile)
   end
 
-  def test_has_one_cache_when_update_nothing
+  def test_update_nothing
     profile = User.find_by(name: 'John1').profile
 
     assert_queries(1){ assert_equal 10, User.cacher_at(profile.id).profile.point }
@@ -24,7 +24,7 @@ class CacheAtHasOneTest < BaseTest
     assert_cache('cacher_key_of_Profile_1' => profile)
   end
 
-  def test_has_one_cache_when_update
+  def test_update
     profile = User.find_by(name: 'John1').profile
 
     assert_queries(1){ assert_equal 10, User.cacher_at(profile.id).profile.point }
@@ -39,7 +39,7 @@ class CacheAtHasOneTest < BaseTest
     profile.update_attributes(point: 10)
   end
 
-  def test_when_target_association_doesnt_cache_self
+  def test_update_target_which_doesnt_cache_self
     contact = User.find_by(name: 'John1').contact
 
     assert_queries(1){ assert_equal '12345', User.cacher_at(contact.id).contact.phone }
@@ -54,7 +54,7 @@ class CacheAtHasOneTest < BaseTest
     contact.update_attributes(phone: '12345')
   end
 
-  def test_has_one_cache_when_destroy
+  def test_destroy
     profile = Profile.create(point: 13)
 
     assert_queries(1){ assert_equal 13, User.cacher_at(profile.id).profile.point }
@@ -69,7 +69,7 @@ class CacheAtHasOneTest < BaseTest
     profile.destroy
   end
 
-  def test_has_one_cache_when_destroyed_by_dependent_delete
+  def test_destroyed_by_dependent_delete
     profile = Profile.create(point: 17)
     user = User.create(profile: profile)
 
