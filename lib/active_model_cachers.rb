@@ -16,24 +16,13 @@ end
 
 class << ActiveRecord::Base
   def cache_self
-    query = ->(id){ find_by(id: id) }
-    service_klass = ActiveModelCachers::CacheServiceFactory.create("cacher_key_of_#{self}", &query)
+    service_klass = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, nil)
     after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.present? || destroyed? }
-
-    ActiveModelCachers::Cacher.define_cacher_at(self, :self, service_klass)
   end
 
   def cache_at(column, query = nil)
+    service_klass = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, column, &query)
     reflect = reflect_on_association(column)
-    if reflect
-      query ||= ->(id){ (reflect.belongs_to? ? reflect.active_record : reflect.klass).find_by(id: id) }
-      cache_key = "cacher_key_of_#{reflect.class_name}"
-    else
-      query ||= ->(id){ where(id: id).limit(1).pluck(column).first }
-      cache_key = "cacher_key_of_#{self}_at_#{column}"
-    end
-
-    service_klass = ActiveModelCachers::CacheServiceFactory.create(cache_key, &query)
     if reflect
       if reflect.options[:dependent] == :delete
         after_commit ->{ 
@@ -47,8 +36,6 @@ class << ActiveRecord::Base
     else
       after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.key?(column) || destroyed? }
     end
-
-    ActiveModelCachers::Cacher.define_cacher_at(self, column, service_klass)
   end
 
   if not method_defined?(:find_by) # define #find_by for Rails 3
