@@ -5,36 +5,36 @@ class CacheAtHasOneTest < BaseTest
     profile = User.find_by(name: 'John1').profile
 
     assert_queries(1){ assert_equal 10, User.cacher_at(profile.id).profile.point }
-    assert_cache('cacher_key_of_Profile_1' => profile)
+    assert_cache('active_model_cachers_Profile_1' => profile)
 
     assert_queries(0){ assert_equal 10, User.cacher_at(profile.id).profile.point }
-    assert_cache('cacher_key_of_Profile_1' => profile)
+    assert_cache('active_model_cachers_Profile_1' => profile)
   end
 
   def test_update_nothing
     profile = User.find_by(name: 'John1').profile
 
     assert_queries(1){ assert_equal 10, User.cacher_at(profile.id).profile.point }
-    assert_cache('cacher_key_of_Profile_1' => profile)
+    assert_cache('active_model_cachers_Profile_1' => profile)
 
     profile.save
-    assert_cache('cacher_key_of_Profile_1' => profile)
+    assert_cache('active_model_cachers_Profile_1' => profile)
 
     assert_queries(0){ assert_equal 10, User.cacher_at(profile.id).profile.point }
-    assert_cache('cacher_key_of_Profile_1' => profile)
+    assert_cache('active_model_cachers_Profile_1' => profile)
   end
 
   def test_update
     profile = User.find_by(name: 'John1').profile
 
     assert_queries(1){ assert_equal 10, User.cacher_at(profile.id).profile.point }
-    assert_cache('cacher_key_of_Profile_1' => profile)
+    assert_cache('active_model_cachers_Profile_1' => profile)
 
     profile.update_attributes(point: 12)
     assert_cache({})
 
     assert_queries(1){ assert_equal 12, User.cacher_at(profile.id).profile.point }
-    assert_cache('cacher_key_of_Profile_1' => profile)
+    assert_cache('active_model_cachers_Profile_1' => profile)
   ensure 
     profile.update_attributes(point: 10)
   end
@@ -43,13 +43,13 @@ class CacheAtHasOneTest < BaseTest
     contact = User.find_by(name: 'John1').contact
 
     assert_queries(1){ assert_equal '12345', User.cacher_at(contact.id).contact.phone }
-    assert_cache('cacher_key_of_Contact_1' => contact)
+    assert_cache('active_model_cachers_Contact_1' => contact)
 
     contact.update_attributes(phone: '12346')
     assert_cache({})
 
     assert_queries(1){ assert_equal '12346', User.cacher_at(contact.id).contact.phone }
-    assert_cache('cacher_key_of_Contact_1' => contact)
+    assert_cache('active_model_cachers_Contact_1' => contact)
   ensure 
     contact.update_attributes(phone: '12345')
   end
@@ -58,7 +58,7 @@ class CacheAtHasOneTest < BaseTest
     profile = Profile.create(point: 13)
 
     assert_queries(1){ assert_equal 13, User.cacher_at(profile.id).profile.point }
-    assert_cache("cacher_key_of_Profile_#{profile.id}" => profile)
+    assert_cache("active_model_cachers_Profile_#{profile.id}" => profile)
 
     profile.destroy
     assert_cache({})
@@ -74,7 +74,7 @@ class CacheAtHasOneTest < BaseTest
     user = User.create(profile: profile)
 
     assert_queries(1){ assert_equal 17, User.cacher_at(profile.id).profile.point }
-    assert_cache("cacher_key_of_Profile_#{profile.id}" => profile)
+    assert_cache("active_model_cachers_Profile_#{profile.id}" => profile)
 
     user.destroy
     assert_cache({})

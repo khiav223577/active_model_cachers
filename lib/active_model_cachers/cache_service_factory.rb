@@ -12,14 +12,14 @@ module ActiveModelCachers
             reflect = reflect_on_association(column)
             if reflect
               query ||= ->(id){ (reflect.belongs_to? ? reflect.active_record : reflect.klass).find_by(id: id) }
-              cache_key = "cacher_key_of_#{reflect.class_name}"
+              cache_key = "active_model_cachers_#{reflect.class_name}"
             else
               query ||= ->(id){ where(id: id).limit(1).pluck(column).first }
-              cache_key = "cacher_key_of_#{self}_at_#{column}"
+              cache_key = "active_model_cachers_#{self}_at_#{column}"
             end
           else
             query ||= ->(id){ find_by(id: id) }
-            cache_key = "cacher_key_of_#{self}"
+            cache_key = "active_model_cachers_#{self}"
           end
           service_klass = ActiveModelCachers::CacheServiceFactory.create(cache_key, &query)
           ActiveModelCachers::Cacher.define_cacher_at(self, column || :self, service_klass)
