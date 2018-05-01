@@ -25,29 +25,7 @@ ActiveRecord::Schema.define do
   end
 end
 
-class User < ActiveRecord::Base
-  has_many :posts
-  has_one :profile, dependent: :delete
-  has_one :contact, dependent: :delete
-
-  cache_at :profile
-  cache_at :contact
-end
-
-class Post < ActiveRecord::Base
-  belongs_to :user
-end
-
-class Profile < ActiveRecord::Base
-  belongs_to :user
-
-  cache_self
-  cache_at :point
-end
-
-class Contact < ActiveRecord::Base
-  belongs_to :user
-end
+ActiveSupport::Dependencies.autoload_paths << File.expand_path('../models/', __FILE__)
 
 users = User.create([
   {:name => 'John1', :email => 'john1@example.com', :profile => Profile.create(point: 10), :contact => Contact.create(phone: '12345')},
