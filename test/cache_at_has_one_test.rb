@@ -69,6 +69,21 @@ class CacheAtHasOneTest < BaseTest
     profile.destroy
   end
 
+  def test_delete
+    profile = Profile.create(point: 13)
+
+    assert_queries(1){ assert_equal 13, User.cacher_at(profile.id).profile.point }
+    assert_cache("active_model_cachers_Profile_#{profile.id}" => profile)
+
+    profile.delete
+    assert_cache({})
+
+    assert_queries(1){ assert_nil User.cacher_at(profile.id).profile }
+    assert_cache({})
+  ensure
+    profile.delete
+  end
+
   def test_destroyed_by_dependent_delete
     profile = Profile.create(point: 17)
     user = User.create(profile: profile)
