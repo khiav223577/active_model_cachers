@@ -23,6 +23,7 @@ class << ActiveRecord::Base
 
   def cache_at(column, query = nil)
     service_klass = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, column, &query)
+    on_delete{|id| service_klass.instance(id).clean_cache }
     reflect = reflect_on_association(column)
     if reflect
       if reflect.options[:dependent] == :delete
@@ -36,7 +37,6 @@ class << ActiveRecord::Base
       end
     else
       after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.key?(column) || destroyed? }
-      on_delete{|id| service_klass.instance(id).clean_cache }
     end
   end
 
