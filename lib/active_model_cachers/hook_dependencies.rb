@@ -3,8 +3,13 @@ require 'active_support/dependencies'
 module ActiveSupport #:nodoc:
   module Dependencies #:nodoc:
     class << self
-      def onload(const_name, &blk)
-        load_hooks[const_name].push(blk)
+      def onload(const_name, &block)
+        const = const_name if not const_name.is_a?(String)
+        if const or Module.const_defined?(const_name)
+          (const || const_name.constantize).instance_exec(&block)
+        else
+          load_hooks[const_name].push(block)
+        end
       end
 
       def clear_load_hooks

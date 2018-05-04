@@ -21,13 +21,13 @@ class << ActiveRecord::Base
     after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.present? || destroyed? }
   end
 
-  def cache_at(column, query = nil)
+  def cache_at(column, query = nil, expire_by: nil)
     service_klass = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, column, &query)
     on_delete{|id| service_klass.instance(id).clean_cache }
     reflect = reflect_on_association(column)
     if reflect
       if reflect.options[:dependent] == :delete
-        after_commit ->{ 
+        after_commit ->{
           target = association(column).load_target if destroyed? 
           service_klass.instance(target.id).clean_cache if target
         }
@@ -37,6 +37,12 @@ class << ActiveRecord::Base
       end
     else
       after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.key?(column) || destroyed? }
+    end
+
+    if expire_by
+      ActiveSupport::Dependencies.onload(expire_by) do
+        after_commit ->{ service_klass.instance(nil).clean_cache if previous_changes.present? || destroyed? }
+      end
     end
   end
 
