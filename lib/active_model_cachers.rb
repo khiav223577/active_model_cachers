@@ -28,7 +28,7 @@ class << ActiveRecord::Base
     if expire_by
       ActiveSupport::Dependencies.onload(expire_by) do
         on_delete{ service_klass.instance(nil).clean_cache }
-        after_commit ->{ service_klass.instance(nil).clean_cache if previous_changes.present? || destroyed? }
+        after_commit ->{ service_klass.instance(nil).clean_cache }, on: [:create, :destroy]
       end
     elsif reflect
       ActiveSupport::Dependencies.onload(reflect.class_name) do
