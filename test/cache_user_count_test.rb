@@ -2,7 +2,6 @@ require 'base_test'
 
 class CacheUserCountTest < BaseTest
   def test_basic_usage
-
     assert_queries(1){ assert_equal 4, User.cacher.count }
     assert_cache('active_model_cachers_User_at_count' => 4)
 
