@@ -46,4 +46,24 @@ class << ActiveRecord::Base
       where(*args).order('').first
     end
   end
+
+  if Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new('4')
+    # after_commit in Rails 3 cannot specify multiple :on
+    # EX: 
+    #   after_commit ->{ ... }, on: [:create, :destroy]
+    #
+    # Should rewrite it as:
+    #   after_commit ->{ ... }, on: :create
+    #   after_commit ->{ ... }, on: :destroy
+
+    alias_method :after_commit_without_multiple_on, :after_commit
+    def after_commit(*args, &block) # mass-assign protected attributes `id` In Rails 3
+      if args.last.is_a?(Hash)
+        if (on = args.last[:on]).is_a?(Array)
+          return on.each{|s| after_commit(*[*args[0...-1], { **args[-1], on: s }], &block) }
+        end
+      end
+      after_commit_without_multiple_on(*args, &block)
+    end
+  end
 end

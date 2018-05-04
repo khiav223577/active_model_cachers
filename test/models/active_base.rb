@@ -7,4 +7,3 @@ if Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new('4')
     end
   end
 end
-
