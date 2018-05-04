@@ -39,7 +39,7 @@ module ActiveModelCachers
           end
 
           klass.send(:define_method, :cache_key){ "#{cache_key}_#{@id}" }
-          klass.send(:define_method, :get_without_cache){ query.call(@id) }
+          klass.send(:define_method, :get_without_cache){ @id ? query.call(@id) : query.call }
           next klass
         }[]
       end
