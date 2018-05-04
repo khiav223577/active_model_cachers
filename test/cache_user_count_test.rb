@@ -26,4 +26,38 @@ class CacheSelfTest < BaseTest
   ensure
     user.destroy if user
   end
+
+  def test_destroy
+    user = User.create
+
+    assert_queries(1){ assert_equal 5, User.cacher_at(nil).count }
+    assert_queries(0){ assert_equal 5, User.cacher_at(nil).count }
+    assert_cache("active_model_cachers_User_at_count" => 5)
+
+    user.destroy
+    assert_cache({})
+
+    assert_queries(1){ assert_equal 4, User.cacher_at(nil).count }
+    assert_queries(0){ assert_equal 4, User.cacher_at(nil).count }
+    assert_cache({})
+  ensure
+    user.destroy
+  end
+
+  def test_delete
+    user = User.create
+
+    assert_queries(1){ assert_equal 5, User.cacher_at(nil).count }
+    assert_queries(0){ assert_equal 5, User.cacher_at(nil).count }
+    assert_cache("active_model_cachers_User_at_count" => 5)
+
+    user.delete
+    assert_cache({})
+
+    assert_queries(1){ assert_equal 4, User.cacher_at(nil).count }
+    assert_queries(0){ assert_equal 4, User.cacher_at(nil).count }
+    assert_cache({})
+  ensure
+    user.destroy
+  end
 end

@@ -5,5 +5,5 @@ class User < ActiveRecord::Base
 
   cache_at :profile
   cache_at :contact
-  cache_at :count, ->{ User.count }, expire_by: User
+  cache_at :count, ->{ User.count }, expire_by: 'User'
 end
