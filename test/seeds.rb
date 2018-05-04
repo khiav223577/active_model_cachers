@@ -1,4 +1,5 @@
 require 'active_model_cachers'
+require 'models/active_base.rb'
 
 ActiveRecord::Schema.define do
   self.verbose = false

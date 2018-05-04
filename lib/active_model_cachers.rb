@@ -21,21 +21,22 @@ class << ActiveRecord::Base
     after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.present? || destroyed? }
   end
 
-  def cache_at(column, query = nil)
+  def cache_at(column, query = nil, expire_by: nil)
     service_klass = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, column, &query)
-    on_delete{|id| service_klass.instance(id).clean_cache }
     reflect = reflect_on_association(column)
-    if reflect
-      if reflect.options[:dependent] == :delete
-        after_commit ->{ 
-          target = association(column).load_target if destroyed? 
-          service_klass.instance(target.id).clean_cache if target
-        }
+    
+    if expire_by
+      ActiveSupport::Dependencies.onload(expire_by) do
+        on_delete{ service_klass.instance(nil).clean_cache }
+        after_commit ->{ service_klass.instance(nil).clean_cache }, on: [:create, :destroy]
       end
+    elsif reflect
       ActiveSupport::Dependencies.onload(reflect.class_name) do
+        on_delete{|id| service_klass.instance(id).clean_cache }
         after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.present? || destroyed? }
       end
     else
+      on_delete{|id| service_klass.instance(id).clean_cache }
       after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.key?(column) || destroyed? }
     end
   end
@@ -43,6 +44,26 @@ class << ActiveRecord::Base
   if not method_defined?(:find_by) # define #find_by for Rails 3
     def find_by(*args)
       where(*args).order('').first
+    end
+  end
+
+  if Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new('4')
+    # after_commit in Rails 3 cannot specify multiple :on
+    # EX: 
+    #   after_commit ->{ ... }, on: [:create, :destroy]
+    #
+    # Should rewrite it as:
+    #   after_commit ->{ ... }, on: :create
+    #   after_commit ->{ ... }, on: :destroy
+
+    alias_method :after_commit_without_multiple_on, :after_commit
+    def after_commit(*args, &block) # mass-assign protected attributes `id` In Rails 3
+      if args.last.is_a?(Hash)
+        if (on = args.last[:on]).is_a?(Array)
+          return on.each{|s| after_commit(*[*args[0...-1], { **args[-1], on: s }], &block) }
+        end
+      end
+      after_commit_without_multiple_on(*args, &block)
     end
   end
 end

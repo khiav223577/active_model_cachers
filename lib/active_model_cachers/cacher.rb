@@ -13,11 +13,12 @@ module ActiveModelCachers
       def create_cacher_klass_at(target)
         cacher_klass = Class.new(self)
         target.define_singleton_method(:cacher_at){|id| cacher_klass.new(id) }
+        target.define_singleton_method(:cacher){ cacher_klass.new }
         return cacher_klass
       end
     end
 
-    def initialize(id)
+    def initialize(id = nil)
       @id = id
     end
   end

@@ -8,12 +8,15 @@ module ActiveModelCachers
     class << self
       def create_for_active_model(klass, column, &query)
         case
+        # ● Cache self
         when column == nil
           query ||= ->(id){ klass.find_by(id: id) } 
           cache_key = get_cache_key(klass, column)
+        # ● Cache associations
         when (reflect = klass.reflect_on_association(column))
           query ||= ->(id){ get_klass_from_reflect(reflect).find_by(id: id) }
           cache_key = get_cache_key(reflect.class_name, nil)
+        # ● Cache attributes
         else
           query ||= ->(id){ klass.where(id: id).limit(1).pluck(column).first }
           cache_key = get_cache_key(klass, column)
@@ -38,8 +41,8 @@ module ActiveModelCachers
             end
           end
 
-          klass.send(:define_method, :cache_key){ "#{cache_key}_#{@id}" }
-          klass.send(:define_method, :get_without_cache){ query.call(@id) }
+          klass.send(:define_method, :cache_key){ @id ? "#{cache_key}_#{@id}" : cache_key }
+          klass.send(:define_method, :get_without_cache){ @id ? query.call(@id) : query.call }
           next klass
         }[]
       end
