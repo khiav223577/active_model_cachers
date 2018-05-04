@@ -11,6 +11,23 @@ class CacheAtHasOneTest < BaseTest
     assert_cache('active_model_cachers_Profile_1' => profile)
   end
 
+  def test_create
+    profile = nil
+
+    assert_queries(1){ assert_nil User.cacher_at(-1).profile }
+    assert_queries(1){ assert_nil User.cacher_at(-1).profile } # FIXME: should be 0 query
+    assert_cache({})
+
+    profile = Profile.create(id: -1, point: 3)
+    assert_cache({})
+
+    assert_queries(1){ assert_equal 3, User.cacher_at(-1).profile.point }
+    assert_queries(0){ assert_equal 3, User.cacher_at(-1).profile.point }
+    assert_cache('active_model_cachers_Profile_-1' => profile)
+  ensure
+    profile.destroy if profile
+  end
+
   def test_update_nothing
     profile = User.find_by(name: 'John1').profile
 

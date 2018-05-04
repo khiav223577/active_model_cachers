@@ -11,6 +11,23 @@ class CacheAtAttributeTest < BaseTest
     assert_cache('active_model_cachers_Profile_at_point_1' => 10)
   end
 
+  def test_create
+    profile = nil
+
+    assert_queries(1){ assert_nil Profile.cacher_at(-1).point }
+    assert_queries(1){ assert_nil Profile.cacher_at(-1).point } # FIXME: should be 0 query
+    assert_cache({})
+
+    profile = Profile.create(id: -1, point: 3)
+    assert_cache({})
+
+    assert_queries(1){ assert_equal 3, Profile.cacher_at(-1).point }
+    assert_queries(0){ assert_equal 3, Profile.cacher_at(-1).point }
+    assert_cache('active_model_cachers_Profile_at_point_-1' => 3)
+  ensure
+    profile.destroy if profile
+  end
+
   def test_update_nothing
     profile = User.find_by(name: 'John2').profile
 
