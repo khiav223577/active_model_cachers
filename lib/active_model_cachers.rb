@@ -32,7 +32,7 @@ module ActiveModelCachers::ActiveRecord
       expire_by = reflect.class_name
     else              # Cache attributes
       with_id = true
-      expire_by = "#{self}.#{column}"
+      expire_by = "#{self}##{column}"
     end
     define_callback_for_cleaning_cache(service_klass, expire_by, with_id: with_id, on: on)
   end
@@ -64,7 +64,7 @@ module ActiveModelCachers::ActiveRecord
   private
 
   def define_callback_for_cleaning_cache(service_klass, expire_by, with_id: true, on: nil)
-    class_name, column = expire_by.split('.')
+    class_name, column = expire_by.split('#', 2)
     define_callback_proc = proc do
       on_delete{|id| service_klass.clean_at(with_id ? id : nil) }
       if column == nil
