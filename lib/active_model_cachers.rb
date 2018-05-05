@@ -15,39 +15,34 @@ module ActiveModelCachers
   end
 end
 
-class << ActiveRecord::Base
+module ActiveModelCachers::ActiveRecord
   def cache_self
     service_klass = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, nil)
     after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.present? || destroyed? }
   end
 
-  def cache_at(column, query = nil, expire_by: nil)
+  def cache_at(column, query = nil, expire_by: nil, on: nil)
     service_klass = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, column, &query)
     reflect = reflect_on_association(column)
-    
-    if expire_by
-      ActiveSupport::Dependencies.onload(expire_by) do
-        on_delete{ service_klass.instance(nil).clean_cache }
-        after_commit ->{ service_klass.instance(nil).clean_cache }, on: [:create, :destroy]
-      end
-    elsif reflect
-      ActiveSupport::Dependencies.onload(reflect.class_name) do
-        on_delete{|id| service_klass.instance(id).clean_cache }
-        after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.present? || destroyed? }
-      end
-    else
-      on_delete{|id| service_klass.instance(id).clean_cache }
-      after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.key?(column) || destroyed? }
+    case 
+    when expire_by    # Custom query
+      with_id = false
+    when reflect      # Cache associations
+      with_id = true
+      expire_by = reflect.class_name
+    else              # Cache attributes
+      with_id = true
+      expire_by = "#{self}##{column}"
     end
-  end
-
-  if not method_defined?(:find_by) # define #find_by for Rails 3
-    def find_by(*args)
-      where(*args).order('').first
-    end
+    define_callback_for_cleaning_cache(service_klass, expire_by, with_id: with_id, on: on)
   end
 
   if Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new('4')
+    # define #find_by for Rails 3
+    def find_by(*args)
+      where(*args).order('').first
+    end
+
     # after_commit in Rails 3 cannot specify multiple :on
     # EX: 
     #   after_commit ->{ ... }, on: [:create, :destroy]
@@ -56,14 +51,30 @@ class << ActiveRecord::Base
     #   after_commit ->{ ... }, on: :create
     #   after_commit ->{ ... }, on: :destroy
 
-    alias_method :after_commit_without_multiple_on, :after_commit
     def after_commit(*args, &block) # mass-assign protected attributes `id` In Rails 3
       if args.last.is_a?(Hash)
         if (on = args.last[:on]).is_a?(Array)
           return on.each{|s| after_commit(*[*args[0...-1], { **args[-1], on: s }], &block) }
         end
       end
-      after_commit_without_multiple_on(*args, &block)
+      super
     end
   end
+
+  private
+
+  def define_callback_for_cleaning_cache(service_klass, expire_by, with_id: true, on: nil)
+    class_name, column = expire_by.split('#', 2)
+    define_callback_proc = proc do
+      on_delete{|id| service_klass.clean_at(with_id ? id : nil) }
+      if column == nil
+        after_commit ->{ service_klass.clean_at(with_id ? id : nil) if previous_changes.present? || destroyed? }, on: on
+      else
+        after_commit ->{ service_klass.clean_at(with_id ? id : nil) if previous_changes.key?(column) || destroyed? }, on: on
+      end
+    end
+    ActiveSupport::Dependencies.onload(class_name, &define_callback_proc)
+  end
 end
+
+ActiveRecord::Base.send(:extend, ActiveModelCachers::ActiveRecord)
