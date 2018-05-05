@@ -18,7 +18,7 @@ end
 module ActiveModelCachers::ActiveRecord
   def cache_self
     service_klass = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, nil)
-    after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.present? || destroyed? }
+    define_callback_for_cleaning_cache(service_klass, self.to_s)
   end
 
   def cache_at(column, query = nil, expire_by: nil, on: nil)
