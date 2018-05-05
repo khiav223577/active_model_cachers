@@ -11,7 +11,7 @@ class CacheUserCountTest < BaseTest
 
   def test_create
     user = nil
-    
+
     assert_queries(1){ assert_equal 4, User.cacher.count }
     assert_queries(0){ assert_equal 4, User.cacher.count }
     assert_cache('active_model_cachers_User_at_count' => 4)

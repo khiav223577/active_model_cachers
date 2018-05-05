@@ -56,7 +56,7 @@ class CacheAtHasOneTest < BaseTest
     assert_queries(1){ assert_equal 12, User.cacher_at(profile.id).profile.point }
     assert_queries(0){ assert_equal 12, User.cacher_at(profile.id).profile.point }
     assert_cache('active_model_cachers_Profile_1' => profile)
-  ensure 
+  ensure
     profile.update_attributes(point: 10)
   end
 
@@ -64,7 +64,7 @@ class CacheAtHasOneTest < BaseTest
     contact = User.find_by(name: 'John1').contact
 
     # make sure Contact doesn't have cacher to test that after_commit callback on Contact is registered by the cacher of User.
-    assert_raises NoMethodError do 
+    assert_raises NoMethodError do
       contact.class.cacher
     end
 
@@ -78,7 +78,7 @@ class CacheAtHasOneTest < BaseTest
     assert_queries(1){ assert_equal '12346', User.cacher_at(contact.id).contact.phone }
     assert_queries(0){ assert_equal '12346', User.cacher_at(contact.id).contact.phone }
     assert_cache('active_model_cachers_Contact_1' => contact)
-  ensure 
+  ensure
     contact.update_attributes(phone: '12345')
   end
 
