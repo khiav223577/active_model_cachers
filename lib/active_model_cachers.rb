@@ -24,14 +24,17 @@ module ActiveModelCachers::ActiveRecord
   def cache_at(column, query = nil, expire_by: nil, on: nil)
     service_klass = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, column, &query)
     reflect = reflect_on_association(column)
-    
-    if expire_by
-      define_callback_for_cleaning_cache(service_klass, expire_by, with_id: false, on: on)
-    elsif reflect
-      define_callback_for_cleaning_cache(service_klass, reflect.class_name, on: on)
-    else
-      define_callback_for_cleaning_cache(service_klass, "#{self}.#{column}", on: on)
+    case 
+    when expire_by    # Custom query
+      with_id = false
+    when reflect      # Cache associations
+      with_id = true
+      expire_by = reflect.class_name
+    else              # Cache attributes
+      with_id = true
+      expire_by = "#{self}.#{column}"
     end
+    define_callback_for_cleaning_cache(service_klass, expire_by, with_id: with_id, on: on)
   end
 
   if Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new('4')

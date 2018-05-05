@@ -7,17 +7,15 @@ module ActiveModelCachers
 
     class << self
       def create_for_active_model(klass, column, &query)
+        reflect = klass.reflect_on_association(column)
         case
-        # ● Cache self
-        when column == nil
+        when column == nil # Cache self
           query ||= ->(id){ klass.find_by(id: id) } 
           cache_key = get_cache_key(klass, column)
-        # ● Cache associations
-        when (reflect = klass.reflect_on_association(column))
+        when reflect       # Cache associations
           query ||= ->(id){ get_klass_from_reflect(reflect).find_by(id: id) }
           cache_key = get_cache_key(reflect.class_name, nil)
-        # ● Cache attributes
-        else
+        else               # Cache attributes
           query ||= ->(id){ klass.where(id: id).limit(1).pluck(column).first }
           cache_key = get_cache_key(klass, column)
         end
