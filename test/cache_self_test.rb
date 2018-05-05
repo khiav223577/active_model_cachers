@@ -112,9 +112,10 @@ class CacheSelfTest < BaseTest
     user.destroy
   end
 
-  def test_delete_target_which_doesnt_cached_by_others
+  def test_delete_target_which_doesnt_cached_by_other_models
     difficulty = Difficulty.create(level: 4, description: 'vary hard')
 
+    # make sure Difficulty only have cache_self, and doesn't cache by other models by something like cache_at :difficulty
     assert_equal [:self], Difficulty.cacher.class.attributes
     assert_equal 1, Difficulty.delete_hooks.size
 
@@ -142,6 +143,7 @@ class CacheSelfTest < BaseTest
     assert_queries(0){ assert_equal 4, Difficulty.cacher_at(difficulty.id).self.level }
     assert_cache('active_model_cachers_Profile_-1' => profile, 'active_model_cachers_Difficulty_-1' => difficulty)
 
+    # delete difficulty with id = -1 should not clean the cache of profile with same id.
     difficulty.delete
     assert_cache('active_model_cachers_Profile_-1' => profile)
 

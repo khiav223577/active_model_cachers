@@ -63,6 +63,7 @@ class CacheAtHasOneTest < BaseTest
   def test_update_target_which_doesnt_have_cacher
     contact = User.find_by(name: 'John1').contact
 
+    # make sure Contact doesn't have cacher to test that after_commit callback on Contact is registered by the cacher of User.
     assert_raises NoMethodError do 
       contact.class.cacher
     end
