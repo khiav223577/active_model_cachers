@@ -11,7 +11,7 @@ module ActiveModelCachers
         expire_by ||= reflect_on_association(column).try(:class_name) || "#{self}##{column}"
         class_name, column = expire_by.split('#', 2)
 
-        define_callback_for_cleaning_cache(class_name, column, foreign_key, on: on) do |id| 
+        define_callback_for_cleaning_cache(class_name, column, foreign_key, on: on) do |id|
           service_klass.clean_at(with_id ? id : nil)
         end
       end

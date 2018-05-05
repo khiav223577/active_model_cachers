@@ -36,24 +36,24 @@ ActiveSupport::Dependencies.autoload_paths << File.expand_path('../models/', __F
 
 users = User.create([
   {
-    :name          => 'John1', 
-    :email         => 'john1@example.com', 
-    :profile       => Profile.create(point: 10), 
+    :name          => 'John1',
+    :email         => 'john1@example.com',
+    :profile       => Profile.create(point: 10),
     :contact       => Contact.create(phone: '12345'),
     :last_login_at => Time.now,
   }, {
-    :name          => 'John2', 
-    :email         => 'john2@example.com', 
+    :name          => 'John2',
+    :email         => 'john2@example.com',
     :profile       => Profile.create(point: 30),
     :last_login_at => Time.now,
   }, {
-    :name          => 'John3', 
-    :email         => 'john3@example.com', 
+    :name          => 'John3',
+    :email         => 'john3@example.com',
     :profile       => Profile.create(point: 50),
     :last_login_at => 1.month.ago,
   }, {
-    :name          => 'John4', 
-    :email         => 'john4@example.com', 
+    :name          => 'John4',
+    :email         => 'john4@example.com',
     :profile       => Profile.create(point: 70),
   },
 ])

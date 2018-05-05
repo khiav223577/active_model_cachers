@@ -28,5 +28,5 @@ ensure
 end
 
 def assert_cache(data)
-  assert_equal(data, Rails.cache.all_data)  
+  assert_equal(data, Rails.cache.all_data)
 end

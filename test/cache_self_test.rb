@@ -56,7 +56,7 @@ class CacheSelfTest < BaseTest
     assert_queries(1){ assert_equal 12, Profile.cacher_at(profile.id).self.point }
     assert_queries(0){ assert_equal 12, Profile.cacher_at(profile.id).self.point }
     assert_cache('active_model_cachers_Profile_1' => profile)
-  ensure 
+  ensure
     profile.update_attributes(point: 10)
   end
 

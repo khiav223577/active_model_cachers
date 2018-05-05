@@ -10,7 +10,7 @@ module ActiveModelCachers
         reflect = klass.reflect_on_association(column)
         case
         when column == nil # Cache self
-          query ||= ->(id){ klass.find_by(id: id) } 
+          query ||= ->(id){ klass.find_by(id: id) }
           cache_key = get_cache_key(klass, column)
         when reflect       # Cache associations
           query ||= ->(id){ get_klass_from_reflect(reflect).find_by(id: id) }
@@ -27,7 +27,7 @@ module ActiveModelCachers
       def create(cache_key, &query)
         @key_class_mapping[cache_key] ||= ->{
           klass = Class.new(CacheService)
-          
+
           class << klass
             def instance(id)
               hash = (RequestStore.store[self] ||= {})

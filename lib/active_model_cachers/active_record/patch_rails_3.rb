@@ -7,7 +7,7 @@ module ActiveModelCachers
       end
 
       # after_commit in Rails 3 cannot specify multiple :on
-      # EX: 
+      # EX:
       #   after_commit ->{ ... }, on: [:create, :destroy]
       #
       # Should rewrite it as:

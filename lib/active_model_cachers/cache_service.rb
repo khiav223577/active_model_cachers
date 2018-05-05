@@ -40,7 +40,7 @@ module ActiveModelCachers
     end
 
     def get_from_cache
-      ActiveModelCachers.config.store.fetch(cache_key, expires_in: 30.minutes) do 
+      ActiveModelCachers.config.store.fetch(cache_key, expires_in: 30.minutes) do
         raw_to_cache_data(get_without_cache)
       end
     end
