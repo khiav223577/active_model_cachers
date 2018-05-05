@@ -115,6 +115,9 @@ class CacheSelfTest < BaseTest
   def test_delete_target_which_doesnt_cached_by_others
     difficulty = Difficulty.create(level: 4, description: 'vary hard')
 
+    assert_equal [:self], Difficulty.cacher.class.attributes
+    assert_equal 1, Difficulty.delete_hooks.size
+
     assert_queries(1){ assert_equal 4, Difficulty.cacher_at(difficulty.id).self.level }
     assert_queries(0){ assert_equal 4, Difficulty.cacher_at(difficulty.id).self.level }
     assert_cache("active_model_cachers_Difficulty_#{difficulty.id}" => difficulty)
