@@ -1,6 +1,6 @@
 require 'base_test'
 
-class CacheFalseDataTest < BaseTest
+class CacheBoolDataTest < BaseTest
   def test_basic_usage
     user = User.find_by(name: 'John1')
 
