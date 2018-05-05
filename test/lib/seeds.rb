@@ -25,6 +25,11 @@ ActiveRecord::Schema.define do
     t.integer :user_id
     t.string :phone
   end
+
+  create_table :difficulties, :force => true do |t|
+    t.integer :level
+    t.string :description
+  end
 end
 
 ActiveSupport::Dependencies.autoload_paths << File.expand_path('../models/', __FILE__)
@@ -62,3 +67,8 @@ Post.create([
   {:title => "John3's post1", :user_id => users[2].id},
 ])
 
+Difficulty.create([
+  {:level => 1, :description => 'easy'},
+  {:level => 2, :description => 'normal'},
+  {:level => 3, :description => 'hard'},
+])

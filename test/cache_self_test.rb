@@ -111,4 +111,48 @@ class CacheSelfTest < BaseTest
   ensure
     user.destroy
   end
+
+  def test_delete_target_which_doesnt_cached_by_other_models
+    difficulty = Difficulty.create(level: 4, description: 'vary hard')
+
+    # make sure Difficulty only have cache_self, and doesn't cache by other models by something like cache_at :difficulty
+    assert_equal [:self], Difficulty.cacher.class.attributes
+    assert_equal 1, Difficulty.delete_hooks.size
+
+    assert_queries(1){ assert_equal 4, Difficulty.cacher_at(difficulty.id).self.level }
+    assert_queries(0){ assert_equal 4, Difficulty.cacher_at(difficulty.id).self.level }
+    assert_cache("active_model_cachers_Difficulty_#{difficulty.id}" => difficulty)
+
+    difficulty.delete
+    assert_cache({})
+
+    assert_queries(1){ assert_nil Difficulty.cacher_at(difficulty.id).self }
+    assert_queries(1){ assert_nil Difficulty.cacher_at(difficulty.id).self } # FIXME: should be 0 query
+    assert_cache({})
+  ensure
+    difficulty.delete
+  end
+
+  def test_delete_should_not_clean_all_models_with_same_id
+    profile = Profile.create(id: -1, point: 7)
+    difficulty = Difficulty.create(id: -1, level: 4, description: 'vary hard')
+
+    assert_queries(1){ assert_equal 7, Profile.cacher_at(profile.id).self.point }
+    assert_queries(0){ assert_equal 7, Profile.cacher_at(profile.id).self.point }
+    assert_queries(1){ assert_equal 4, Difficulty.cacher_at(difficulty.id).self.level }
+    assert_queries(0){ assert_equal 4, Difficulty.cacher_at(difficulty.id).self.level }
+    assert_cache('active_model_cachers_Profile_-1' => profile, 'active_model_cachers_Difficulty_-1' => difficulty)
+
+    # delete difficulty with id = -1 should not clean the cache of profile with same id.
+    difficulty.delete
+    assert_cache('active_model_cachers_Profile_-1' => profile)
+
+    assert_queries(0){ assert_equal 7, Profile.cacher_at(profile.id).self.point }
+    assert_queries(1){ assert_nil Difficulty.cacher_at(difficulty.id).self }
+    assert_queries(1){ assert_nil Difficulty.cacher_at(difficulty.id).self } # FIXME: should be 0 query
+    assert_cache('active_model_cachers_Profile_-1' => profile)
+  ensure
+    profile.delete
+    difficulty.delete
+  end
 end
