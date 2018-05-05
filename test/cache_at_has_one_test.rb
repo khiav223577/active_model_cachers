@@ -60,8 +60,12 @@ class CacheAtHasOneTest < BaseTest
     profile.update_attributes(point: 10)
   end
 
-  def test_update_target_which_doesnt_cache_self
+  def test_update_target_which_doesnt_have_cacher
     contact = User.find_by(name: 'John1').contact
+
+    assert_raises NoMethodError do 
+      contact.class.cacher
+    end
 
     assert_queries(1){ assert_equal '12345', User.cacher_at(contact.id).contact.phone }
     assert_queries(0){ assert_equal '12345', User.cacher_at(contact.id).contact.phone }
