@@ -6,7 +6,7 @@
 [![Code Climate](https://codeclimate.com/github/khiav223577/active_model_cachers/badges/gpa.svg)](https://codeclimate.com/github/khiav223577/active_model_cachers)
 [![Test Coverage](https://codeclimate.com/github/khiav223577/active_model_cachers/badges/coverage.svg)](https://codeclimate.com/github/khiav223577/active_model_cachers/coverage)
 
-Provide cachers to the model so that you could specify which you want to cache. Data will be cached at `Rails.cache` and also application level via `RequestStore` to cache result from backend cache store. Cachers will maintain cached objects and expire them when they are changed (by update, destroy, and delete).
+Provide cachers to the model so that you could specify which you want to cache. Data will be cached at `Rails.cache` and also at application level via `RequestStore` to cache values between requests. Cachers will maintain cached objects and expire them when they are changed (by update, destroy, and delete).
 
 
 ## Installation
