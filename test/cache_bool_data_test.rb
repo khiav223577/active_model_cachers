@@ -17,4 +17,21 @@ class CacheBoolDataTest < BaseTest
     assert_queries(0){ assert_equal false, User.cacher_at(user.id).has_post? }
     assert_cache('active_model_cachers_User_at_has_post?_4' => ActiveModelCachers::FalseObject)
   end
+
+  def test_create
+    user = User.find_by(name: 'John4')
+
+    assert_queries(1){ assert_equal false, User.cacher_at(user.id).has_post? }
+    assert_queries(0){ assert_equal false, User.cacher_at(user.id).has_post? }
+    assert_cache('active_model_cachers_User_at_has_post?_4' => ActiveModelCachers::FalseObject)
+
+    post = Post.create(user: user)
+    assert_cache({})
+
+    assert_queries(1){ assert_equal true, User.cacher_at(user.id).has_post? }
+    assert_queries(0){ assert_equal true, User.cacher_at(user.id).has_post? }
+    assert_cache('active_model_cachers_User_at_has_post?_4' => true)
+  ensure
+    post.destroy if post
+  end
 end
