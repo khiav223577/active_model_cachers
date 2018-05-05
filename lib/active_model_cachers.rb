@@ -26,18 +26,11 @@ module ActiveModelCachers::ActiveRecord
     reflect = reflect_on_association(column)
     
     if expire_by
-      ActiveSupport::Dependencies.onload(expire_by) do
-        on_delete{ service_klass.instance(nil).clean_cache }
-        after_commit ->{ service_klass.instance(nil).clean_cache }, on: [:create, :destroy]
-      end
+      define_callback_for_cleaning_cache(service_klass, expire_by, nil, with_id: false)
     elsif reflect
-      ActiveSupport::Dependencies.onload(reflect.class_name) do
-        on_delete{|id| service_klass.instance(id).clean_cache }
-        after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.present? || destroyed? }
-      end
+      define_callback_for_cleaning_cache(service_klass, reflect.class_name, :all)
     else
-      on_delete{|id| service_klass.instance(id).clean_cache }
-      after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.key?(column) || destroyed? }
+      define_callback_for_cleaning_cache(service_klass, nil, column)
     end
   end
 
@@ -62,6 +55,28 @@ module ActiveModelCachers::ActiveRecord
         end
       end
       super
+    end
+  end
+
+  private
+
+  def define_callback_for_cleaning_cache(service_klass, class_name, column, with_id: true)
+    define_callback_proc = proc do
+      on_delete{|id| service_klass.clean_at(with_id ? id : nil) }
+      case column
+      when :all
+        after_commit ->{ service_klass.clean_at(with_id ? id : nil) if previous_changes.present? || destroyed? }
+      when nil
+        after_commit ->{ service_klass.clean_at(with_id ? id : nil) }, on: [:create, :destroy]
+      else
+        after_commit ->{ service_klass.clean_at(with_id ? id : nil) if previous_changes.key?(column) || destroyed? }
+      end
+    end
+
+    if class_name
+      ActiveSupport::Dependencies.onload(class_name, &define_callback_proc)
+    else
+      define_callback_proc.call
     end
   end
 end

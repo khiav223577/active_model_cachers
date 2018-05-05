@@ -36,6 +36,10 @@ module ActiveModelCachers
               return hash[id] ||= new(id)
             end
 
+            def clean_at(id)
+              instance(id).clean_cache
+            end
+
             def [](id)
               instance(id)
             end
