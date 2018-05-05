@@ -6,8 +6,12 @@ class ActiveRecord::Base
       delete_hooks << callback
     end
 
+    def delete_hooks
+      @delete_hooks ||= []
+    end
+
     def clear_delete_hooks
-      self.delete_hooks = []
+      @delete_hooks = []
     end
 
     alias_method :delete_without_hook_by_active_record_cacher, :delete if not method_defined?(:delete_without_hook_by_active_record_cacher)
@@ -16,7 +20,4 @@ class ActiveRecord::Base
       delete_without_hook_by_active_record_cacher(id)
     end
   end
-
-  mattr_accessor :delete_hooks
-  clear_delete_hooks
 end
