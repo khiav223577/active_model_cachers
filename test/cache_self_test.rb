@@ -128,4 +128,26 @@ class CacheSelfTest < BaseTest
   ensure
     difficulty.delete
   end
+
+  def test_delete_should_not_clean_all_models_with_same_id
+    profile = Profile.create(id: -1, point: 7)
+    difficulty = Difficulty.create(id: -1, level: 4, description: 'vary hard')
+
+    assert_queries(1){ assert_equal 7, Profile.cacher_at(profile.id).self.point }
+    assert_queries(0){ assert_equal 7, Profile.cacher_at(profile.id).self.point }
+    assert_queries(1){ assert_equal 4, Difficulty.cacher_at(difficulty.id).self.level }
+    assert_queries(0){ assert_equal 4, Difficulty.cacher_at(difficulty.id).self.level }
+    assert_cache('active_model_cachers_Profile_-1' => profile, 'active_model_cachers_Difficulty_-1' => difficulty)
+
+    difficulty.delete
+    assert_cache('active_model_cachers_Profile_-1' => profile)
+
+    assert_queries(0){ assert_equal 7, Profile.cacher_at(profile.id).self.point }
+    assert_queries(1){ assert_equal 4, Difficulty.cacher_at(difficulty.id).self.level }
+    assert_queries(0){ assert_equal 4, Difficulty.cacher_at(difficulty.id).self.level }
+    assert_cache('active_model_cachers_Profile_-1' => profile, 'active_model_cachers_Difficulty_-1' => difficulty)
+  ensure
+    profile.delete
+    difficulty.delete
+  end
 end
