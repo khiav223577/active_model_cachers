@@ -15,8 +15,8 @@ if Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new('5') and A
   ActiveRecord::Base.raise_in_transactional_callbacks = true
 end
 
-require 'rails_cache'
-require 'seeds'
+require 'lib/rails_cache'
+require 'lib/seeds'
 
 def assert_queries(expected_count)
   count = 0
