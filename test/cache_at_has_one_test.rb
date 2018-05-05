@@ -16,8 +16,8 @@ class CacheAtHasOneTest < BaseTest
     profile = nil
 
     assert_queries(1){ assert_nil User.cacher_at(-1).profile }
-    assert_queries(1){ assert_nil User.cacher_at(-1).profile } # FIXME: should be 0 query
-    assert_cache({})
+    assert_queries(0){ assert_nil User.cacher_at(-1).profile }
+    assert_cache('active_model_cachers_Profile_-1' => ActiveModelCachers::NilObject)
 
     profile = Profile.create(id: -1, point: 3)
     assert_cache({})
@@ -93,8 +93,8 @@ class CacheAtHasOneTest < BaseTest
     assert_cache({})
 
     assert_queries(1){ assert_nil User.cacher_at(profile.id).profile }
-    assert_queries(1){ assert_nil User.cacher_at(profile.id).profile } # FIXME: should be 0 query
-    assert_cache({})
+    assert_queries(0){ assert_nil User.cacher_at(profile.id).profile }
+    assert_cache("active_model_cachers_Profile_#{profile.id}" => ActiveModelCachers::NilObject)
   ensure
     profile.destroy
   end
@@ -110,8 +110,8 @@ class CacheAtHasOneTest < BaseTest
     assert_cache({})
 
     assert_queries(1){ assert_nil User.cacher_at(profile.id).profile }
-    assert_queries(1){ assert_nil User.cacher_at(profile.id).profile } # FIXME: should be 0 query
-    assert_cache({})
+    assert_queries(0){ assert_nil User.cacher_at(profile.id).profile }
+    assert_cache("active_model_cachers_Profile_#{profile.id}" => ActiveModelCachers::NilObject)
   ensure
     profile.delete
   end
@@ -128,8 +128,8 @@ class CacheAtHasOneTest < BaseTest
     assert_cache({})
 
     assert_queries(1){ assert_nil User.cacher_at(profile.id).profile }
-    assert_queries(1){ assert_nil User.cacher_at(profile.id).profile } # FIXME: should be 0 query
-    assert_cache({})
+    assert_queries(0){ assert_nil User.cacher_at(profile.id).profile }
+    assert_cache("active_model_cachers_Profile_#{profile.id}" => ActiveModelCachers::NilObject)
   ensure
     user.destroy
   end
