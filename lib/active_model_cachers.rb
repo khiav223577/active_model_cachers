@@ -17,23 +17,18 @@ end
 
 module ActiveModelCachers::ActiveRecord
   def cache_self
-    service_klass = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, nil)
-    define_callback_for_cleaning_cache(service_klass, self.to_s)
+    service_klass, with_id = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, nil)
+    define_callback_for_cleaning_cache(service_klass, self.to_s, with_id: with_id)
   end
 
   def cache_at(column, query = nil, expire_by: nil, on: nil)
-    service_klass = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, column, &query)
-    reflect = reflect_on_association(column)
-    case 
-    when expire_by    # Custom query
-      with_id = false
-    when reflect      # Cache associations
-      with_id = true
-      expire_by = reflect.class_name
-    else              # Cache attributes
-      with_id = true
-      expire_by = "#{self}##{column}"
-    end
+    service_klass, with_id = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, column, &query)
+    
+    expire_by ||= ->{
+      reflect = reflect_on_association(column)
+      next reflect ? reflect.class_name : "#{self}##{column}"
+    }[]
+    
     define_callback_for_cleaning_cache(service_klass, expire_by, with_id: with_id, on: on)
   end
 

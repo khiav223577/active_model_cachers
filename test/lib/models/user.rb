@@ -10,5 +10,5 @@ class User < ActiveRecord::Base
 
   cache_at :count, ->{ User.count }, expire_by: 'User', on: [:create, :destroy]
   cache_at :active_count, ->{ User.active.count }, expire_by: 'User#last_login_at'
-  cache_at :has_post?, ->(id){ Post.where(user_id: id).exists? } # TODO: posts.exists?
+  cache_at :has_post?, ->(id){ Post.where(user_id: id).exists? }, expire_by: 'Post#user_id' # TODO: posts.exists?
 end
