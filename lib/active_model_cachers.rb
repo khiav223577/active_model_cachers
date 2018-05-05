@@ -17,7 +17,7 @@ end
 
 module ActiveModelCachers::ActiveRecord
   def cache_self
-    cache_at(nil, nil, expire_by: self.to_s)
+    cache_at(nil, expire_by: self.to_s)
   end
 
   def cache_at(column, query = nil, expire_by: nil, on: nil)
