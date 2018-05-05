@@ -15,7 +15,7 @@ module ActiveModelCachers
   end
 end
 
-class << ActiveRecord::Base
+module ActiveModelCachers::ActiveRecord
   def cache_self
     service_klass = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, nil)
     after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.present? || destroyed? }
@@ -41,13 +41,12 @@ class << ActiveRecord::Base
     end
   end
 
-  if not method_defined?(:find_by) # define #find_by for Rails 3
+  if Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new('4')
+    # define #find_by for Rails 3
     def find_by(*args)
       where(*args).order('').first
     end
-  end
 
-  if Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new('4')
     # after_commit in Rails 3 cannot specify multiple :on
     # EX: 
     #   after_commit ->{ ... }, on: [:create, :destroy]
@@ -56,14 +55,15 @@ class << ActiveRecord::Base
     #   after_commit ->{ ... }, on: :create
     #   after_commit ->{ ... }, on: :destroy
 
-    alias_method :after_commit_without_multiple_on, :after_commit
     def after_commit(*args, &block) # mass-assign protected attributes `id` In Rails 3
       if args.last.is_a?(Hash)
         if (on = args.last[:on]).is_a?(Array)
           return on.each{|s| after_commit(*[*args[0...-1], { **args[-1], on: s }], &block) }
         end
       end
-      after_commit_without_multiple_on(*args, &block)
+      super
     end
   end
 end
+
+ActiveRecord::Base.send(:extend, ActiveModelCachers::ActiveRecord)
