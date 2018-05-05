@@ -17,24 +17,18 @@ end
 
 module ActiveModelCachers::ActiveRecord
   def cache_self
-    service_klass = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, nil)
-    define_callback_for_cleaning_cache(service_klass, self.to_s)
+    cache_at(nil, expire_by: self.to_s)
   end
 
-  def cache_at(column, query = nil, expire_by: nil, on: nil)
-    service_klass = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, column, &query)
-    reflect = reflect_on_association(column)
-    case 
-    when expire_by    # Custom query
-      with_id = false
-    when reflect      # Cache associations
-      with_id = true
-      expire_by = reflect.class_name
-    else              # Cache attributes
-      with_id = true
-      expire_by = "#{self}##{column}"
+  def cache_at(column, query = nil, expire_by: nil, on: nil, foreign_key: :id)
+    service_klass, with_id = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, column, &query)
+
+    expire_by ||= reflect_on_association(column).try(:class_name) || "#{self}##{column}"
+    class_name, column = expire_by.split('#', 2)
+
+    define_callback_for_cleaning_cache(class_name, column, foreign_key, on: on) do |id| 
+      service_klass.clean_at(with_id ? id : nil)
     end
-    define_callback_for_cleaning_cache(service_klass, expire_by, with_id: with_id, on: on)
   end
 
   if Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new('4')
@@ -63,17 +57,17 @@ module ActiveModelCachers::ActiveRecord
 
   private
 
-  def define_callback_for_cleaning_cache(service_klass, expire_by, with_id: true, on: nil)
-    class_name, column = expire_by.split('#', 2)
-    define_callback_proc = proc do
-      on_delete{|id| service_klass.clean_at(with_id ? id : nil) }
-      if column == nil
-        after_commit ->{ service_klass.clean_at(with_id ? id : nil) if previous_changes.present? || destroyed? }, on: on
-      else
-        after_commit ->{ service_klass.clean_at(with_id ? id : nil) if previous_changes.key?(column) || destroyed? }, on: on
+  def define_callback_for_cleaning_cache(class_name, column, foreign_key, on: nil, &clean)
+    ActiveSupport::Dependencies.onload(class_name) do
+      on_delete do |id|
+        clean.call(id)
       end
+
+      after_commit ->{
+        changed = column ? previous_changes.key?(column) : previous_changes.present?
+        clean.call(send(foreign_key)) if changed || destroyed?
+      }, on: on
     end
-    ActiveSupport::Dependencies.onload(class_name, &define_callback_proc)
   end
 end
 
