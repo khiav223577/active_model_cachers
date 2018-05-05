@@ -21,16 +21,16 @@ module ActiveModelCachers::ActiveRecord
     after_commit ->{ service_klass.instance(id).clean_cache if previous_changes.present? || destroyed? }
   end
 
-  def cache_at(column, query = nil, expire_by: nil)
+  def cache_at(column, query = nil, expire_by: nil, on: nil)
     service_klass = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, column, &query)
     reflect = reflect_on_association(column)
     
     if expire_by
-      define_callback_for_cleaning_cache(service_klass, expire_by, with_id: false, on_update: false)
+      define_callback_for_cleaning_cache(service_klass, expire_by, with_id: false, on: on)
     elsif reflect
-      define_callback_for_cleaning_cache(service_klass, reflect.class_name)
+      define_callback_for_cleaning_cache(service_klass, reflect.class_name, on: on)
     else
-      define_callback_for_cleaning_cache(service_klass, "#{self}.#{column}")
+      define_callback_for_cleaning_cache(service_klass, "#{self}.#{column}", on: on)
     end
   end
 
@@ -60,18 +60,14 @@ module ActiveModelCachers::ActiveRecord
 
   private
 
-  def define_callback_for_cleaning_cache(service_klass, expire_by, with_id: true, on_update: true)
+  def define_callback_for_cleaning_cache(service_klass, expire_by, with_id: true, on: nil)
     class_name, column = expire_by.split('.')
     define_callback_proc = proc do
       on_delete{|id| service_klass.clean_at(with_id ? id : nil) }
       if column == nil
-        if on_update
-          after_commit ->{ service_klass.clean_at(with_id ? id : nil) if previous_changes.present? || destroyed? }
-        else
-          after_commit ->{ service_klass.clean_at(with_id ? id : nil) }, on: [:create, :destroy]
-        end
+        after_commit ->{ service_klass.clean_at(with_id ? id : nil) if previous_changes.present? || destroyed? }, on: on
       else
-        after_commit ->{ service_klass.clean_at(with_id ? id : nil) if previous_changes.key?(column) || destroyed? }
+        after_commit ->{ service_klass.clean_at(with_id ? id : nil) if previous_changes.key?(column) || destroyed? }, on: on
       end
     end
     ActiveSupport::Dependencies.onload(class_name, &define_callback_proc)

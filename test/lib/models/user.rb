@@ -5,7 +5,7 @@ class User < ActiveRecord::Base
 
   cache_at :profile
   cache_at :contact
-  cache_at :count, ->{ User.count }, expire_by: 'User'
+  cache_at :count, ->{ User.count }, expire_by: 'User', on: [:create, :destroy]
 
   cache_at :active_count, ->{ User.where('last_login_at > ?', 7.days.ago).count }, expire_by: 'User.last_login_at'
 end
