@@ -22,13 +22,9 @@ module ActiveModelCachers::ActiveRecord
 
   def cache_at(column, query = nil, expire_by: nil, on: nil)
     service_klass, with_id = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, column, &query)
-    
-    expire_by ||= ->{
-      reflect = reflect_on_association(column)
-      next reflect ? reflect.class_name : "#{self}##{column}"
-    }[]
-
-    define_callback_for_cleaning_cache(expire_by, on: on){|id| service_klass.clean_at(with_id ? id : nil) }
+    expire_by ||= reflect_on_association(column).try(:class_name) || "#{self}##{column}"
+    class_name, column = expire_by.split('#', 2)
+    define_callback_for_cleaning_cache(class_name, column, on: on){|id| service_klass.clean_at(with_id ? id : nil) }
   end
 
   if Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new('4')
@@ -57,17 +53,11 @@ module ActiveModelCachers::ActiveRecord
 
   private
 
-  def define_callback_for_cleaning_cache(expire_by, on: nil, &clean)
-    class_name, column = expire_by.split('#', 2)
-    define_callback_proc = proc do
+  def define_callback_for_cleaning_cache(class_name, column, on: nil, &clean)
+    ActiveSupport::Dependencies.onload(class_name) do
       on_delete{|id| clean.call(id) }
-      if column == nil
-        after_commit ->{ clean.call(id) if previous_changes.present? || destroyed? }, on: on
-      else
-        after_commit ->{ clean.call(id) if previous_changes.key?(column) || destroyed? }, on: on
-      end
+      after_commit ->{ clean.call(id) if destroyed? || (column ? previous_changes.key?(column) : previous_changes.present?) }, on: on
     end
-    ActiveSupport::Dependencies.onload(class_name, &define_callback_proc)
   end
 end
 
