@@ -19,9 +19,12 @@ end
 require 'lib/rails_cache'
 require 'lib/seeds'
 
-def assert_queries(expected_count)
+def assert_queries(expected_count, debug: false)
   count = 0
-  subscriber = ActiveSupport::Notifications.subscribe('sql.active_record'){ count += 1 }
+  subscriber = ActiveSupport::Notifications.subscribe('sql.active_record') do |_, _, _, _, payload|
+    puts "[#{payload[:name]}] #{payload[:sql]}" if debug
+    count += 1
+  end
   yield
   assert_equal expected_count, count
 ensure
