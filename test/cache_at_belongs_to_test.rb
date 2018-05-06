@@ -20,13 +20,15 @@ class CacheAtBelongsToTest < BaseTest
     assert_queries(0){ assert_nil User.cacher_at(user.id).language }
     assert_cache('active_model_cachers_User_at_language_id_4' => ActiveModelCachers::NilObject)
 
-    language = Language.create(id: -1, user: user, name: 'ko')
+    language = user.create_language(id: -1, name: 'ko')
+    user.save # save language_id
     assert_cache({})
 
     assert_queries(2){ assert_equal 'ko', User.cacher_at(user.id).language.name }
     assert_queries(0){ assert_equal 'ko', User.cacher_at(user.id).language.name }
     assert_cache('active_model_cachers_User_at_language_id_4' => -1, 'active_model_cachers_Language_-1' => language)
   ensure
+    user.update_attributes(language_id: nil)
     language.delete if language
   end
 
@@ -69,8 +71,8 @@ class CacheAtBelongsToTest < BaseTest
   # ● Destroy
   # ----------------------------------------------------------------
   def test_destroy
-    user = User.create(id: -1, name: 'Pearl')
-    language = Language.create(id: -3, user: user, name: 'ne')
+    language = Language.create(id: -3, name: 'ne')
+    user = User.create(id: -1, name: 'Pearl', language: language)
 
     assert_queries(2){ assert_equal 'ne', User.cacher_at(user.id).language.name }
     assert_queries(0){ assert_equal 'ne', User.cacher_at(user.id).language.name }
@@ -91,8 +93,8 @@ class CacheAtBelongsToTest < BaseTest
   # ● Delete
   # ----------------------------------------------------------------
   def test_destroy
-    user = User.create(id: -1, name: 'Pearl')
-    language = Language.create(id: -3, user: user, name: 'ne')
+    language = Language.create(id: -3, name: 'ne')
+    user = User.create(id: -1, name: 'Pearl', language: language)
 
     assert_queries(2){ assert_equal 'ne', User.cacher_at(user.id).language.name }
     assert_queries(0){ assert_equal 'ne', User.cacher_at(user.id).language.name }
