@@ -101,7 +101,7 @@ class CacheAtBelongsToTest < BaseTest
     assert_queries(0){ assert_equal 'ne', User.cacher_at(user.id).language2.name }
     assert_cache('active_model_cachers_User_at_language2_id_-1' => -3, 'active_model_cachers_Language2_-3' => language)
 
-    assert_queries(3){ language.destroy } # 1: select affected user ids to clean cache. 2: nullify. 3: delete
+    assert_queries(3){ language.destroy } # 1: select user.id to clean cache on user.langauge_id. 2: nullify user.language_id. 3: delete language.
     assert_cache({})
 
     assert_queries(1){ assert_nil User.cacher_at(user.id).language2 }
