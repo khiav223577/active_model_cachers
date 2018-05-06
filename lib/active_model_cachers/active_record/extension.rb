@@ -9,7 +9,8 @@ module ActiveModelCachers
 
       def cache_at(column, query = nil, expire_by: nil, on: nil, foreign_key: :id)
         attr = AttrModel.new(self, column)
-        service_klass, with_id = ActiveModelCachers::CacheServiceFactory.create_for_active_model(attr, &query)
+        query ||= ->(id){ attr.query_model(id) }
+        service_klass, with_id = ActiveModelCachers::CacheServiceFactory.create_for_active_model(attr, query)
 
         expire_by ||= attr.association? ? attr.class_name : "#{self}##{column}"
         class_name, column = expire_by.split('#', 2)

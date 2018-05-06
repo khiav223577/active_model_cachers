@@ -10,22 +10,14 @@ module ActiveModelCachers
         return (@key_class_mapping[get_cache_key(attr)] != nil)
       end
 
-      def create_for_active_model(attr, &query)
-        case
-        when attr.association?  # Cache associations
-          query ||= ->(id){ attr.query_model(id) }
-        when attr.column == nil # Cache self
-          query ||= ->(id){ attr.klass.find_by(id: id) }
-        else                    # Cache attributes
-          query ||= ->(id){ attr.klass.where(id: id).limit(1).pluck(attr.column).first }
-        end
+      def create_for_active_model(attr, query)
         cache_key = get_cache_key(attr)
-        service_klass = create(cache_key, &query)
+        service_klass = create(cache_key, query)
         ActiveModelCachers::Cacher.define_cacher_at(attr.klass, attr.column || :self, service_klass)
         return service_klass, (query.parameters.size == 1)
       end
 
-      def create(cache_key, &query)
+      def create(cache_key, query)
         @key_class_mapping[cache_key] ||= ->{
           klass = Class.new(CacheService)
 
