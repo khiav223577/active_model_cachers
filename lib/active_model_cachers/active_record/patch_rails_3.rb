@@ -26,7 +26,6 @@ module ActiveModelCachers
   end
 end
 
-
 module ActiveRecord
   module Associations
     # = Active Record Associations

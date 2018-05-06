@@ -16,7 +16,7 @@ module ActiveModelCachers::HookAssociations
     if method == :destroy
       # TODO:
     else
-      call_hooks(self.scoped.where(reflection.klass.primary_key => records))
+      call_hooks(self.scope.where(reflection.klass.primary_key => records))
     end
     super
   end
