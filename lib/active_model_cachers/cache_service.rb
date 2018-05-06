@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'active_model_cachers/nil_object'
 require 'active_model_cachers/false_object'
 

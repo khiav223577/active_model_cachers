@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'active_model_cachers/version'
 require 'active_model_cachers/config'
 require 'active_model_cachers/cache_service_factory'

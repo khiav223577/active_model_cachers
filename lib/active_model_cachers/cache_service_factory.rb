@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'request_store'
 require 'active_model_cachers/cache_service'
 

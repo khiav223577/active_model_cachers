@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 module ActiveModelCachers
   module ActiveRecord
     module Extension

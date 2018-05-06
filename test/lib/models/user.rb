@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class User < ActiveRecord::Base
   has_many :posts
   has_many :posts_without_cache, class_name: 'PostWithoutCache'

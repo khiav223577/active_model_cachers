@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 if Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new('4')
   class << ActiveRecord::Base
     alias_method :create_with_protection, :create

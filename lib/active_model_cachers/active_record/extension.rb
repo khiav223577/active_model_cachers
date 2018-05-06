@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'active_model_cachers/active_record/attr_model'
 
 module ActiveModelCachers

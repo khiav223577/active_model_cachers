@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 require 'active_record'
 require 'active_record/associations/has_many_association'
 require 'active_model_cachers/hook_on_model_delete'
