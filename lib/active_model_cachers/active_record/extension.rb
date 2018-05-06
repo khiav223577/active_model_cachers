@@ -57,16 +57,19 @@ module ActiveModelCachers
         return where(id: id).limit(1).pluck(column).first
       end
 
+      @@column_value_cache = Hash.new{|h, k| h[k] = {}}
       def define_callback_for_cleaning_cache(class_name, column, foreign_key, on: nil, &clean)
         ActiveSupport::Dependencies.onload(class_name) do
-          ids = []
+          clean_ids = []
+          cache = @@column_value_cache[class_name]
           before_delete do |id|
-            ids << get_column_value_from_id(id, foreign_key)
+            clean_ids << (cache[[id, foreign_key]] ||= get_column_value_from_id(id, foreign_key))
           end
 
           after_delete do
-            ids.each{|s| clean.call(s) }
-            ids = []
+            clean_ids.each{|s| clean.call(s) }
+            clean_ids = []
+            cache.clear
           end
 
           on_nullify(column){|ids| ids.each{|s| clean.call(s) }}
