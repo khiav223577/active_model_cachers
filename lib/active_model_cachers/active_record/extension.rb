@@ -9,31 +9,10 @@ module ActiveModelCachers
 
       def cache_at(column, query = nil, expire_by: nil, on: nil, foreign_key: :id)
         attr = AttrModel.new(self, column)
-        if attr.belongs_to?
-          service_klasses = []
-          service_klasses << cache_at(attr.foreign_key)
-          cacher_klass = ActiveModelCachers::Cacher.get_cacher_klass(self)
-          ActiveSupport::Dependencies.onload(attr.class_name) do
-            service_klasses << cache_self
-
-            cacher_klass.send(:define_method, column){
-              id = @id
-              service_klasses.each{|s| break if (id = s.instance(id).get) == nil }
-              next id
-            }
-            cacher_klass.send(:define_method, "peek_#{column}"){
-              id = @id
-              service_klasses.each{|s| break if (id = s.instance(id).peek) == nil }
-              next id
-            }
-          end
-          return
-        end
+        return cache_belongs_to(attr) if attr.belongs_to?
 
         query ||= ->(id){ attr.query_model(id) }
         service_klass, with_id = ActiveModelCachers::CacheServiceFactory.create_for_active_model(attr, query)
-
-
 
         expire_by ||= attr.association? ? attr.class_name : "#{self}##{column}"
         class_name, column = expire_by.split('#', 2)
@@ -50,6 +29,14 @@ module ActiveModelCachers
       end
 
       private
+
+      def cache_belongs_to(attr)
+        service_klasses = [cache_at(attr.foreign_key)]
+        ActiveModelCachers::Cacher.define_cacher_at(self, attr.column, service_klasses)
+        ActiveSupport::Dependencies.onload(attr.class_name) do
+          service_klasses << cache_self
+        end
+      end
 
       def get_column_value_from_id(id, column)
         return id if column == :id

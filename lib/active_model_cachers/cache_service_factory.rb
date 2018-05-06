@@ -13,7 +13,7 @@ module ActiveModelCachers
       def create_for_active_model(attr, query)
         cache_key = get_cache_key(attr)
         service_klass = create(cache_key, query)
-        ActiveModelCachers::Cacher.define_cacher_at(attr.klass, attr.column || :self, service_klass)
+        ActiveModelCachers::Cacher.define_cacher_at(attr.klass, attr.column || :self, [service_klass])
         return service_klass, (query.parameters.size == 1)
       end
 
