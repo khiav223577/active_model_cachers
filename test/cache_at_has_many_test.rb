@@ -69,4 +69,22 @@ class CacheAtHasManyTest < BaseTest
   ensure
     post.delete
   end
+
+  def test_update_others_post_title
+    user1 = User.find_by(name: 'John4')
+    user2 = User.find_by(name: 'John1')
+    post = Post.create(id: -1, user: user2)
+
+    assert_queries(1){ assert_equal [], User.cacher_at(user1.id).posts }
+    assert_queries(0){ assert_equal [], User.cacher_at(user1.id).posts }
+    assert_cache('active_model_cachers_User_at_posts_4' => [])
+
+    post.update_attributes(title: '學生退出校園')
+    assert_cache('active_model_cachers_User_at_posts_4' => [])
+
+    assert_queries(0){ assert_equal [], User.cacher_at(user1.id).posts }
+    assert_cache('active_model_cachers_User_at_posts_4' => [])
+  ensure
+    post.delete
+  end
 end

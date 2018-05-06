@@ -38,7 +38,6 @@ module ActiveModelCachers
 
       def get_expire_by(attr)
         return "#{self}##{attr.column}" if not attr.association?
-        return "#{attr.class_name}##{attr.foreign_key(reverse: true)}" if attr.collection?
         return attr.class_name
       end
 
