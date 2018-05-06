@@ -20,8 +20,10 @@ class CacheAtBelongsToTest < BaseTest
     assert_queries(0){ assert_nil User.cacher_at(user.id).language }
     assert_cache('active_model_cachers_User_at_language_id_4' => ActiveModelCachers::NilObject)
 
-    language = user.create_language(id: -1, name: 'ko')
-    user.save # save language_id
+    language = Language.create(id: -1, name: 'ko')
+    assert_cache('active_model_cachers_User_at_language_id_4' => ActiveModelCachers::NilObject)
+
+    user.update_attributes(language: language) # save language_id
     assert_cache({})
 
     assert_queries(2){ assert_equal 'ko', User.cacher_at(user.id).language.name }
@@ -89,7 +91,7 @@ class CacheAtBelongsToTest < BaseTest
     language.delete
   end
 
-  def test_destroy_with_nullify
+  def test_destroy_with_dependent_nullify
     language = Language.create(id: -3, name: 'ne')
     user = User.create(id: -1, name: 'Pearl', language: language)
 
