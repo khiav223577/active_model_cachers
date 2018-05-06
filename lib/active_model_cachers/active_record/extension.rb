@@ -21,9 +21,9 @@ module ActiveModelCachers
 
         expire_by ||= get_expire_by(attr)
         class_name, column = expire_by.split('#', 2)
-        foreign_key ||= attr.foreign_key(reverse: true) || :id
+        foreign_key ||= attr.foreign_key(reverse: true) || 'id'
 
-        define_callback_for_cleaning_cache(class_name, column, foreign_key, on: on) do |id|
+        define_callback_for_cleaning_cache(class_name, column, foreign_key.to_s, on: on) do |id|
           service_klass.clean_at(with_id ? id : nil)
         end
         return service_klass
@@ -51,7 +51,7 @@ module ActiveModelCachers
       end
 
       def get_column_value_from_id(id, column)
-        return id if column == :id
+        return id if column == 'id'
         model = cacher_at(id).peek_self if has_cacher?
         return model.send(column) if model
         return where(id: id).limit(1).pluck(column).first
