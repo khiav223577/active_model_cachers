@@ -14,10 +14,6 @@ module ActiveModelCachers::HookDepdenencies
     @load_hooks ||= Hash.new{|h, k| h[k] = [] }
   end
 
-  def clear_load_hooks
-    @load_hooks = Hash.new{|h, k| h[k] = [] }
-  end
-
   def new_constants_in(*)
     new_constants = super.each{|s| load_hooks[s].each{|hook| s.constantize.instance_exec(&hook) } }
     return new_constants

@@ -69,8 +69,8 @@ class CacheBoolDataTest < BaseTest
     assert_queries(1){ post.delete } # one delete and one from cache
     assert_cache({})
 
-    assert_queries(1){ assert_equal false, User.cacher_at(user.id).has_post2? }
-    assert_queries(0){ assert_equal false, User.cacher_at(user.id).has_post2? }
+    assert_queries(1){ assert_equal false, User.cacher_at(user.id).has_post? }
+    assert_queries(0){ assert_equal false, User.cacher_at(user.id).has_post? }
     assert_cache("active_model_cachers_User_at_has_post?_#{user.id}" => ActiveModelCachers::FalseObject)
   ensure
     user.delete

@@ -1,21 +1,27 @@
 require 'active_record'
 
 module ActiveModelCachers::HookOnModelDelete
-  def on_delete(&callback)
-    delete_hooks << callback
+  def before_delete(&callback)
+    before_delete_hooks << callback
   end
 
-  def delete_hooks
-    @delete_hooks ||= []
+  def after_delete(&callback)
+    after_delete_hooks << callback
   end
 
-  def clear_delete_hooks
-    @delete_hooks = []
+  def before_delete_hooks
+    @before_delete_hooks ||= []
+  end
+
+  def after_delete_hooks
+    @after_delete_hooks ||= []
   end
 
   def delete(id)
-    delete_hooks.each{|s| s.call(id) }
-    super
+    before_delete_hooks.each{|s| s.call(id) }
+    result = super
+    after_delete_hooks.each{|s| s.call(id) }
+    return result
   end
 end
 
