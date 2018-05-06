@@ -21,6 +21,7 @@ module ActiveModelCachers
       def define_callback_for_cleaning_cache(class_name, column, foreign_key, on: nil, &clean)
         ActiveSupport::Dependencies.onload(class_name) do
           on_delete do |id|
+            id = where(id: id).limit(1).pluck(foreign_key).first if foreign_key != :id
             clean.call(id)
           end
 
