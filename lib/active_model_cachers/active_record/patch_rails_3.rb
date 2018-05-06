@@ -25,3 +25,26 @@ module ActiveModelCachers
     end
   end
 end
+
+
+module ActiveRecord
+  module Associations
+    # = Active Record Associations
+    #
+    # This is the root class of all associations ('+ Foo' signifies an included module Foo):
+    #
+    #   Association
+    #     SingularAssociation
+    #       HasOneAssociation
+    #         HasOneThroughAssociation + ThroughAssociation
+    #       BelongsToAssociation
+    #         BelongsToPolymorphicAssociation
+    #     CollectionAssociation
+    #       HasAndBelongsToManyAssociation
+    #       HasManyAssociation
+    #         HasManyThroughAssociation + ThroughAssociation
+    class Association #:nodoc:
+      alias_method :scope, :scoped
+    end
+  end
+end
