@@ -8,6 +8,7 @@ ActiveRecord::Schema.define do
     t.string :name
     t.string :email
     t.integer :language_id
+    t.integer :language2_id
     t.text :serialized_attribute
     t.datetime :last_login_at
   end
@@ -18,6 +19,10 @@ ActiveRecord::Schema.define do
   end
 
   create_table :languages, :force => true do |t|
+    t.string :name
+  end
+
+  create_table :language2s, :force => true do |t|
     t.string :name
   end
 

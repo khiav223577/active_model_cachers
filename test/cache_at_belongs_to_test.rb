@@ -92,23 +92,19 @@ class CacheAtBelongsToTest < BaseTest
   end
 
   def test_destroy_with_dependent_nullify
-    language = Language.create(id: -3, name: 'ne')
-    user = User.create(id: -1, name: 'Pearl', language: language)
+    language = Language2.create(id: -3, name: 'ne')
+    user = User.create(id: -1, name: 'Pearl', language2: language)
 
-    assert_queries(2){ assert_equal 'ne', User.cacher_at(user.id).language.name }
-    assert_queries(0){ assert_equal 'ne', User.cacher_at(user.id).language.name }
-    assert_cache('active_model_cachers_User_at_language_id_-1' => -3, 'active_model_cachers_Language_-3' => language)
-
-    class << language
-      has_many :users, dependent: :nullify
-    end
+    assert_queries(2){ assert_equal 'ne', User.cacher_at(user.id).language2.name }
+    assert_queries(0){ assert_equal 'ne', User.cacher_at(user.id).language2.name }
+    assert_cache('active_model_cachers_User_at_language2_id_-1' => -3, 'active_model_cachers_Language2_-3' => language)
 
     language.destroy
     assert_cache({})
 
-    assert_queries(1){ assert_nil User.cacher_at(user.id).language }
-    assert_queries(0){ assert_nil User.cacher_at(user.id).language }
-    assert_cache('active_model_cachers_User_at_language_id_-1' => ActiveModelCachers::NilObject)
+    assert_queries(1){ assert_nil User.cacher_at(user.id).language2 }
+    assert_queries(0){ assert_nil User.cacher_at(user.id).language2 }
+    assert_cache('active_model_cachers_User_at_language2_id_-1' => ActiveModelCachers::NilObject)
   ensure
     user.delete
     language.delete
