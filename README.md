@@ -37,14 +37,22 @@ end
 
 ## Usage
 
+`cache_at(name, query = nil, options = {})`
+
+Specifie a cache on the model. 
+ - name: the attribute name.
+ - query: how to get data on cache miss. It will be set automatically if the name match an association or an attribute.
+ - options: see [here](#options)
+
 ### Cache whatever you want
+
 ```rb
 class User < ActiveRecord::Base
-  cache_at :user_count_in_country, ->{ User.group(:country).count }
+  scope :active, ->{ where('last_login_at > ?', 7.days.ago) }
+  cache_at :active_count, ->{ User.active.count }, expire_by: 'User#last_login_at'
 end
 
-cacher = User.cacher_at('Taiwan')
-@user_count = cacher.user_count_in_country
+@count = User.cacher.active_count
 ```
 
 ### Cache associations
@@ -79,3 +87,4 @@ cacher = Profile.cacher_at(profile_id)
 @point = cacher.point
 ```
 
+## Options
