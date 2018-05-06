@@ -15,6 +15,7 @@ class User < ActiveRecord::Base
   cache_at :contact
   cache_at :language
   cache_at :language2
+  cache_at :posts
 
   cache_at :count, ->{ User.count }, expire_by: 'User', on: [:create, :destroy]
   cache_at :active_count, ->{ User.active.count }, expire_by: 'User#last_login_at'
