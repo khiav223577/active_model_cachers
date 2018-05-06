@@ -34,4 +34,42 @@ class CacheBoolDataTest < BaseTest
   ensure
     post.destroy if post
   end
+
+  def test_destroy
+    user = User.create(name: 'John5')
+    post = Post.create(user: user)
+
+    assert_queries(1){ assert_equal true, User.cacher_at(user.id).has_post? }
+    assert_queries(0){ assert_equal true, User.cacher_at(user.id).has_post? }
+    assert_cache("active_model_cachers_User_at_has_post?_#{user.id}" => true)
+
+    post.destroy
+    assert_cache({})
+
+    assert_queries(1){ assert_equal false, User.cacher_at(user.id).has_post? }
+    assert_queries(0){ assert_equal false, User.cacher_at(user.id).has_post? }
+    assert_cache("active_model_cachers_User_at_has_post?_#{user.id}" => ActiveModelCachers::FalseObject)
+  ensure
+    user.delete
+    post.delete
+  end
+
+  def test_delete
+    user = User.create(name: 'John5')
+    post = Post.create(user: user)
+
+    assert_queries(1){ assert_equal true, User.cacher_at(user.id).has_post? }
+    assert_queries(0){ assert_equal true, User.cacher_at(user.id).has_post? }
+    assert_cache("active_model_cachers_User_at_has_post?_#{user.id}" => true)
+
+    post.delete
+    assert_cache({})
+
+    assert_queries(1){ assert_equal false, User.cacher_at(user.id).has_post? }
+    assert_queries(0){ assert_equal false, User.cacher_at(user.id).has_post? }
+    assert_cache("active_model_cachers_User_at_has_post?_#{user.id}" => ActiveModelCachers::FalseObject)
+  ensure
+    user.delete
+    post.delete
+  end
 end
