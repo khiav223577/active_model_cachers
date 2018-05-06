@@ -23,6 +23,15 @@ module ActiveModelCachers::HookOnModelDelete
     after_delete_hooks.each{|s| s.call(id) }
     return result
   end
+
+  def nullify_hooks_at(column)
+    @nullify_hooks ||= Hash.new{|h, k| h[k] = [] }
+    return @nullify_hooks[column]
+  end
+
+  def on_nullify(column, &callback)
+    nullify_hooks_at(column) << callback
+  end
 end
 
 ActiveRecord::Base.send(:extend, ActiveModelCachers::HookOnModelDelete)

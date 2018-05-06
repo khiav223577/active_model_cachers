@@ -57,6 +57,8 @@ module ActiveModelCachers
             ids = []
           end
 
+          on_nullify(column){|ids| ids.each{|s| clean.call(s) }}
+
           after_commit ->{
             changed = column ? previous_changes.key?(column) : previous_changes.present?
             clean.call(send(foreign_key)) if changed || destroyed?
