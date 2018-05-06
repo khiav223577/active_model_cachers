@@ -1,5 +1,8 @@
 # frozen_string_literal: true
 require 'active_model_cachers/active_record/attr_model'
+require 'active_model_cachers/hook/dependencies'
+require 'active_model_cachers/hook/associations'
+require 'active_model_cachers/hook/on_model_delete'
 
 module ActiveModelCachers
   module ActiveRecord
