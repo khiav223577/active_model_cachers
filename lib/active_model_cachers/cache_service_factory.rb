@@ -43,11 +43,7 @@ module ActiveModelCachers
       private
 
       def get_cache_key(attr)
-        class_name, column = case
-                             when attr.collection?  ; [attr.klass, attr.column]
-                             when attr.association? ; [attr.class_name, nil]
-                             else                   ; [attr.klass, attr.column]
-                             end
+        class_name, column = (attr.single_association? ? [attr.class_name, nil] : [attr.klass, attr.column])
         return "active_model_cachers_#{class_name}_at_#{column}" if column
         return "active_model_cachers_#{class_name}"
       end

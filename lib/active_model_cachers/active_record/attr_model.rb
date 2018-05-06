@@ -36,6 +36,11 @@ module ActiveModelCachers
         return (@reflect.belongs_to? == reverse ? primary_key : @reflect.foreign_key).to_s
       end
 
+      def single_association?
+        return false if not association?
+        return !collection?
+      end
+
       def collection?
         return false if not association?
         return @reflect.collection?
