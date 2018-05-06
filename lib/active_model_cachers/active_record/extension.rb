@@ -9,8 +9,31 @@ module ActiveModelCachers
 
       def cache_at(column, query = nil, expire_by: nil, on: nil, foreign_key: :id)
         attr = AttrModel.new(self, column)
+        if attr.belongs_to?
+          service_klasses = []
+          service_klasses << cache_at(attr.foreign_key)
+          cacher_klass = ActiveModelCachers::Cacher.get_cacher_klass(self)
+          ActiveSupport::Dependencies.onload(attr.class_name) do
+            service_klasses << cache_self
+
+            cacher_klass.send(:define_method, column){
+              id = @id
+              service_klasses.each{|s| break if (id = s.instance(id).get) == nil }
+              next id
+            }
+            cacher_klass.send(:define_method, "peek_#{column}"){
+              id = @id
+              service_klasses.each{|s| break if (id = s.instance(id).peek) == nil }
+              next id
+            }
+          end
+          return
+        end
+
         query ||= ->(id){ attr.query_model(id) }
         service_klass, with_id = ActiveModelCachers::CacheServiceFactory.create_for_active_model(attr, query)
+
+
 
         expire_by ||= attr.association? ? attr.class_name : "#{self}##{column}"
         class_name, column = expire_by.split('#', 2)
@@ -18,6 +41,7 @@ module ActiveModelCachers
         define_callback_for_cleaning_cache(class_name, column, foreign_key, on: on) do |id|
           service_klass.clean_at(with_id ? id : nil)
         end
+        return service_klass
       end
 
       def has_cacher?(column = nil)
