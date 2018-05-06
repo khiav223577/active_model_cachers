@@ -15,7 +15,9 @@ module ActiveModelCachers::Hook
     end
 
     def delete_records(records, method)
-      if method == :destroy
+      case method
+      when :destroy
+      when :delete_all
         # TODO:
       else
         call_hooks(self.scope.where(reflection.klass.primary_key => records))
