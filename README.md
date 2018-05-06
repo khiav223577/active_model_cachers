@@ -62,8 +62,7 @@ class User < ActiveRecord::Base
   cache_at :profile
 end
 
-cacher = User.cacher_at(profile_id)
-@profile = cacher.profile
+@profile = User.cacher_at(profile_id).profile
 ```
 
 ### Cache self
@@ -72,8 +71,7 @@ class User < ActiveRecord::Base
   cache_self
 end
 
-cacher = User.cacher_at(user_id)
-@user = cacher.self
+@user = User.cacher_at(user_id).self
 ```
 
 
@@ -83,8 +81,7 @@ class Profile < ActiveRecord::Base
   cache_at :point
 end
 
-cacher = Profile.cacher_at(profile_id)
-@point = cacher.point
+@point = Profile.cacher_at(profile_id).point
 ```
 
 ## Options
