@@ -3,10 +3,6 @@ module ActiveModelCachers
     @defined_map = {}
 
     class << self
-      def has_cacher?(klass)
-        return (@defined_map[klass] != nil)
-      end
-
       def define_cacher_at(klass, method, service_klass)
         cacher_klass = (@defined_map[klass] ||= create_cacher_klass_at(klass))
         cacher_klass.attributes << method
