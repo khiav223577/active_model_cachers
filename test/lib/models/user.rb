@@ -1,6 +1,6 @@
 class User < ActiveRecord::Base
   has_many :posts
-  has_many :post_without_caches, class_name: 'Post'
+  has_many :posts_without_cache, class_name: 'PostWithoutCache'
   has_one :profile, dependent: :delete
   has_one :contact, dependent: :delete
 
