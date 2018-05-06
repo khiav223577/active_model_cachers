@@ -7,6 +7,7 @@ module ActiveModelCachers
         cacher_klass = (@defined_map[klass] ||= create_cacher_klass_at(klass))
         cacher_klass.attributes << method
         cacher_klass.send(:define_method, method){ service_klass.instance(@id).get }
+        cacher_klass.send(:define_method, "peek_#{method}"){ service_klass.instance(@id).peek }
       end
 
       private

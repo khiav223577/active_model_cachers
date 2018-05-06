@@ -6,6 +6,10 @@ module ActiveModelCachers
     @key_class_mapping = {}
 
     class << self
+      def has_cacher?(klass, column)
+        return (@key_class_mapping[get_cache_key(klass, column)] != nil)
+      end
+
       def create_for_active_model(klass, column, &query)
         reflect = klass.reflect_on_association(column)
         case
@@ -36,10 +40,6 @@ module ActiveModelCachers
 
             def clean_at(id)
               instance(id).clean_cache
-            end
-
-            def [](id)
-              instance(id)
             end
           end
 

@@ -1,5 +1,6 @@
 class User < ActiveRecord::Base
   has_many :posts
+  has_many :posts_without_cache, class_name: 'PostWithoutCache'
   has_one :profile, dependent: :delete
   has_one :contact, dependent: :delete
 
@@ -11,4 +12,5 @@ class User < ActiveRecord::Base
   cache_at :count, ->{ User.count }, expire_by: 'User', on: [:create, :destroy]
   cache_at :active_count, ->{ User.active.count }, expire_by: 'User#last_login_at'
   cache_at :has_post?, ->(id){ Post.where(user_id: id).exists? }, expire_by: 'Post#user_id', foreign_key: :user_id # TODO: posts.exists?
+  cache_at :has_post_without_cache?, ->(id){ PostWithoutCache.where(user_id: id).exists? }, expire_by: 'PostWithoutCache#user_id', foreign_key: :user_id
 end

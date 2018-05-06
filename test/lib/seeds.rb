@@ -16,6 +16,11 @@ ActiveRecord::Schema.define do
     t.string :title
   end
 
+  create_table :post_without_caches, :force => true do |t|
+    t.integer :user_id
+    t.string :title
+  end
+
   create_table :profiles, :force => true do |t|
     t.integer :user_id
     t.integer :point

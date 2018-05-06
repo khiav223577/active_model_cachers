@@ -16,12 +16,29 @@ module ActiveModelCachers
         end
       end
 
+      def has_cacher?(column = nil)
+        ActiveModelCachers::CacheServiceFactory.has_cacher?(self, column)
+      end
+
       private
+
+      def get_column_value_from_id(id, column)
+        return id if column == :id
+        model = cacher_at(id).peek_self if has_cacher?
+        return model.send(column) if model
+        return where(id: id).limit(1).pluck(column).first
+      end
 
       def define_callback_for_cleaning_cache(class_name, column, foreign_key, on: nil, &clean)
         ActiveSupport::Dependencies.onload(class_name) do
-          on_delete do |id|
-            clean.call(id)
+          ids = []
+          before_delete do |id|
+            ids << get_column_value_from_id(id, foreign_key)
+          end
+
+          after_delete do
+            ids.each{|s| clean.call(s) }
+            ids = []
           end
 
           after_commit ->{
