@@ -25,7 +25,9 @@ def assert_queries(expected_count)
     sqls << "  ● #{payload[:sql]}" if payload[:sql] !~ /\A(?:BEGIN TRANSACTION|COMMIT TRANSACTION)/i
   end
   yield
-  assert_equal "expect #{expected_count} queries, but have #{sqls.size}", "\n#{sqls.join("\n")}\n" if expected_count != sqls.size
+  if expected_count != sqls.size # show all sql queries if query count doesn't equal to expected count.
+    assert_equal "expect #{expected_count} queries, but have #{sqls.size}", "\n#{sqls.join("\n").gsub('"', "'")}\n"
+  end
   assert_equal expected_count, sqls.size
 ensure
   ActiveSupport::Notifications.unsubscribe(subscriber)
