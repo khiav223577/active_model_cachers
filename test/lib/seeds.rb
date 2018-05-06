@@ -7,6 +7,7 @@ ActiveRecord::Schema.define do
   create_table :users, :force => true do |t|
     t.string :name
     t.string :email
+    t.integer :language_id
     t.text :serialized_attribute
     t.datetime :last_login_at
   end
@@ -14,6 +15,10 @@ ActiveRecord::Schema.define do
   create_table :posts, :force => true do |t|
     t.integer :user_id
     t.string :title
+  end
+
+  create_table :languages, :force => true do |t|
+    t.string :name
   end
 
   create_table :post_without_caches, :force => true do |t|
@@ -39,22 +44,31 @@ end
 
 ActiveSupport::Dependencies.autoload_paths << File.expand_path('../models/', __FILE__)
 
+languages = Language.create([
+  {name: 'en'},
+  {name: 'zh-tw'},
+  {name: 'jp'},
+])
+
 users = User.create([
   {
     :name          => 'John1',
     :email         => 'john1@example.com',
     :profile       => Profile.create(point: 10),
     :contact       => Contact.create(phone: '12345'),
+    :language      => languages[1],
     :last_login_at => Time.now,
   }, {
     :name          => 'John2',
     :email         => 'john2@example.com',
     :profile       => Profile.create(point: 30),
+    :language      => languages[1],
     :last_login_at => Time.now,
   }, {
     :name          => 'John3',
     :email         => 'john3@example.com',
     :profile       => Profile.create(point: 50),
+    :language      => languages[0],
     :last_login_at => 1.month.ago,
   }, {
     :name          => 'John4',

@@ -1,13 +1,17 @@
 class User < ActiveRecord::Base
   has_many :posts
   has_many :posts_without_cache, class_name: 'PostWithoutCache'
+
   has_one :profile, dependent: :delete
   has_one :contact, dependent: :delete
+
+  belongs_to :language
 
   scope :active, ->{ where('last_login_at > ?', 7.days.ago) }
 
   cache_at :profile
   cache_at :contact
+  cache_at :language
 
   cache_at :count, ->{ User.count }, expire_by: 'User', on: [:create, :destroy]
   cache_at :active_count, ->{ User.active.count }, expire_by: 'User#last_login_at'
