@@ -87,4 +87,46 @@ class CacheAtHasManyTest < BaseTest
   ensure
     post.delete
   end
+
+  # ----------------------------------------------------------------
+  # ● Destroy
+  # ----------------------------------------------------------------
+  def test_destroy
+    user = User.find_by(name: 'John4')
+    post = Post.create(id: -1, user: user)
+
+    assert_queries(1){ assert_equal [post], User.cacher_at(user.id).posts }
+    assert_queries(0){ assert_equal [post], User.cacher_at(user.id).posts }
+    assert_cache('active_model_cachers_User_at_posts_4' => [post])
+
+    post.destroy
+    assert_cache({})
+
+    assert_queries(1){ assert_equal [], User.cacher_at(user.id).posts }
+    assert_queries(0){ assert_equal [], User.cacher_at(user.id).posts }
+    assert_cache('active_model_cachers_User_at_posts_4' => [])
+  ensure
+    post.delete
+  end
+
+  # ----------------------------------------------------------------
+  # ● Delete
+  # ----------------------------------------------------------------
+  def test_delete
+    user = User.find_by(name: 'John4')
+    post = Post.create(id: -1, user: user)
+
+    assert_queries(1){ assert_equal [post], User.cacher_at(user.id).posts }
+    assert_queries(0){ assert_equal [post], User.cacher_at(user.id).posts }
+    assert_cache('active_model_cachers_User_at_posts_4' => [post])
+
+    post.delete
+    assert_cache({})
+
+    assert_queries(1){ assert_equal [], User.cacher_at(user.id).posts }
+    assert_queries(0){ assert_equal [], User.cacher_at(user.id).posts }
+    assert_cache('active_model_cachers_User_at_posts_4' => [])
+  ensure
+    post.delete
+  end
 end
