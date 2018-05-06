@@ -92,7 +92,7 @@ class CacheBoolDataTest < BaseTest
     assert_queries(0){ assert_equal true, User.cacher_at(user.id).has_post_without_cache? }
     assert_cache("active_model_cachers_User_at_has_post_without_cache?_#{user.id}" => true)
 
-    assert_queries(2){ PostWithoutCache.delete(-2) } # select post.user_id and then delete post.
+    assert_queries(2){ PostWithoutCache.delete(-2) } # 1: select post.user_id to clean cache on user.posts. 2: delete post.
     assert_cache({})
 
     assert_queries(1){ assert_equal false, User.cacher_at(user.id).has_post_without_cache? }
@@ -126,7 +126,7 @@ class CacheBoolDataTest < BaseTest
     assert_queries(0){ assert_equal true, User.cacher_at(user.id).has_post? }
     assert_cache("active_model_cachers_User_at_has_post?_#{user.id}" => true)
 
-    assert_queries(2){ Post.delete(-2) } # select post.user_id and then delete post.
+    assert_queries(2){ Post.delete(-2) } # 1: select post.user_id to clean cache on user.posts. 2: delete post.
     assert_cache({})
   ensure
     user.delete
@@ -145,7 +145,7 @@ class CacheBoolDataTest < BaseTest
     assert_queries(0){ assert_equal post, Post.cacher_at(post.id).self }
     assert_cache("active_model_cachers_User_at_has_post?_#{user.id}" => true, "active_model_cachers_Post_#{post.id}" => post)
 
-    assert_queries(1){ Post.delete(-2) } # select post.user_id from cache and then delete post.
+    assert_queries(1){ Post.delete(-2) } # 1: select post.user_id from Post.cache_self to clean cache on user.posts. 2: delete post.
     assert_cache({})
   ensure
     user.delete

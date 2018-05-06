@@ -139,7 +139,7 @@ class CacheAtHasManyTest < BaseTest
     assert_queries(0){ assert_equal [post], User.cacher_at(user.id).posts }
     assert_cache('active_model_cachers_User_at_posts_4' => [post])
 
-    assert_queries(2){ Post.delete(-1) } # select post.user_id and then delete post.
+    assert_queries(2){ Post.delete(-1) } # 1: select post.user_id to clean cache on user.posts. 2: delete post.
     assert_cache({})
 
     assert_queries(1){ assert_equal [], User.cacher_at(user.id).posts }
