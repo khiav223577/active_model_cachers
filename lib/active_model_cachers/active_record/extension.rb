@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 require 'active_model_cachers/active_record/attr_model'
+require 'active_model_cachers/active_record/cacher'
+require 'active_model_cachers/hook/dependencies'
+require 'active_model_cachers/hook/associations'
+require 'active_model_cachers/hook/on_model_delete'
 
 module ActiveModelCachers
   module ActiveRecord
@@ -13,7 +17,7 @@ module ActiveModelCachers
         return cache_belongs_to(attr) if attr.belongs_to?
 
         query ||= ->(id){ attr.query_model(id) }
-        service_klass, with_id = ActiveModelCachers::CacheServiceFactory.create_for_active_model(attr, query)
+        service_klass, with_id = CacheServiceFactory.create_for_active_model(attr, query)
 
         expire_by ||= attr.association? ? attr.class_name : "#{self}##{column}"
         class_name, column = expire_by.split('#', 2)
@@ -26,14 +30,14 @@ module ActiveModelCachers
 
       def has_cacher?(column = nil)
         attr = AttrModel.new(self, column)
-        return ActiveModelCachers::CacheServiceFactory.has_cacher?(attr)
+        return CacheServiceFactory.has_cacher?(attr)
       end
 
       private
 
       def cache_belongs_to(attr)
         service_klasses = [cache_at(attr.foreign_key)]
-        ActiveModelCachers::Cacher.define_cacher_at(self, attr.column, service_klasses)
+        Cacher.define_cacher_at(self, attr.column, service_klasses)
         ActiveSupport::Dependencies.onload(attr.class_name) do
           service_klasses << cache_self
         end
