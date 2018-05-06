@@ -2,7 +2,6 @@
 require 'active_model_cachers/version'
 require 'active_model_cachers/config'
 require 'active_model_cachers/cache_service_factory'
-require 'active_model_cachers/cacher'
 require 'active_record'
 require 'active_record/relation'
 require 'active_model_cachers/active_record/extension'
