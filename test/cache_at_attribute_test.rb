@@ -20,7 +20,7 @@ class CacheAtAttributeTest < BaseTest
     assert_queries(0){ assert_nil Profile.cacher_at(-1).point }
     assert_cache('active_model_cachers_Profile_at_point_-1' => ActiveModelCachers::NilObject)
 
-    profile = Profile.create(id: -1, point: 3)
+    assert_queries(1){ profile = Profile.create(id: -1, point: 3) }
     assert_cache({})
 
     assert_queries(1){ assert_equal 3, Profile.cacher_at(-1).point }
@@ -37,7 +37,7 @@ class CacheAtAttributeTest < BaseTest
     assert_queries(0){ assert_equal 30, Profile.cacher_at(profile.id).point }
     assert_cache('active_model_cachers_Profile_at_point_2' => 30)
 
-    profile.save
+    assert_queries(0){ profile.save }
     assert_cache('active_model_cachers_Profile_at_point_2' => 30)
 
     assert_queries(0){ assert_equal 30, Profile.cacher_at(profile.id).point }
@@ -51,7 +51,7 @@ class CacheAtAttributeTest < BaseTest
     assert_queries(0){ assert_equal 30, Profile.cacher_at(profile.id).point }
     assert_cache('active_model_cachers_Profile_at_point_2' => 30)
 
-    profile.update_attributes(point: 32)
+    assert_queries(1){ profile.update_attributes(point: 32) }
     assert_cache({})
 
     assert_queries(1){ assert_equal 32, Profile.cacher_at(profile.id).point }
@@ -68,7 +68,7 @@ class CacheAtAttributeTest < BaseTest
     assert_queries(0){ assert_equal 30, Profile.cacher_at(profile.id).point }
     assert_cache("active_model_cachers_Profile_at_point_#{profile.id}" => 30)
 
-    profile.destroy
+    assert_queries(1){ profile.destroy }
     assert_cache({})
 
     assert_queries(1){ assert_nil Profile.cacher_at(profile.id).point }
@@ -85,7 +85,7 @@ class CacheAtAttributeTest < BaseTest
     assert_queries(0){ assert_equal 30, Profile.cacher_at(profile.id).point }
     assert_cache("active_model_cachers_Profile_at_point_#{profile.id}" => 30)
 
-    profile.delete
+    assert_queries(1){ profile.delete }
     assert_cache({})
 
     assert_queries(1){ assert_nil Profile.cacher_at(profile.id).point }
@@ -103,7 +103,7 @@ class CacheAtAttributeTest < BaseTest
     assert_queries(0){ assert_equal 17, Profile.cacher_at(profile.id).point }
     assert_cache("active_model_cachers_Profile_at_point_#{profile.id}" => 17)
 
-    user.destroy
+    assert_queries(3){ user.destroy } # 1. delete user. 2: delete profile by dependent. 3: delete contact by dependent.
     assert_cache({})
 
     assert_queries(1){ assert_nil Profile.cacher_at(profile.id).point }

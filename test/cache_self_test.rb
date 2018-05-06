@@ -20,7 +20,7 @@ class CacheSelfTest < BaseTest
     assert_queries(0){ assert_nil Profile.cacher_at(-1).self }
     assert_cache('active_model_cachers_Profile_-1' => ActiveModelCachers::NilObject)
 
-    profile = Profile.create(id: -1, point: 3)
+    assert_queries(1){ profile = Profile.create(id: -1, point: 3) }
     assert_cache({})
 
     assert_queries(1){ assert_equal 3, Profile.cacher_at(-1).self.point }
@@ -37,7 +37,7 @@ class CacheSelfTest < BaseTest
     assert_queries(0){ assert_equal 10, Profile.cacher_at(profile.id).self.point }
     assert_cache('active_model_cachers_Profile_1' => profile)
 
-    profile.save
+    assert_queries(0){ profile.save }
     assert_cache('active_model_cachers_Profile_1' => profile)
 
     assert_queries(0){ assert_equal 10, Profile.cacher_at(profile.id).self.point }
@@ -51,7 +51,7 @@ class CacheSelfTest < BaseTest
     assert_queries(0){ assert_equal 10, Profile.cacher_at(profile.id).self.point }
     assert_cache('active_model_cachers_Profile_1' => profile)
 
-    profile.update_attributes(point: 12)
+    assert_queries(1){ profile.update_attributes(point: 12) }
     assert_cache({})
 
     assert_queries(1){ assert_equal 12, Profile.cacher_at(profile.id).self.point }
@@ -68,7 +68,7 @@ class CacheSelfTest < BaseTest
     assert_queries(0){ assert_equal 13, Profile.cacher_at(profile.id).self.point }
     assert_cache("active_model_cachers_Profile_#{profile.id}" => profile)
 
-    profile.destroy
+    assert_queries(1){ profile.destroy }
     assert_cache({})
 
     assert_queries(1){ assert_nil User.cacher_at(profile.id).profile }
@@ -85,7 +85,7 @@ class CacheSelfTest < BaseTest
     assert_queries(0){ assert_equal 13, Profile.cacher_at(profile.id).self.point }
     assert_cache("active_model_cachers_Profile_#{profile.id}" => profile)
 
-    profile.delete
+    assert_queries(1){ profile.delete }
     assert_cache({})
 
     assert_queries(1){ assert_nil Profile.cacher_at(profile.id).self }

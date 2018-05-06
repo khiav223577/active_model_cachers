@@ -17,7 +17,7 @@ class CacheActiveUserCountTest < BaseTest
     assert_queries(0){ assert_equal 2, User.cacher.active_count }
     assert_cache('active_model_cachers_User_at_active_count' => 2)
 
-    user = User.create(id: -1, last_login_at: Time.now)
+    assert_queries(1){ user = User.create(id: -1, last_login_at: Time.now) }
     assert_cache({})
 
     assert_queries(1){ assert_equal 3, User.cacher.active_count }
@@ -34,7 +34,7 @@ class CacheActiveUserCountTest < BaseTest
     assert_queries(0){ assert_equal 2, User.cacher.active_count }
     assert_cache('active_model_cachers_User_at_active_count' => 2)
 
-    user.save
+    assert_queries(0){ user.save }
     assert_cache('active_model_cachers_User_at_active_count' => 2)
 
     assert_queries(0){ assert_equal 2, User.cacher.active_count }
@@ -48,7 +48,7 @@ class CacheActiveUserCountTest < BaseTest
     assert_queries(0){ assert_equal 2, User.cacher.active_count }
     assert_cache('active_model_cachers_User_at_active_count' => 2)
 
-    user.update_attributes(name: '??')
+    assert_queries(1){ user.update_attributes(name: '??') }
     assert_cache('active_model_cachers_User_at_active_count' => 2)
 
     assert_queries(0){ assert_equal 2, User.cacher.active_count }
@@ -64,7 +64,7 @@ class CacheActiveUserCountTest < BaseTest
     assert_queries(0){ assert_equal 2, User.cacher.active_count }
     assert_cache('active_model_cachers_User_at_active_count' => 2)
 
-    user.update_attributes(last_login_at: Time.now)
+    assert_queries(1){ user.update_attributes(last_login_at: Time.now) }
     assert_cache({})
 
     assert_queries(1){ assert_equal 3, User.cacher.active_count }
@@ -81,7 +81,7 @@ class CacheActiveUserCountTest < BaseTest
     assert_queries(0){ assert_equal 3, User.cacher.active_count }
     assert_cache("active_model_cachers_User_at_active_count" => 3)
 
-    user.destroy
+    assert_queries(3){ user.destroy } # 1: select affected user ids to clean cache. 2: nullify. 3: delete
     assert_cache({})
 
     assert_queries(1){ assert_equal 2, User.cacher.active_count }
@@ -98,7 +98,7 @@ class CacheActiveUserCountTest < BaseTest
     assert_queries(0){ assert_equal 3, User.cacher.active_count }
     assert_cache("active_model_cachers_User_at_active_count" => 3)
 
-    user.delete
+    assert_queries(1){ user.delete }
     assert_cache({})
 
     assert_queries(1){ assert_equal 2, User.cacher.active_count }
