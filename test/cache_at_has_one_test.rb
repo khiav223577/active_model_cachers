@@ -7,9 +7,6 @@ class CacheAtHasOneTest < BaseTest
     assert_queries(1){ assert_equal 10, User.cacher_at(profile.id).profile.point }
     assert_queries(0){ assert_equal 10, User.cacher_at(profile.id).profile.point }
     assert_cache('active_model_cachers_Profile_1' => profile)
-
-    assert_queries(0){ assert_equal 10, User.cacher_at(profile.id).profile.point }
-    assert_cache('active_model_cachers_Profile_1' => profile)
   end
 
   def test_create

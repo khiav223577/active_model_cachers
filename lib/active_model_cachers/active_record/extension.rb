@@ -1,3 +1,5 @@
+require 'active_model_cachers/active_record/attr_model'
+
 module ActiveModelCachers
   module ActiveRecord
     module Extension
@@ -6,21 +8,35 @@ module ActiveModelCachers
       end
 
       def cache_at(column, query = nil, expire_by: nil, on: nil, foreign_key: :id)
-        service_klass, with_id = ActiveModelCachers::CacheServiceFactory.create_for_active_model(self, column, &query)
+        attr = AttrModel.new(self, column)
+        return cache_belongs_to(attr) if attr.belongs_to?
 
-        expire_by ||= reflect_on_association(column).try(:class_name) || "#{self}##{column}"
+        query ||= ->(id){ attr.query_model(id) }
+        service_klass, with_id = ActiveModelCachers::CacheServiceFactory.create_for_active_model(attr, query)
+
+        expire_by ||= attr.association? ? attr.class_name : "#{self}##{column}"
         class_name, column = expire_by.split('#', 2)
 
         define_callback_for_cleaning_cache(class_name, column, foreign_key, on: on) do |id|
           service_klass.clean_at(with_id ? id : nil)
         end
+        return service_klass
       end
 
       def has_cacher?(column = nil)
-        ActiveModelCachers::CacheServiceFactory.has_cacher?(self, column)
+        attr = AttrModel.new(self, column)
+        return ActiveModelCachers::CacheServiceFactory.has_cacher?(attr)
       end
 
       private
+
+      def cache_belongs_to(attr)
+        service_klasses = [cache_at(attr.foreign_key)]
+        ActiveModelCachers::Cacher.define_cacher_at(self, attr.column, service_klasses)
+        ActiveSupport::Dependencies.onload(attr.class_name) do
+          service_klasses << cache_self
+        end
+      end
 
       def get_column_value_from_id(id, column)
         return id if column == :id
@@ -40,6 +56,8 @@ module ActiveModelCachers
             ids.each{|s| clean.call(s) }
             ids = []
           end
+
+          on_nullify(column){|ids| ids.each{|s| clean.call(s) }}
 
           after_commit ->{
             changed = column ? previous_changes.key?(column) : previous_changes.present?

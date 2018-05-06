@@ -6,29 +6,18 @@ module ActiveModelCachers
     @key_class_mapping = {}
 
     class << self
-      def has_cacher?(klass, column)
-        return (@key_class_mapping[get_cache_key(klass, column)] != nil)
+      def has_cacher?(attr)
+        return (@key_class_mapping[get_cache_key(attr)] != nil)
       end
 
-      def create_for_active_model(klass, column, &query)
-        reflect = klass.reflect_on_association(column)
-        case
-        when column == nil # Cache self
-          query ||= ->(id){ klass.find_by(id: id) }
-          cache_key = get_cache_key(klass, column)
-        when reflect       # Cache associations
-          query ||= ->(id){ get_klass_from_reflect(reflect).find_by(id: id) }
-          cache_key = get_cache_key(reflect.class_name, nil)
-        else               # Cache attributes
-          query ||= ->(id){ klass.where(id: id).limit(1).pluck(column).first }
-          cache_key = get_cache_key(klass, column)
-        end
-        service_klass = create(cache_key, &query)
-        ActiveModelCachers::Cacher.define_cacher_at(klass, column || :self, service_klass)
+      def create_for_active_model(attr, query)
+        cache_key = get_cache_key(attr)
+        service_klass = create(cache_key, query)
+        ActiveModelCachers::Cacher.define_cacher_at(attr.klass, attr.column || :self, [service_klass])
         return service_klass, (query.parameters.size == 1)
       end
 
-      def create(cache_key, &query)
+      def create(cache_key, query)
         @key_class_mapping[cache_key] ||= ->{
           klass = Class.new(CacheService)
 
@@ -51,12 +40,8 @@ module ActiveModelCachers
 
       private
 
-      def get_klass_from_reflect(reflect)
-        return reflect.active_record if reflect.belongs_to?
-        return reflect.klass
-      end
-
-      def get_cache_key(class_name, column)
+      def get_cache_key(attr)
+        class_name, column = (attr.association? ? [attr.class_name, nil] : [attr.klass, attr.column])
         return "active_model_cachers_#{class_name}_at_#{column}" if column
         return "active_model_cachers_#{class_name}"
       end
