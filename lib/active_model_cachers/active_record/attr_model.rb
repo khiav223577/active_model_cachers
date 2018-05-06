@@ -36,11 +36,25 @@ module ActiveModelCachers
         return (@reflect.belongs_to? == reverse ? primary_key : @reflect.foreign_key).to_s
       end
 
+      def single_association?
+        return false if not association?
+        return !collection?
+      end
+
+      def collection?
+        return false if not association?
+        return @reflect.collection?
+      end
+
       def query_model(id)
         return @klass.find_by(id: id) if @column == nil # Cache self
         return @klass.where(id: id).limit(1).pluck(@column).first if not association? # Cache attributes
         id = @reflect.active_record.where(id: id).limit(1).pluck(foreign_key).first if foreign_key != 'id'
-        return id ? @reflect.klass.find_by(primary_key => id) : nil
+        if @reflect.collection?
+          return id ? @reflect.klass.where(@reflect.foreign_key => id).to_a : []
+        else
+          return id ? @reflect.klass.find_by(primary_key => id) : nil
+        end
       end
     end
   end
