@@ -85,7 +85,7 @@ class CacheAtAttributeTest < BaseTest
     assert_queries(0){ assert_equal 30, Profile.cacher_at(profile.id).point }
     assert_cache("active_model_cachers_Profile_at_point_#{profile.id}" => 30)
 
-    assert_queries(2){ profile.delete } # 1: SELECT profile.user_id to clean cache on user.profile. 2: delete profile.
+    assert_queries(1){ profile.delete }
     assert_cache({})
 
     assert_queries(1){ assert_nil Profile.cacher_at(profile.id).point }

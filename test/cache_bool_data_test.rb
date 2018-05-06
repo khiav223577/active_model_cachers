@@ -73,7 +73,7 @@ class CacheBoolDataTest < BaseTest
     assert_queries(0){ assert_equal true, User.cacher_at(user.id).has_post_without_cache? }
     assert_cache("active_model_cachers_User_at_has_post_without_cache?_#{user.id}" => true)
 
-    assert_queries(2){ post.delete } # select post.user_id and then delete post.
+    assert_queries(1){ post.delete }
     assert_cache({})
 
     assert_queries(1){ assert_equal false, User.cacher_at(user.id).has_post_without_cache? }
@@ -92,7 +92,7 @@ class CacheBoolDataTest < BaseTest
     assert_queries(0){ assert_equal true, User.cacher_at(user.id).has_post? }
     assert_cache("active_model_cachers_User_at_has_post?_#{user.id}" => true)
 
-    assert_queries(2){ post.delete } # select post.user_id and then delete post.
+    assert_queries(1){ post.delete }
     assert_cache({})
   ensure
     user.delete

@@ -49,9 +49,9 @@ module ActiveModelCachers
         end
       end
 
-      def get_column_value_from_id(id, column)
+      def get_column_value_from_id(id, column, model)
         return id if column == 'id'
-        model = cacher_at(id).peek_self if has_cacher?
+        model ||= cacher_at(id).peek_self if has_cacher?
         return model.send(column) if model
         return where(id: id).limit(1).pluck(column).first
       end
@@ -61,11 +61,11 @@ module ActiveModelCachers
         ActiveSupport::Dependencies.onload(class_name) do
           clean_ids = []
           cache = @@column_value_cache[class_name]
-          before_delete do |id|
-            clean_ids << (cache[[id, foreign_key]] ||= get_column_value_from_id(id, foreign_key))
+          before_delete do |id, model|
+            clean_ids << (cache[[id, foreign_key]] ||= get_column_value_from_id(id, foreign_key, model))
           end
 
-          after_delete do
+          after_delete do |_, model|
             clean_ids.each{|s| clean.call(s) }
             clean_ids = []
             cache.clear
