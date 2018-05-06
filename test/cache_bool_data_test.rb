@@ -54,7 +54,7 @@ class CacheBoolDataTest < BaseTest
     post.delete
   end
 
-  def test_delete
+  def test_delete_target_with_cache_self
     user = User.create(name: 'John5')
     post = Post.create(user: user)
 
@@ -62,12 +62,35 @@ class CacheBoolDataTest < BaseTest
     assert_queries(0){ assert_equal true, User.cacher_at(user.id).has_post? }
     assert_cache("active_model_cachers_User_at_has_post?_#{user.id}" => true)
 
+    assert_queries(1){ assert_equal post, Post.cacher_at(post.id).self }
+    assert_queries(0){ assert_equal post, Post.cacher_at(post.id).self }
+    assert_cache("active_model_cachers_User_at_has_post?_#{user.id}" => true, "active_model_cachers_Post_#{post.id}" => post)
+
+    assert_queries(1){ post.delete } # one delete and one from cache
+    assert_cache({})
+
+    assert_queries(1){ assert_equal false, User.cacher_at(user.id).has_post2? }
+    assert_queries(0){ assert_equal false, User.cacher_at(user.id).has_post2? }
+    assert_cache("active_model_cachers_User_at_has_post?_#{user.id}" => ActiveModelCachers::FalseObject)
+  ensure
+    user.delete
+    post.delete
+  end
+
+  def test_delete_target_without_cache_self
+    user = User.create(name: 'John5')
+    post = PostWithoutCache.create(user: user)
+
+    assert_queries(1){ assert_equal true, User.cacher_at(user.id).has_post2? }
+    assert_queries(0){ assert_equal true, User.cacher_at(user.id).has_post2? }
+    assert_cache("active_model_cachers_User_at_has_post2?_#{user.id}" => true)
+
     assert_queries(2){ post.delete } # one delete and one select
     assert_cache({})
 
-    assert_queries(1){ assert_equal false, User.cacher_at(user.id).has_post? }
-    assert_queries(0){ assert_equal false, User.cacher_at(user.id).has_post? }
-    assert_cache("active_model_cachers_User_at_has_post?_#{user.id}" => ActiveModelCachers::FalseObject)
+    assert_queries(1){ assert_equal false, User.cacher_at(user.id).has_post2? }
+    assert_queries(0){ assert_equal false, User.cacher_at(user.id).has_post2? }
+    assert_cache("active_model_cachers_User_at_has_post2?_#{user.id}" => ActiveModelCachers::FalseObject)
   ensure
     user.delete
     post.delete
