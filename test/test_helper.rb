@@ -19,14 +19,14 @@ end
 require 'lib/rails_cache'
 require 'lib/seeds'
 
-def assert_queries(expected_count, debug: false)
-  count = 0
+def assert_queries(expected_count)
+  sqls = []
   subscriber = ActiveSupport::Notifications.subscribe('sql.active_record') do |_, _, _, _, payload|
-    puts "[#{payload[:name]}] #{payload[:sql]}" if debug
-    count += 1
+    sqls << "  ● #{payload[:sql]}" if payload[:sql] !~ /\A(?:BEGIN TRANSACTION|COMMIT TRANSACTION)/i
   end
   yield
-  assert_equal expected_count, count
+  assert_equal "expect #{expected_count} queries, but have #{sqls.size}", "\n#{sqls.join("\n")}\n" if expected_count != sqls.size
+  assert_equal expected_count, sqls.size
 ensure
   ActiveSupport::Notifications.unsubscribe(subscriber)
 end
