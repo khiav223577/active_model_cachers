@@ -9,7 +9,7 @@ module ActiveModelCachers::Hook
       if method == :delete_all
         # TODO:
       else # nullify
-        call_hooks(scope)
+        call_hooks{ scope.pluck(:id) }
       end
       super
     end
@@ -20,16 +20,16 @@ module ActiveModelCachers::Hook
       when :delete_all
         # TODO:
       else
-        call_hooks(self.scope.where(reflection.klass.primary_key => records))
+        call_hooks{ records.map(&:id) }
       end
       super
     end
 
     private
 
-    def call_hooks(scope)
+    def call_hooks
       return if (hooks = reflection.klass.nullify_hooks_at(reflection.foreign_key)).blank?
-      ids = scope.pluck(:id)
+      ids = yield
       hooks.each{|s| s.call(ids) }
     end
   end
