@@ -23,6 +23,7 @@ module ActiveModelCachers
           cacher_klass.define_singleton_method(:attributes){ @attributes ||= [] }
           target.define_singleton_method(:cacher_at){|id| cacher_klass.new(id) }
           target.define_singleton_method(:cacher){ cacher_klass.new }
+          target.send(:define_method, :cacher){ cacher_klass.new(id) }
           return cacher_klass
         end
       end

@@ -13,6 +13,20 @@ class CacheAtAttributeTest < BaseTest
     assert_cache('active_model_cachers_Profile_at_point_1' => 10)
   end
 
+  def test_basic_usage_of_instance_cacher
+    profile = Profile.select(:id).first # The only use case of this may be that profile doesn't select the attribute.
+
+    assert_queries(1){ assert_equal 10, profile.cacher.point }
+    assert_queries(0){ assert_equal 10, profile.cacher.point }
+    assert_cache('active_model_cachers_Profile_at_point_1' => 10)
+
+    assert_queries(0){ assert_equal 10, profile.cacher.point }
+    assert_cache('active_model_cachers_Profile_at_point_1' => 10)
+  end
+
+  # ----------------------------------------------------------------
+  # ● Create
+  # ----------------------------------------------------------------
   def test_create
     profile = nil
 
@@ -30,6 +44,9 @@ class CacheAtAttributeTest < BaseTest
     profile.destroy if profile
   end
 
+  # ----------------------------------------------------------------
+  # ● Update
+  # ----------------------------------------------------------------
   def test_update_nothing
     profile = User.find_by(name: 'John2').profile
 
@@ -61,6 +78,9 @@ class CacheAtAttributeTest < BaseTest
     profile.update_attributes(point: 30)
   end
 
+  # ----------------------------------------------------------------
+  # ● Destroy
+  # ----------------------------------------------------------------
   def test_destroy
     profile = Profile.create(point: 30)
 
@@ -78,6 +98,9 @@ class CacheAtAttributeTest < BaseTest
     profile.destroy
   end
 
+  # ----------------------------------------------------------------
+  # ● Delete
+  # ----------------------------------------------------------------
   def test_delete
     profile = Profile.create(point: 30)
 
