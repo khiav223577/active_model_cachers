@@ -17,7 +17,7 @@ class CacheUserCountTest < BaseTest
     assert_queries(0){ assert_equal 4, User.cacher.count }
     assert_cache('active_model_cachers_User_at_count' => 4)
 
-    user = User.create(id: -1)
+    assert_queries(1){ user = User.create(id: -1) }
     assert_cache({})
 
     assert_queries(1){ assert_equal 5, User.cacher.count }
@@ -34,7 +34,7 @@ class CacheUserCountTest < BaseTest
     assert_queries(0){ assert_equal 4, User.cacher.count }
     assert_cache('active_model_cachers_User_at_count' => 4)
 
-    user.save
+    assert_queries(0){ user.save }
     assert_cache('active_model_cachers_User_at_count' => 4)
 
     assert_queries(0){ assert_equal 4, User.cacher.count }
@@ -48,7 +48,7 @@ class CacheUserCountTest < BaseTest
     assert_queries(0){ assert_equal 4, User.cacher.count }
     assert_cache('active_model_cachers_User_at_count' => 4)
 
-    user.update_attributes(name: '??')
+    assert_queries(1){ user.update_attributes(name: '??') }
     assert_cache('active_model_cachers_User_at_count' => 4)
 
     assert_queries(0){ assert_equal 4, User.cacher.count }
@@ -64,7 +64,7 @@ class CacheUserCountTest < BaseTest
     assert_queries(0){ assert_equal 5, User.cacher.count }
     assert_cache("active_model_cachers_User_at_count" => 5)
 
-    user.destroy
+    assert_queries(3){ user.destroy } # 1. delete user. 2: delete profile by dependent. 3: delete contact by dependent.
     assert_cache({})
 
     assert_queries(1){ assert_equal 4, User.cacher.count }
@@ -81,7 +81,7 @@ class CacheUserCountTest < BaseTest
     assert_queries(0){ assert_equal 5, User.cacher.count }
     assert_cache("active_model_cachers_User_at_count" => 5)
 
-    user.delete
+    assert_queries(1){ user.delete }
     assert_cache({})
 
     assert_queries(1){ assert_equal 4, User.cacher.count }
