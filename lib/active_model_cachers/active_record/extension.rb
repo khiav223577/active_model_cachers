@@ -43,7 +43,7 @@ module ActiveModelCachers
 
       def cache_belongs_to(attr)
         service_klasses = [cache_at(attr.foreign_key)]
-        Cacher.define_cacher_at(self, attr.column, service_klasses)
+        Cacher.define_cacher_method(attr, service_klasses)
         ActiveSupport::Dependencies.onload(attr.class_name) do
           service_klasses << cache_self
         end

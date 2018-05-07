@@ -5,11 +5,12 @@ module ActiveModelCachers
       @defined_map = {}
 
       class << self
-        def define_cacher_at(klass, method, service_klasses)
-          cacher_klass = get_cacher_klass(klass)
+        def define_cacher_method(attr, service_klasses)
+          method = attr.column || :self
+          cacher_klass = get_cacher_klass(attr.klass)
           cacher_klass.attributes << method
-          cacher_klass.send(:define_method, method){ exec_by(service_klasses, :get) }
-          cacher_klass.send(:define_method, "peek_#{method}"){ exec_by(service_klasses, :peek) }
+          cacher_klass.send(:define_method, method){ exec_by(attr, service_klasses, :get) }
+          cacher_klass.send(:define_method, "peek_#{method}"){ exec_by(attr, service_klasses, :peek) }
         end
 
         def get_cacher_klass(klass)
@@ -29,14 +30,15 @@ module ActiveModelCachers
       end
 
       def initialize(id: nil, model: nil)
-        @id = model ? model.id : id
+        @id = (model ? model.id : nil) || id
         @model = model
       end
 
       private
 
-      def exec_by(service_klasses, method)
-        data = @id
+      def exec_by(attr, service_klasses, method)
+        data = @model.id if attr.association? && @model
+        data ||= @id
         service_klasses.all?{|s| (data = s.instance(data).send(method)) != nil }
         return data
       end
