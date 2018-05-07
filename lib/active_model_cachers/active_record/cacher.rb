@@ -37,7 +37,10 @@ module ActiveModelCachers
       private
 
       def exec_by(attr, service_klasses, method)
-        data = @model.id if attr.association? && @model
+        if @model and attr.association?
+          data = @model.send(attr.foreign_key)
+          service_klasses = [service_klasses.last]
+        end
         data ||= @id
         service_klasses.all?{|s| (data = s.instance(data).send(method)) != nil }
         return data
