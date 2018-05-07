@@ -10,6 +10,18 @@ class CacheAtHasOneTest < BaseTest
     assert_cache('active_model_cachers_Profile_1' => profile)
   end
 
+  def test_basic_usage_of_instance_cacher
+    user = User.find_by(name: 'John1')
+    profile = user.profile
+
+    assert_queries(1){ assert_equal 10, user.cacher.profile.point }
+    assert_queries(0){ assert_equal 10, user.cacher.profile.point }
+    assert_cache('active_model_cachers_Profile_1' => profile)
+  end
+
+  # ----------------------------------------------------------------
+  # ● Create
+  # ----------------------------------------------------------------
   def test_create
     profile = nil
 
@@ -80,6 +92,9 @@ class CacheAtHasOneTest < BaseTest
     contact.update_attributes(phone: '12345')
   end
 
+  # ----------------------------------------------------------------
+  # ● Destroy
+  # ----------------------------------------------------------------
   def test_destroy
     profile = Profile.create(point: 13)
 
@@ -97,6 +112,9 @@ class CacheAtHasOneTest < BaseTest
     profile.destroy
   end
 
+  # ----------------------------------------------------------------
+  # ● Delete
+  # ----------------------------------------------------------------
   def test_delete
     profile = Profile.create(point: 13)
 
