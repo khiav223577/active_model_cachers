@@ -3,7 +3,7 @@ require 'base_test'
 
 class CacheAtAttributeTest < BaseTest
   def test_basic_usage
-    profile = User.find_by(name: 'John1').profile
+    profile = User.find_by(name: 'John2').profile
 
     assert_queries(1){ assert_equal 10, Profile.cacher_at(profile.id).point }
     assert_queries(0){ assert_equal 10, Profile.cacher_at(profile.id).point }
@@ -48,7 +48,7 @@ class CacheAtAttributeTest < BaseTest
   # ● Update
   # ----------------------------------------------------------------
   def test_update_nothing
-    profile = User.find_by(name: 'John2').profile
+    profile = User.find_by(name: 'John3').profile
 
     assert_queries(1){ assert_equal 30, Profile.cacher_at(profile.id).point }
     assert_queries(0){ assert_equal 30, Profile.cacher_at(profile.id).point }
@@ -62,7 +62,7 @@ class CacheAtAttributeTest < BaseTest
   end
 
   def test_update
-    profile = User.find_by(name: 'John2').profile
+    profile = User.find_by(name: 'John3').profile
 
     assert_queries(1){ assert_equal 30, Profile.cacher_at(profile.id).point }
     assert_queries(0){ assert_equal 30, Profile.cacher_at(profile.id).point }
@@ -82,11 +82,11 @@ class CacheAtAttributeTest < BaseTest
   # ● Destroy
   # ----------------------------------------------------------------
   def test_destroy
-    profile = Profile.create(point: 30)
+    profile = Profile.create(point: 32)
 
-    assert_queries(1){ assert_equal 30, Profile.cacher_at(profile.id).point }
-    assert_queries(0){ assert_equal 30, Profile.cacher_at(profile.id).point }
-    assert_cache("active_model_cachers_Profile_at_point_#{profile.id}" => 30)
+    assert_queries(1){ assert_equal 32, Profile.cacher_at(profile.id).point }
+    assert_queries(0){ assert_equal 32, Profile.cacher_at(profile.id).point }
+    assert_cache("active_model_cachers_Profile_at_point_#{profile.id}" => 32)
 
     assert_queries(1){ profile.destroy }
     assert_cache({})
@@ -102,11 +102,11 @@ class CacheAtAttributeTest < BaseTest
   # ● Delete
   # ----------------------------------------------------------------
   def test_delete
-    profile = Profile.create(point: 30)
+    profile = Profile.create(point: 37)
 
-    assert_queries(1){ assert_equal 30, Profile.cacher_at(profile.id).point }
-    assert_queries(0){ assert_equal 30, Profile.cacher_at(profile.id).point }
-    assert_cache("active_model_cachers_Profile_at_point_#{profile.id}" => 30)
+    assert_queries(1){ assert_equal 37, Profile.cacher_at(profile.id).point }
+    assert_queries(0){ assert_equal 37, Profile.cacher_at(profile.id).point }
+    assert_cache("active_model_cachers_Profile_at_point_#{profile.id}" => 37)
 
     assert_queries(1){ profile.delete }
     assert_cache({})
@@ -119,11 +119,11 @@ class CacheAtAttributeTest < BaseTest
   end
 
   def test_delete_without_model
-    profile = Profile.create(id: -2, point: 30)
+    profile = Profile.create(id: -2, point: 41)
 
-    assert_queries(1){ assert_equal 30, Profile.cacher_at(profile.id).point }
-    assert_queries(0){ assert_equal 30, Profile.cacher_at(profile.id).point }
-    assert_cache("active_model_cachers_Profile_at_point_#{profile.id}" => 30)
+    assert_queries(1){ assert_equal 41, Profile.cacher_at(profile.id).point }
+    assert_queries(0){ assert_equal 41, Profile.cacher_at(profile.id).point }
+    assert_cache("active_model_cachers_Profile_at_point_#{profile.id}" => 41)
 
     assert_queries(2){ Profile.delete(-2) } # 1: select profile.user_id to clean cache on user.profile. 2: delete profile.
     assert_cache({})
