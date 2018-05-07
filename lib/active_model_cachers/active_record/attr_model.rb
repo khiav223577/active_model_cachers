@@ -32,6 +32,11 @@ module ActiveModelCachers
         return @reflect.belongs_to?
       end
 
+      def has_one?
+        return false if not association?
+        return @reflect.has_one?
+      end
+
       def primary_key
         return if not association?
         return (@reflect.belongs_to? ? @reflect.klass : @reflect.active_record).primary_key

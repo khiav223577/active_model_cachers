@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 require 'request_store'
-require 'active_model_cachers/active_record/cacher'
 require 'active_model_cachers/cache_service'
 
 module ActiveModelCachers
@@ -15,7 +14,6 @@ module ActiveModelCachers
       def create_for_active_model(attr, query)
         cache_key = get_cache_key(attr)
         service_klass = create(cache_key, query)
-        ActiveRecord::Cacher.define_cacher_method(attr, [service_klass])
         return service_klass, (query.parameters.size == 1)
       end
 
