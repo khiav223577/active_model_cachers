@@ -34,7 +34,10 @@ module ActiveModelCachers
 
       def has_one?
         return false if not association?
-        return @reflect.has_one?
+        #return @reflect.has_one? # Rails 3 doesn't have this method
+        return false if @reflect.collection?
+        return false if @reflect.belongs_to?
+        return true
       end
 
       def primary_key
