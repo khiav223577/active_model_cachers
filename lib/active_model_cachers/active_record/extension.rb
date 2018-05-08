@@ -18,7 +18,7 @@ module ActiveModelCachers
 
         query ||= ->(id){ attr.query_model(id) }
         service_klass, with_id = CacheServiceFactory.create_for_active_model(attr, query)
-        ActiveRecord::Cacher.define_cacher_method(attr, [service_klass])
+        Cacher.define_cacher_method(attr, [service_klass])
 
         expire_by ||= get_expire_by(attr)
         class_name, column = expire_by.split('#', 2)
