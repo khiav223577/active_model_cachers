@@ -18,6 +18,7 @@ module ActiveModelCachers
 
         query ||= ->(id){ attr.query_model(id) }
         service_klass, with_id = CacheServiceFactory.create_for_active_model(attr, query)
+        Cacher.define_cacher_method(attr, [service_klass])
 
         expire_by ||= get_expire_by(attr)
         class_name, column = expire_by.split('#', 2)
@@ -43,7 +44,7 @@ module ActiveModelCachers
 
       def cache_belongs_to(attr)
         service_klasses = [cache_at(attr.foreign_key)]
-        Cacher.define_cacher_at(self, attr.column, service_klasses)
+        Cacher.define_cacher_method(attr, service_klasses)
         ActiveSupport::Dependencies.onload(attr.class_name) do
           service_klasses << cache_self
         end

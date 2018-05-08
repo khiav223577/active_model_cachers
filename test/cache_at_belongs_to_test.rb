@@ -11,6 +11,15 @@ class CacheAtBelongsToTest < BaseTest
     assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => language)
   end
 
+  def test_basic_usage_of_instance_cacher
+    user = User.find_by(name: 'John1')
+    language = user.language
+
+    assert_queries(1){ assert_equal 'zh-tw', user.cacher.language.name }
+    assert_queries(0){ assert_equal 'zh-tw', user.cacher.language.name }
+    assert_cache('active_model_cachers_Language_2' => language)
+  end
+
   # ----------------------------------------------------------------
   # ● Create
   # ----------------------------------------------------------------

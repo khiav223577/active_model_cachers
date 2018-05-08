@@ -19,9 +19,25 @@ module ActiveModelCachers
         return @reflect.class_name
       end
 
+      def join_table
+        return nil if @reflect == nil
+        options = @reflect.options
+        return options[:through] if options[:through]
+        return (options[:join_table] || @reflect.send(:derive_join_table)) if @reflect.macro == :has_and_belongs_to_many
+        return nil
+      end
+
       def belongs_to?
         return false if not association?
         return @reflect.belongs_to?
+      end
+
+      def has_one?
+        return false if not association?
+        #return @reflect.has_one? # Rails 3 doesn't have this method
+        return false if @reflect.collection?
+        return false if @reflect.belongs_to?
+        return true
       end
 
       def primary_key
@@ -32,7 +48,7 @@ module ActiveModelCachers
       def foreign_key(reverse: false)
         return if not association?
         # key may be symbol if specify foreign_key in association options
-        return @reflect.chain.last.foreign_key.to_s if reverse
+        return @reflect.chain.last.foreign_key.to_s if reverse and join_table
         return (@reflect.belongs_to? == reverse ? primary_key : @reflect.foreign_key).to_s
       end
 
