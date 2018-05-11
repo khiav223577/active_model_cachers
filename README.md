@@ -55,6 +55,14 @@ end
 @count = User.cacher.active_count
 ```
 
+```rb
+class User < ActiveRecord::Base
+  cache_at :count, ->{ User.count }, expire_by: 'User', on: [:create, :destroy]
+end
+
+@count = User.cacher.count
+```
+
 ### Cache associations
 ```rb
 class User < ActiveRecord::Base
@@ -85,3 +93,27 @@ end
 ```
 
 ## Options
+    
+### :expire_by
+ 
+Monitor on the specific model. Clean the cached objects if target are changed.
+
+  - if empty, e.g. `nil` or `''`: Monitoring nothing.
+  
+  - if string, e.g. `User`: Monitoring all attributes of `User`.
+  
+  - if string with keyword `#`, e.g. `User#last_login_in_at`: Monitoring only the specific attribute.
+ 
+ ### :on
+ 
+ Fire changes only by a certain action with the `on` option. Like the same option of [after_commit](https://apidock.com/rails/ActiveRecord/Transactions/ClassMethods/after_commit).
+ 
+  - if `:create`: Clean the cache only on new record is created, e.g. `Model.create`.
+  
+  - if `:update`: Clean the cache only on the record is updated, e.g. `model.update`.
+  
+  - if `:destroy`: Clean the cache only on the record id destroyed, e.g. `model.destroy`, `model.delete`.
+  
+  - if `array`, e.g. `[:create, :update]`: Clean the cache by any of specified actions.
+ 
+
