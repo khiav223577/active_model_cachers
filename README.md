@@ -103,6 +103,8 @@ Monitor on the specific model. Clean the cached objects if target are changed.
   - if string, e.g. `User`: Monitoring all attributes of `User`.
   
   - if string with keyword `#`, e.g. `User#last_login_in_at`: Monitoring only the specific attribute.
+  
+  - Default value depends on the `name`. If is an association, monitoring the association klass. If not, monitoring current klass and the attrribute name.
  
  ### :on
  
@@ -115,5 +117,7 @@ Monitor on the specific model. Clean the cached objects if target are changed.
   - if `:destroy`: Clean the cache only on the record id destroyed, e.g. `model.destroy`, `model.delete`.
   
   - if `array`, e.g. `[:create, :update]`: Clean the cache by any of specified actions.
+  
+  - Default value is `[:create, :update, :destroy]`
  
-
+ 
