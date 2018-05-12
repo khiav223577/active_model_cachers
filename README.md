@@ -46,6 +46,13 @@ Specifie a cache on the model.
 
 ### Cache whatever you want
 
+#### Example 1: Cache the number of active user
+
+After specifying the name as `active_count` and how to get data when cache miss by lambda `->{ User.active.count }`.
+You could access the cached data by calling `active_count` on the cacher, `User.cacher`.
+
+You may want to flush cache on the number of active user changed. It can be done by simply setting `expire_by` option. For this case, 'User#last_login_at' means flushing cache when a user's last_login_at is changed (whenever by save, update, create, destroy or delete).
+
 ```rb
 class User < ActiveRecord::Base
   scope :active, ->{ where('last_login_at > ?', 7.days.ago) }
@@ -55,12 +62,58 @@ end
 @count = User.cacher.active_count
 ```
 
+#### Example 2: Cache the number of user
+
+In this example, the cache should be cleaned on user destroyed, or new user created, but not on user updated. You could specify the cleaning callback to only fire on certain events by `on` option.
+
 ```rb
 class User < ActiveRecord::Base
   cache_at :count, ->{ User.count }, expire_by: 'User', on: [:create, :destroy]
 end
 
 @count = User.cacher.count
+```
+
+#### Example 3: Access the cacher from a model instance
+
+You could use the cacher from instance scope, e.g. `user.cacher`, instead of `User.cacher`. The difference is that the binding of query lambda is changed. In this example, you could write the query as `->{ posts.exists? }` in that it's in instance scope, and the binding of the lambda is `user`, not `User`. So that it accesses `posts` method of `user`.
+
+In this example, the cache should be cleaned when the `posts` of the user changed. You could just set `expire_by` to the association: `:posts`, and then it will do all the works for you magically. (If you want know more details, it actually set `expire_by` to `Post#user_id` and `foreign_key`, which is needed for backtracing the user id from post, to `:user_id`)
+
+, expire_by: 'Post#user_id', foreign_key: :user_id
+
+```rb
+class User < ActiveRecord::Base
+  has_many :posts
+  cache_at :has_post?, ->{ posts.exists? }, expire_by: :posts
+end
+
+do_something if current_user.cacher.has_post?
+```
+
+
+#### Example 4: Pass an argument to the query lambda and cache the result of outer service.
+
+You could cache not only the query result of database but also the result of outer service. Becasue `email_valid?` doesn't match an association or an attribute, by default, the cache will not be cleaned by any changes.
+
+The query lambda can have one parameter, you could pass variable to it by using `cacher_at`. For example, `User.cacher_at(email)`.
+
+```rb
+class User < ActiveRecord::Base
+  cache_at :email_valid?, ->(email){ ValidEmail2::Address.new(email).valid_mx? }
+end
+
+render_error if not User.cacher_at('pearl@example.com').email_valid?
+```
+
+It can also be accessed from instance cacher. But you have to set `primary_key`, which is needed to know which attribute should be passed to the parameter.
+
+```rb
+class User < ActiveRecord::Base
+  cache_at :email_valid?, ->(email){ ValidEmail2::Address.new(email).valid_mx? }, primary_key: :email
+end
+
+render_error if not current_user.cacher.email_valid?
 ```
 
 ### Cache associations
@@ -81,7 +134,6 @@ end
 
 @user = User.cacher_at(user_id).self
 ```
-
 
 ### Cache attributes
 ```rb
@@ -104,6 +156,7 @@ Monitor on the specific model. Clean the cached objects if target are changed.
 
   - if string with keyword `#`, e.g. `User#last_login_in_at`: Monitoring only the specific attribute.
 
+  - if symbol, e.g. `:posts`: Monitoring on the association. It will trying to do all the things for you, including monitoring all attributes of `Post` and set the `foreign_key`.
 
   - Default value depends on the `name`. If is an association, monitoring the association klass. If is an attribute, monitoring current klass and the attrribute name. If others, monitoring nothing.
  ### :on
