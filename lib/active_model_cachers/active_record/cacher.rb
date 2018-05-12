@@ -5,12 +5,12 @@ module ActiveModelCachers
       @defined_map = {}
 
       class << self
-        def define_cacher_method(attr, service_klasses)
+        def define_cacher_method(attr, primary_key, service_klasses)
           method = attr.column || :self
           cacher_klass = get_cacher_klass(attr.klass)
           cacher_klass.attributes << method
-          cacher_klass.send(:define_method, method){ exec_by(attr, service_klasses, :get) }
-          cacher_klass.send(:define_method, "peek_#{method}"){ exec_by(attr, service_klasses, :peek) }
+          cacher_klass.send(:define_method, method){ exec_by(attr, primary_key, service_klasses, :get) }
+          cacher_klass.send(:define_method, "peek_#{method}"){ exec_by(attr, primary_key, service_klasses, :peek) }
         end
 
         def get_cacher_klass(klass)
@@ -30,22 +30,22 @@ module ActiveModelCachers
       end
 
       def initialize(id: nil, model: nil)
-        @id = (model ? model.id : nil) || id
+        @id = id
         @model = model
       end
 
       private
 
-      def exec_by(attr, service_klasses, method)
+      def exec_by(attr, primary_key, service_klasses, method)
         if @model and attr.association?
           if attr.has_one?
-            data = @model.send(attr.column).try(:id)
+            data = @model.send(attr.column).try(primary_key)
           else
             data = @model.send(attr.foreign_key)
             service_klasses = [service_klasses.last]
           end
         end
-        data ||= @id
+        data ||= (@model ? @model.send(primary_key) : nil) || @id
         service_klasses.all?{|s| (data = s.instance(data).send(method, binding: @model)) != nil }
         return data
       end
