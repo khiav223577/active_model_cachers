@@ -17,9 +17,10 @@ module ActiveModelCachers
         return cache_belongs_to(attr) if attr.belongs_to?
 
         query ||= ->(id){ attr.query_model(id) }
-        service_klass, with_id = CacheServiceFactory.create_for_active_model(attr, query)
+        service_klass = CacheServiceFactory.create_for_active_model(attr, query)
         Cacher.define_cacher_method(attr, [service_klass])
 
+        with_id = true if expire_by.is_a?(Symbol) or query.parameters.size == 1
         expire_class, expire_column, foreign_key = get_expire_infos(attr, expire_by, foreign_key)
         define_callback_for_cleaning_cache(expire_class, expire_column, foreign_key, on: on) do |id|
           service_klass.clean_at(with_id ? id : nil)
