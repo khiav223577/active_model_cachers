@@ -25,5 +25,5 @@ class User < ActiveRecord::Base
   cache_at :has_post_without_cache?, ->(id){ PostWithoutCache.where(user_id: id).exists? }, expire_by: 'PostWithoutCache#user_id', foreign_key: :user_id
   cache_at :has_post_without_cache2?, ->(id){ posts_without_cache.exists? }, expire_by: 'PostWithoutCache#user_id', foreign_key: :user_id
 
-  cache_at :email_valid?, ->(email){ ValidEmail2::Address.new(email).valid_mx? }, expire_by: 'User#email', primary_key: :email
+  cache_at :email_valid?, ->(email){ ValidEmail2::Address.new(email).valid_mx? }, primary_key: :email
 end

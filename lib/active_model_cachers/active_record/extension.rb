@@ -22,8 +22,10 @@ module ActiveModelCachers
 
         with_id = true if expire_by.is_a?(Symbol) or query.parameters.size == 1
         expire_class, expire_column, foreign_key = get_expire_infos(attr, expire_by, foreign_key)
-        define_callback_for_cleaning_cache(expire_class, expire_column, foreign_key, on: on) do |id|
-          service_klass.clean_at(with_id ? id : nil)
+        if expire_class
+          define_callback_for_cleaning_cache(expire_class, expire_column, foreign_key, on: on) do |id|
+            service_klass.clean_at(with_id ? id : nil)
+          end
         end
         return service_klass
       end
@@ -43,6 +45,7 @@ module ActiveModelCachers
           expire_attr = attr
           expire_by ||= get_expire_by_from(expire_attr)
         end
+        return if expire_by == nil
 
         class_name, column = expire_by.split('#', 2)
         foreign_key ||= expire_attr.foreign_key(reverse: true) || 'id'
@@ -57,8 +60,8 @@ module ActiveModelCachers
       end
 
       def get_expire_by_from(attr)
-        return "#{self}##{attr.column}" if not attr.association?
-        return attr.class_name
+        return attr.class_name if attr.association?
+        return "#{self}##{attr.column}" if column_names.include?(attr.column.to_s)
       end
 
       def cache_belongs_to(attr)
