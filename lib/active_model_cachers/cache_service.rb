@@ -4,6 +4,11 @@ require 'active_model_cachers/false_object'
 
 module ActiveModelCachers
   class CacheService
+    class << self
+      attr_accessor :cache_key
+      attr_accessor :query
+    end
+
     def initialize(id)
       @id = id
     end
@@ -26,11 +31,13 @@ module ActiveModelCachers
     private
 
     def cache_key
-      fail 'not implement'
+      key = self.class.cache_key
+      return @id ? "#{key}_#{@id}" : key
     end
 
     def get_without_cache
-      fail 'not implement'
+      query = self.class.query
+      return @id ? query.call(@id) : query.call
     end
 
     def raw_to_cache_data(raw)

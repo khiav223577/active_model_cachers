@@ -20,6 +20,8 @@ module ActiveModelCachers
       def create(cache_key, query)
         @key_class_mapping[cache_key] ||= ->{
           klass = Class.new(CacheService)
+          klass.cache_key = cache_key
+          klass.query = query
 
           class << klass
             def instance(id)
@@ -31,9 +33,6 @@ module ActiveModelCachers
               instance(id).clean_cache
             end
           end
-
-          klass.send(:define_method, :cache_key){ @id ? "#{cache_key}_#{@id}" : cache_key }
-          klass.send(:define_method, :get_without_cache){ @id ? query.call(@id) : query.call }
           next klass
         }[]
       end
