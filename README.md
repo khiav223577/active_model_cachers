@@ -60,11 +60,11 @@ end
 @count = User.cacher.active_count
 ```
 
-You may want to flush cache on the number of active user changed. It can be done by simply setting `expire_by` option. In this case, `User#last_login_at` means flushing the cache when a user's `last_login_at` is changed (whenever by save, update, create, destroy or delete).
+You may want to flush cache on the number of active user changed. It can be done by simply setting [expire_by](#expire_by) option. In this case, `User#last_login_at` means flushing the cache when a user's `last_login_at` is changed (whenever by save, update, create, destroy or delete).
 
 ### Example 2: Cache the number of user
 
-In this example, the cache should be cleaned on user `destroyed`, or new user `created`, but not on user `updated`. You could specify the cleaning callback to only fire on certain events by `on` option.
+In this example, the cache should be cleaned on user `destroyed`, or new user `created`, but not on user `updated`. You could specify the cleaning callback to only fire on certain events by [on](#on) option.
 
 ```rb
 class User < ActiveRecord::Base
@@ -87,7 +87,7 @@ end
 do_something if current_user.cacher.has_post?
 ```
 
-In this example, the cache should be cleaned when the `posts` of the user changed. You could just set `expire_by` to the association: `:posts`, and then it will do all the works for you magically. (If you want know more details, it actually set `expire_by` to `Post#user_id` and `foreign_key`, which is needed for backtracing the user id from post, to `:user_id`)
+In this example, the cache should be cleaned when the `posts` of the user changed. You could just set `expire_by` to the association: `:posts`, and then it will do all the works for you magically. (If you want know more details, it actually set `expire_by` to `Post#user_id` and [foreign_key](#foreign_key) option, which is needed for backtracing the user id from post, to `:user_id`)
 
 
 ### Example 4: Pass an argument to the query lambda.
@@ -112,7 +112,7 @@ end
 render_error if not current_user.cacher.email_valid?
 ```
 
-It can also be accessed from instance cacher. But you have to set `primary_key`, which is needed to know which attribute should be passed to the parameter.
+It can also be accessed from instance cacher. But you have to set [primary_key](#primary_key), which is needed to know which attribute should be passed to the parameter.
 
 ## Convenient syntax sugar for caching ActiveRecord
 
@@ -159,7 +159,8 @@ Monitor on the specific model. Clean the cached objects if target are changed.
   - if symbol, e.g. `:posts`: Monitoring on the association. It will trying to do all the things for you, including monitoring all attributes of `Post` and set the `foreign_key`.
 
   - Default value depends on the `name`. If is an association, monitoring the association klass. If is an attribute, monitoring current klass and the attrribute name. If others, monitoring nothing.
- ### :on
+
+### :on
 
  Fire changes only by a certain action with the `on` option. Like the same option of [after_commit](https://apidock.com/rails/ActiveRecord/Transactions/ClassMethods/after_commit).
 
@@ -172,5 +173,20 @@ Monitor on the specific model. Clean the cached objects if target are changed.
   - if `array`, e.g. `[:create, :update]`: Clean the cache by any of specified actions.
 
   - Default value is `[:create, :update, :destroy]`
+
+### :foreign_key
+
+This option is needed only for caching assoication and need not to set if [expire_by](#expire_by) option is set to monitor association. Used for backtracing the cache key from cached objects. For examle, if `user` has_many `posts`, and cached the `posts` by user.id. When a post is changed, it needs to know which column to use (in this example, `user_id`) to clean the cache at user.
+
+  - Default value is `:id`
+
+  - Will be automatically determined if [expire_by](#expire_by) option is symbol.
+
+### :primary_key
+
+This option is needed to know which attribute should be passed to the parameter when you are using instance cacher. For example, if a query, named `email_valid?`, uses `user.email` as parameter, and you call it from instnace `user.cacher.email_valid?`. You need to tell it to pass `user.email` instead of `user.id` as the argument.
+
+  - Default value is `:id`
+
 
 
