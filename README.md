@@ -39,7 +39,7 @@ end
 
 `cache_at(name, query = nil, options = {})`
 
-Specifie a cache on the model. 
+Specifie a cache on the model.
  - name: the attribute name.
  - query: how to get data on cache miss. It will be set automatically if the name match an association or an attribute.
  - options: see [here](#options)
@@ -93,31 +93,31 @@ end
 ```
 
 ## Options
-    
+
 ### :expire_by
- 
+
 Monitor on the specific model. Clean the cached objects if target are changed.
 
   - if empty, e.g. `nil` or `''`: Monitoring nothing.
-  
+
   - if string, e.g. `User`: Monitoring all attributes of `User`.
-  
+
   - if string with keyword `#`, e.g. `User#last_login_in_at`: Monitoring only the specific attribute.
-  
- 
+
+
   - Default value depends on the `name`. If is an association, monitoring the association klass. If is an attribute, monitoring current klass and the attrribute name. If others, monitoring nothing.
  ### :on
- 
+
  Fire changes only by a certain action with the `on` option. Like the same option of [after_commit](https://apidock.com/rails/ActiveRecord/Transactions/ClassMethods/after_commit).
- 
+
   - if `:create`: Clean the cache only on new record is created, e.g. `Model.create`.
-  
+
   - if `:update`: Clean the cache only on the record is updated, e.g. `model.update`.
-  
+
   - if `:destroy`: Clean the cache only on the record id destroyed, e.g. `model.destroy`, `model.delete`.
-  
+
   - if `array`, e.g. `[:create, :update]`: Clean the cache by any of specified actions.
-  
+
   - Default value is `[:create, :update, :destroy]`
- 
- 
+
+
