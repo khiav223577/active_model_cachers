@@ -8,18 +8,12 @@ class CacheAtAttributeTest < BaseTest
     assert_queries(1){ assert_equal 10, Profile.cacher_at(profile.id).point }
     assert_queries(0){ assert_equal 10, Profile.cacher_at(profile.id).point }
     assert_cache('active_model_cachers_Profile_at_point_1' => 10)
-
-    assert_queries(0){ assert_equal 10, Profile.cacher_at(profile.id).point }
-    assert_cache('active_model_cachers_Profile_at_point_1' => 10)
   end
 
   def test_basic_usage_of_instance_cacher
     profile = Profile.select(:id).first # The only use case of this may be that profile doesn't select the attribute.
 
     assert_queries(1){ assert_equal 10, profile.cacher.point }
-    assert_queries(0){ assert_equal 10, profile.cacher.point }
-    assert_cache('active_model_cachers_Profile_at_point_1' => 10)
-
     assert_queries(0){ assert_equal 10, profile.cacher.point }
     assert_cache('active_model_cachers_Profile_at_point_1' => 10)
   end

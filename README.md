@@ -104,8 +104,8 @@ Monitor on the specific model. Clean the cached objects if target are changed.
   
   - if string with keyword `#`, e.g. `User#last_login_in_at`: Monitoring only the specific attribute.
   
-  - Default value depends on the `name`. If is an association, monitoring the association klass. If not, monitoring current klass and the attrribute name.
  
+  - Default value depends on the `name`. If is an association, monitoring the association klass. If is an attribute, monitoring current klass and the attrribute name. If others, monitoring nothing.
  ### :on
  
  Fire changes only by a certain action with the `on` option. Like the same option of [after_commit](https://apidock.com/rails/ActiveRecord/Transactions/ClassMethods/after_commit).

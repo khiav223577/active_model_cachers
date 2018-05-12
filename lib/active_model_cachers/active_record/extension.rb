@@ -12,18 +12,20 @@ module ActiveModelCachers
         cache_at(nil, expire_by: self.name)
       end
 
-      def cache_at(column, query = nil, expire_by: nil, on: nil, foreign_key: nil)
+      def cache_at(column, query = nil, expire_by: nil, on: nil, foreign_key: nil, primary_key: :id)
         attr = AttrModel.new(self, column)
         return cache_belongs_to(attr) if attr.belongs_to?
 
         query ||= ->(id){ attr.query_model(id) }
         service_klass = CacheServiceFactory.create_for_active_model(attr, query)
-        Cacher.define_cacher_method(attr, [service_klass])
+        Cacher.define_cacher_method(attr, primary_key, [service_klass])
 
         with_id = true if expire_by.is_a?(Symbol) or query.parameters.size == 1
         expire_class, expire_column, foreign_key = get_expire_infos(attr, expire_by, foreign_key)
-        define_callback_for_cleaning_cache(expire_class, expire_column, foreign_key, on: on) do |id|
-          service_klass.clean_at(with_id ? id : nil)
+        if expire_class
+          define_callback_for_cleaning_cache(expire_class, expire_column, foreign_key, on: on) do |id|
+            service_klass.clean_at(with_id ? id : nil)
+          end
         end
         return service_klass
       end
@@ -43,6 +45,7 @@ module ActiveModelCachers
           expire_attr = attr
           expire_by ||= get_expire_by_from(expire_attr)
         end
+        return if expire_by == nil
 
         class_name, column = expire_by.split('#', 2)
         foreign_key ||= expire_attr.foreign_key(reverse: true) || 'id'
@@ -57,13 +60,13 @@ module ActiveModelCachers
       end
 
       def get_expire_by_from(attr)
-        return "#{self}##{attr.column}" if not attr.association?
-        return attr.class_name
+        return attr.class_name if attr.association?
+        return "#{self}##{attr.column}" if column_names.include?(attr.column.to_s)
       end
 
       def cache_belongs_to(attr)
         service_klasses = [cache_at(attr.foreign_key)]
-        Cacher.define_cacher_method(attr, service_klasses)
+        Cacher.define_cacher_method(attr, attr.primary_key, service_klasses)
         ActiveSupport::Dependencies.onload(attr.class_name) do
           service_klasses << cache_self
         end
