@@ -116,7 +116,7 @@ It can also be accessed from instance cacher. But you have to set [`primary_key`
 
 ## Convenient syntax sugar for caching ActiveRecord
 
-### Cache associations
+### Caching Associations
 ```rb
 class User < ActiveRecord::Base
   has_one :profile
@@ -126,7 +126,11 @@ end
 @profile = User.cacher_at(profile_id).profile
 ```
 
-### Cache self
+### Caching Polymorphic Associations
+
+TODO
+
+### Caching Self
 ```rb
 class User < ActiveRecord::Base
   cache_self
@@ -135,7 +139,7 @@ end
 @user = User.cacher_at(user_id).self
 ```
 
-### Cache attributes
+### Caching Attributes
 ```rb
 class Profile < ActiveRecord::Base
   cache_at :point
@@ -184,7 +188,7 @@ This option is needed only for caching assoication and need not to set if [`expi
 
 ### :primary_key
 
-This option is needed to know which attribute should be passed to the parameter when you are using instance cacher. For example, if a query, named `email_valid?`, uses `user.email` as parameter, and you call it from instnace `user.cacher.email_valid?`. You need to tell it to pass `user.email` instead of `user.id` as the argument.
+This option is needed to know which attribute should be passed to the parameter when you are using instance cacher. For example, if a query, named `email_valid?`, uses `user.email` as parameter, and you call it from instance: `user.cacher.email_valid?`. You need to tell it to pass `user.email` instead of `user.id` as the argument.
 
   - Default value is `:id`
 
