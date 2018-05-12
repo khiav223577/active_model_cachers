@@ -49,6 +49,7 @@ ActiveRecord::Schema.define do
 end
 
 ActiveSupport::Dependencies.autoload_paths << File.expand_path('../models/', __FILE__)
+ActiveSupport::Dependencies.autoload_paths << File.expand_path('../services/', __FILE__)
 
 languages = Language.create([
   {name: 'en'},
