@@ -49,7 +49,7 @@ module ActiveModelCachers
 
     def get_without_cache(binding)
       query = self.class.query
-      return binding ? binding.instance_exec(@id, &query) : query.call(@id) if @id
+      return binding ? binding.instance_exec(@id, &query) : query.call(@id) if @id and query.parameters.size == 1
       return binding ? binding.instance_exec(&query) : query.call
     end
 
