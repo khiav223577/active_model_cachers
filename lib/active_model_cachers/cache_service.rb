@@ -48,10 +48,9 @@ module ActiveModelCachers
     end
 
     def get_without_cache(binding)
-      id = @id
       query = self.class.query
-      get_data = ->{ id ? query.call(id) : query.call }
-      return binding ? binding.instance_exec(&get_data) : get_data.call
+      return binding ? binding.instance_exec(@id, &query) : query.call(@id) if @id
+      return binding ? binding.instance_exec(&query) : query.call
     end
 
     def raw_to_cache_data(raw)
