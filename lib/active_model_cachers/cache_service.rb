@@ -18,16 +18,19 @@ module ActiveModelCachers
       end
     end
 
+    # ----------------------------------------------------------------
+    # ● instance methods
+    # ----------------------------------------------------------------
     def initialize(id)
       @id = id
     end
 
-    def get
-      @cached_data ||= fetch_from_cache
+    def get(binding: nil)
+      @cached_data ||= fetch_from_cache(binding: binding)
       return cache_to_raw_data(@cached_data)
     end
 
-    def peek
+    def peek(binding: nil)
       @cached_data ||= get_from_cache
       return cache_to_raw_data(@cached_data)
     end
@@ -44,9 +47,11 @@ module ActiveModelCachers
       return @id ? "#{key}_#{@id}" : key
     end
 
-    def get_without_cache
+    def get_without_cache(binding)
+      id = @id
       query = self.class.query
-      return @id ? query.call(@id) : query.call
+      get_data = ->{ id ? query.call(id) : query.call }
+      return binding ? binding.instance_exec(&get_data) : get_data.call
     end
 
     def raw_to_cache_data(raw)
@@ -65,9 +70,9 @@ module ActiveModelCachers
       ActiveModelCachers.config.store.read(cache_key)
     end
 
-    def fetch_from_cache
+    def fetch_from_cache(binding: nil)
       ActiveModelCachers.config.store.fetch(cache_key, expires_in: 30.minutes) do
-        raw_to_cache_data(get_without_cache)
+        raw_to_cache_data(get_without_cache(binding))
       end
     end
   end
