@@ -46,7 +46,7 @@ module ActiveModelCachers
           end
         end
         data ||= @id
-        service_klasses.all?{|s| (data = s.instance(data).send(method)) != nil }
+        service_klasses.all?{|s| (data = s.instance(data).send(method, binding: @model)) != nil }
         return data
       end
     end

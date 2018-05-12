@@ -14,26 +14,14 @@ module ActiveModelCachers
       def create_for_active_model(attr, query)
         cache_key = get_cache_key(attr)
         service_klass = create(cache_key, query)
-        return service_klass, (query.parameters.size == 1)
+        return service_klass
       end
 
       def create(cache_key, query)
         @key_class_mapping[cache_key] ||= ->{
           klass = Class.new(CacheService)
-
-          class << klass
-            def instance(id)
-              hash = (RequestStore.store[self] ||= {})
-              return hash[id] ||= new(id)
-            end
-
-            def clean_at(id)
-              instance(id).clean_cache
-            end
-          end
-
-          klass.send(:define_method, :cache_key){ @id ? "#{cache_key}_#{@id}" : cache_key }
-          klass.send(:define_method, :get_without_cache){ @id ? query.call(@id) : query.call }
+          klass.cache_key = cache_key
+          klass.query = query
           next klass
         }[]
       end
