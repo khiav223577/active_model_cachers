@@ -19,10 +19,14 @@ module ActiveModelCachers
         query ||= ->(id){ attr.query_model(id) }
         service_klass, with_id = CacheServiceFactory.create_for_active_model(attr, query)
         Cacher.define_cacher_method(attr, [service_klass])
-        expire_by = parse_expire_by_option(expire_by, attr)
+
+        expire_attr = get_expire_attr(expire_by, attr)
+        expire_by = nil if expire_by.is_a?(Symbol)
+        expire_by ||= get_expire_by_from(expire_attr)
 
         class_name, column = expire_by.split('#', 2)
-        foreign_key ||= attr.foreign_key(reverse: true) || 'id'
+        # foreign_key ||= 'user_id' if attr.collection?
+        foreign_key ||= expire_attr.foreign_key(reverse: true) || 'id'
 
         define_callback_for_cleaning_cache(class_name, column, foreign_key.to_s, on: on) do |id|
           service_klass.clean_at(with_id ? id : nil)
@@ -37,13 +41,13 @@ module ActiveModelCachers
 
       private
 
-      def parse_expire_by_option(expire_by, attr)
+      def get_expire_attr(expire_by, attr)
         if expire_by.is_a?(Symbol)
           expire_attr = AttrModel.new(self, expire_by)
           raise "#{expire_by} is not an association" if not expire_attr.association?
-          return get_expire_by_from(expire_attr)
+          return expire_attr
         else
-          return expire_by || get_expire_by_from(attr)
+          return attr
         end
       end
 
