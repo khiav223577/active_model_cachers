@@ -22,17 +22,6 @@ module ActiveModelCachers
           klass = Class.new(CacheService)
           klass.cache_key = cache_key
           klass.query = query
-
-          class << klass
-            def instance(id)
-              hash = (RequestStore.store[self] ||= {})
-              return hash[id] ||= new(id)
-            end
-
-            def clean_at(id)
-              instance(id).clean_cache
-            end
-          end
           next klass
         }[]
       end

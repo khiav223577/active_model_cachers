@@ -7,6 +7,15 @@ module ActiveModelCachers
     class << self
       attr_accessor :cache_key
       attr_accessor :query
+
+      def instance(id)
+        hash = (RequestStore.store[self] ||= {})
+        return hash[id] ||= new(id)
+      end
+
+      def clean_at(id)
+        instance(id).clean_cache
+      end
     end
 
     def initialize(id)
