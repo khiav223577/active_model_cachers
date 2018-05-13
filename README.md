@@ -122,7 +122,7 @@ There are multi-level cache in order to make the speed of data access go faster.
 3. Association Cache
 4. Database
 
-`RequestStore` is used to make sure same object will not loaded from cache twice, since the data transfer between `Cache` and `Application` still consume time. 
+`RequestStore` is used to make sure same object will not loaded from cache twice, since the data transfer between `Cache` and `Application` still consumes time. 
 
 `Association Cache` will be used to prevent preloaded objects being loaded again.
 
