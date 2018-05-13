@@ -66,6 +66,16 @@ class CacheAtHasOneTest < BaseTest
     assert_cache({})
   end
 
+  def test_clean2
+    profile = User.find_by(name: 'John2').profile
+
+    Rails.cache.write('active_model_cachers_Profile_1', profile)
+    assert_cache('active_model_cachers_Profile_1' => profile)
+
+    assert_queries(0){ User.cacher_at(profile.id).clean(:profile) }
+    assert_cache({})
+  end
+
   def test_clean_in_instance_cacher
     user = User.find_by(name: 'John2')
 

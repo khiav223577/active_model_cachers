@@ -23,6 +23,9 @@ module ActiveModelCachers
         def create_cacher_klass_at(target)
           cacher_klass = Class.new(self)
           cacher_klass.define_singleton_method(:attributes){ @attributes ||= [] }
+          cacher_klass.send(:define_method, 'peek'){|column| send("peek_#{column}") }
+          cacher_klass.send(:define_method, 'clean'){|column| send("clean_#{column}") }
+
           target.define_singleton_method(:cacher_at){|id| cacher_klass.new(id: id) }
           target.define_singleton_method(:cacher){ cacher_klass.new }
           target.send(:define_method, :cacher){ cacher_klass.new(model: self) }

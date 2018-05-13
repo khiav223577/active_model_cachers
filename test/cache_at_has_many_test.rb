@@ -70,6 +70,16 @@ class CacheAtHasManyTest < BaseTest
     assert_cache({})
   end
 
+  def test_clean2
+    user = User.find_by(name: 'John1')
+
+    Rails.cache.write('active_model_cachers_User_at_posts_1', user.posts)
+    assert_cache('active_model_cachers_User_at_posts_1' => user.posts)
+
+    assert_queries(0){ User.cacher_at(user.id).clean(:posts) }
+    assert_cache({})
+  end
+
   def test_clean_in_instance_cacher
     user = User.find_by(name: 'John1')
 
