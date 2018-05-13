@@ -84,14 +84,13 @@ module ActiveModelCachers
       def define_callback_for_cleaning_cache(class_name, column, foreign_key, on: nil, &clean)
         ActiveSupport::Dependencies.onload(class_name) do
           clean_ids = []
-          before_delete do |id, model|
+          prepend_before_delete do |id, model|
             clean_ids << @@column_value_cache.add(self, class_name, id, foreign_key, model)
           end
 
-          after_delete do |_, model|
+          before_delete do |_, model|
             clean_ids.each{|s| clean.call(s.call) }
             clean_ids = []
-            @@column_value_cache.clear_at(class_name)
           end
 
           on_nullify(column){|ids| ids.each{|s| clean.call(s) }}

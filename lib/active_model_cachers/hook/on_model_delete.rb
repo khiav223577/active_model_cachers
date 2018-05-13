@@ -12,26 +12,21 @@ module ActiveModelCachers::Hook
     end
 
     module ClassMethods
-      def before_delete(&callback)
-        before_delete_hooks << callback
+      def prepend_before_delete(&callback)
+        before_delete_hooks.unshift(callback)
       end
 
-      def after_delete(&callback)
-        after_delete_hooks << callback
+      def before_delete(&callback)
+        before_delete_hooks << callback
       end
 
       def before_delete_hooks
         @before_delete_hooks ||= []
       end
 
-      def after_delete_hooks
-        @after_delete_hooks ||= []
-      end
-
       def delete(id, model = nil)
         before_delete_hooks.each{|s| s.call(id, model) }
         result = super(id)
-        after_delete_hooks.each{|s| s.call(id, model) }
         return result
       end
 
