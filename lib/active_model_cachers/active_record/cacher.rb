@@ -43,10 +43,11 @@ module ActiveModelCachers
       def exec_by(attr, primary_key, service_klasses, method)
         bindings = [@model]
         if @model and attr.association?
+          target = @model.association(attr.column).load_target
           if attr.has_one?
-            data = @model.send(attr.column).try(primary_key)
+            data = target.try(primary_key)
           else
-            bindings << @model.send(attr.column) if @model.is_a?(::ActiveRecord::Base)
+            bindings << target
           end
         end
         data ||= (@model ? @model.send(primary_key) : nil) || @id
