@@ -17,7 +17,22 @@ class CacheAtHasManyTest < BaseTest
 
     assert_queries(1){ assert_equal 3, user.cacher.posts.size }
     assert_queries(0){ assert_equal 3, user.cacher.posts.size }
+    assert_cache('active_model_cachers_User_at_posts_1' => user.posts)
+  end
+
+  def test_instance_cacher_to_use_loaded_associations
+    user = User.find_by(name: 'John1')
+    posts = user.posts.to_a # to_a to make sure posts is loaded
+
+    assert_queries(0){ assert_equal 3, user.cacher.posts.size }
     assert_cache('active_model_cachers_User_at_posts_1' => posts)
+  end
+
+  def test_instance_cacher_to_use_preloaded_associations
+    user = User.includes(:posts).find_by(name: 'John1')
+
+    assert_queries(0){ assert_equal 3, user.cacher.posts.size }
+    assert_cache('active_model_cachers_User_at_posts_1' => user.posts)
   end
 
   # ----------------------------------------------------------------
