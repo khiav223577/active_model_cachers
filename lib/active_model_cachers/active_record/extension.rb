@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'active_model_cachers/column_value_cache'
 require 'active_model_cachers/active_record/attr_model'
 require 'active_model_cachers/active_record/cacher'
 require 'active_model_cachers/hook/dependencies'
@@ -79,19 +80,18 @@ module ActiveModelCachers
         return where(id: id).limit(1).pluck(column).first
       end
 
-      @@column_value_cache = Hash.new{|h, k| h[k] = {}}
+      @@column_value_cache = ActiveModelCachers::ColumnValueCache.new
       def define_callback_for_cleaning_cache(class_name, column, foreign_key, on: nil, &clean)
         ActiveSupport::Dependencies.onload(class_name) do
           clean_ids = []
-          cache = @@column_value_cache[class_name]
           before_delete do |id, model|
-            clean_ids << (cache[[id, foreign_key]] ||= get_column_value_from_id(id, foreign_key, model))
+            clean_ids << @@column_value_cache.add(self, class_name, id, foreign_key, model)
           end
 
           after_delete do |_, model|
-            clean_ids.each{|s| clean.call(s) }
+            clean_ids.each{|s| clean.call(s.get_id) }
             clean_ids = []
-            cache.clear
+            @@column_value_cache.clear_at(class_name)
           end
 
           on_nullify(column){|ids| ids.each{|s| clean.call(s) }}
