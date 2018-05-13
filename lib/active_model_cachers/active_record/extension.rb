@@ -9,7 +9,7 @@ module ActiveModelCachers
   module ActiveRecord
     module Extension
       def cache_self(by: :id)
-        cache_at(nil, expire_by: self.name, primary_key: by)
+        cache_at(nil, expire_by: self.name, primary_key: by, foreign_key: by)
       end
 
       def cache_at(column, query = nil, expire_by: nil, on: nil, foreign_key: nil, primary_key: nil)
