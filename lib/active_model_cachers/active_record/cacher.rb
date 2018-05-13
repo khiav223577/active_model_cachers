@@ -43,11 +43,11 @@ module ActiveModelCachers
       def exec_by(attr, primary_key, service_klasses, method)
         bindings = [@model]
         if @model and attr.association?
-          target = @model.association(attr.column).load_target
+          get_target = ->{ @model.association(attr.column).load_target }
           if attr.has_one?
-            data = target.try(primary_key)
+            data = get_target.call.try(primary_key)
           else
-            bindings << target
+            bindings << get_target.call if method != :clean_cache # no need to load binding when just cleaning cache
           end
         end
         data ||= (@model ? @model.send(primary_key) : nil) || @id
