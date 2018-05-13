@@ -34,7 +34,6 @@ ActiveModelCachers.config do |config|
 end
 ```
 
-
 ## Usage
 
 `cache_at(name, query = nil, options = {})`
@@ -114,6 +113,25 @@ render_error if not current_user.cacher.email_valid?
 
 It can also be accessed from instance cacher. But you have to set [`primary_key`](#primary_key), which is needed to know which attribute should be passed to the parameter.
 
+## Smart Caching
+
+There are multi-level cache in order to make the speed of data access go faster.
+
+1. RequestStore
+2. Rails.cache
+3. Association Cache
+4. Database
+
+`RequestStore` is used to make sure same object will not loaded from cache twice, since the data transfer between `Cache` and `Application` still consume time. 
+
+`Association Cache` will be used to prevent preloaded objects being loaded again.
+
+For example:
+```rb
+user = User.includes(:posts).take
+user.cacher.posts # => no query will be made even on cache miss.
+```
+
 ## Convenient syntax sugar for caching ActiveRecord
 
 ### Caching Associations
@@ -123,6 +141,9 @@ class User < ActiveRecord::Base
   cache_at :profile
 end
 
+@profile = current_user.cacher.profile
+
+# directly get profile without loading user.
 @profile = User.cacher_at(profile_id).profile
 ```
 
