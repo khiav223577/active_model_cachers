@@ -9,8 +9,8 @@ Gem::Specification.new do |spec|
   spec.authors       = ["khiav reoy"]
   spec.email         = ["mrtmrt15xn@yahoo.com.tw"]
 
-  spec.summary       = %q{}
-  spec.description   = %q{}
+  spec.summary       = %q{Let you cache whatever you want with ease by providing cachers to active model. Support Rails 3, 4, 5.}
+  spec.description   = %q{Let you cache whatever you want with ease by providing cachers to active model. Cachers will maintain cached objects and expire them when they are changed (by create, update, destroy, and even delete). Support Rails 3, 4, 5.}
   spec.homepage      = "https://github.com/khiav223577/active_model_cachers"
   spec.license       = "MIT"
 
