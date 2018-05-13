@@ -48,3 +48,9 @@ module ActiveRecord
     end
   end
 end
+
+class ActiveModelCachers::ColumnValueCache
+  def pluck_columns(object, relation, columns)
+    object.connection.select_all(relation.select(columns)).map(&:values)
+  end
+end

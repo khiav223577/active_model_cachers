@@ -175,6 +175,8 @@ end
 TODO
 
 ### Caching Self
+
+Cache self by id.
 ```rb
 class User < ActiveRecord::Base
   cache_self
@@ -183,7 +185,17 @@ end
 @user = User.cacher_at(user_id).self
 ```
 
+Also support caching self by other columns.
+```rb
+class User < ActiveRecord::Base
+  cache_self, by: :account
+end
+
+@user = User.cacher_at('khiav').self_by_account
+```
+
 ### Caching Attributes
+
 ```rb
 class Profile < ActiveRecord::Base
   cache_at :point

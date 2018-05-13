@@ -4,9 +4,10 @@ module ActiveModelCachers
     class AttrModel
       attr_reader :klass, :column, :reflect
 
-      def initialize(klass, column)
+      def initialize(klass, column, primary_key: nil)
         @klass = klass
         @column = column
+        @primary_key = primary_key
         @reflect = klass.reflect_on_association(column)
       end
 
@@ -41,6 +42,7 @@ module ActiveModelCachers
       end
 
       def primary_key
+        return @primary_key if @primary_key
         return if not association?
         return (@reflect.belongs_to? ? @reflect.klass : @reflect.active_record).primary_key
       end
@@ -72,7 +74,7 @@ module ActiveModelCachers
 
       def query_self(binding, id)
         return binding if binding.is_a?(::ActiveRecord::Base)
-        return @klass.find_by(id: id)
+        return @klass.find_by(primary_key => id)
       end
 
       def query_attribute(binding, id)

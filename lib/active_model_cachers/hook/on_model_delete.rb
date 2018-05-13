@@ -12,6 +12,10 @@ module ActiveModelCachers::Hook
     end
 
     module ClassMethods
+      def prepend_before_delete(&callback)
+        before_delete_hooks.unshift(callback)
+      end
+
       def before_delete(&callback)
         before_delete_hooks << callback
       end

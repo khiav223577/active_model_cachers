@@ -35,6 +35,7 @@ ActiveRecord::Schema.define do
   create_table :profiles, :force => true do |t|
     t.integer :user_id
     t.integer :point
+    t.string :token
   end
 
   create_table :contacts, :force => true do |t|
@@ -67,19 +68,19 @@ users = User.create([
   }, {
     :name          => 'John2',
     :email         => 'john2@example.com',
-    :profile       => Profile.create(point: 10),
+    :profile       => Profile.create(point: 10, token: 'tt9wav'),
     :language      => languages[1],
     :last_login_at => Time.now,
   }, {
     :name          => 'John3',
     :email         => 'john3@example.com',
-    :profile       => Profile.create(point: 30),
+    :profile       => Profile.create(point: 30, token: 'mhfbfn'),
     :language      => languages[0],
     :last_login_at => 1.month.ago,
   }, {
     :name          => 'John4',
     :email         => 'john4@example.com',
-    :profile       => Profile.create(point: 50),
+    :profile       => Profile.create(point: 50, token: 'j0pbel'),
   },
 ])
 

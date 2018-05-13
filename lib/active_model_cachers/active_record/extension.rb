@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'active_model_cachers/column_value_cache'
 require 'active_model_cachers/active_record/attr_model'
 require 'active_model_cachers/active_record/cacher'
 require 'active_model_cachers/hook/dependencies'
@@ -8,17 +9,17 @@ require 'active_model_cachers/hook/on_model_delete'
 module ActiveModelCachers
   module ActiveRecord
     module Extension
-      def cache_self
-        cache_at(nil, expire_by: self.name)
+      def cache_self(by: :id)
+        cache_at(nil, expire_by: self.name, primary_key: by, foreign_key: by)
       end
 
-      def cache_at(column, query = nil, expire_by: nil, on: nil, foreign_key: nil, primary_key: :id)
-        attr = AttrModel.new(self, column)
+      def cache_at(column, query = nil, expire_by: nil, on: nil, foreign_key: nil, primary_key: nil)
+        attr = AttrModel.new(self, column, primary_key: primary_key)
         return cache_belongs_to(attr) if attr.belongs_to?
 
         query ||= ->(id){ attr.query_model(self, id) }
         service_klass = CacheServiceFactory.create_for_active_model(attr, query)
-        Cacher.define_cacher_method(attr, primary_key, [service_klass])
+        Cacher.define_cacher_method(attr, attr.primary_key || :id, [service_klass])
 
         with_id = true if expire_by.is_a?(Symbol) or query.parameters.size == 1
         expire_class, expire_column, foreign_key = get_expire_infos(attr, expire_by, foreign_key)
@@ -79,19 +80,22 @@ module ActiveModelCachers
         return where(id: id).limit(1).pluck(column).first
       end
 
-      @@column_value_cache = Hash.new{|h, k| h[k] = {}}
+      @@column_value_cache = ActiveModelCachers::ColumnValueCache.new
       def define_callback_for_cleaning_cache(class_name, column, foreign_key, on: nil, &clean)
         ActiveSupport::Dependencies.onload(class_name) do
           clean_ids = []
-          cache = @@column_value_cache[class_name]
-          before_delete do |id, model|
-            clean_ids << (cache[[id, foreign_key]] ||= get_column_value_from_id(id, foreign_key, model))
+
+          prepend_before_delete do |id, model|
+            clean_ids << @@column_value_cache.add(self, class_name, id, foreign_key, model)
           end
 
-          after_delete do |_, model|
-            clean_ids.each{|s| clean.call(s) }
+          before_delete do |_, model|
+            clean_ids.each{|s| clean.call(s.call) }
             clean_ids = []
-            cache.clear
+          end
+
+          after_delete do
+            @@column_value_cache.clean_cache()
           end
 
           on_nullify(column){|ids| ids.each{|s| clean.call(s) }}
