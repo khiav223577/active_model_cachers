@@ -103,8 +103,8 @@ class CacheSelfByOtherColumnTest < BaseTest
     assert_queries(1){ profile.destroy }
     assert_cache({})
 
-    assert_queries(1){ assert_nil User.cacher_at('a').profile }
-    assert_queries(0){ assert_nil User.cacher_at('a').profile }
+    assert_queries(1){ assert_nil Profile.cacher_at('a').self_by_token }
+    assert_queries(0){ assert_nil Profile.cacher_at('a').self_by_token }
     assert_cache('active_model_cachers_Profile_by_token_a' => ActiveModelCachers::NilObject)
   ensure
     profile.destroy
@@ -123,8 +123,8 @@ class CacheSelfByOtherColumnTest < BaseTest
     assert_queries(1){ profile.delete }
     assert_cache({})
 
-    assert_queries(1){ assert_nil Profile.cacher_at('tt9wav').self_by_token }
-    assert_queries(0){ assert_nil Profile.cacher_at('tt9wav').self_by_token }
+    assert_queries(1){ assert_nil Profile.cacher_at('a').self_by_token }
+    assert_queries(0){ assert_nil Profile.cacher_at('a').self_by_token }
     assert_cache('active_model_cachers_Profile_by_token_a' => ActiveModelCachers::NilObject)
   ensure
     profile.delete
