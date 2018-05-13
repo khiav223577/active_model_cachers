@@ -71,7 +71,7 @@ class CacheAtHasOneTest < BaseTest
     Rails.cache.write('active_model_cachers_Profile_by_user_id_2', profile)
     assert_cache('active_model_cachers_Profile_by_user_id_2' => profile)
 
-    assert_queries(0){ User.cacher_at(profile.id).clean_profile }
+    assert_queries(0){ User.cacher_at(2).clean_profile }
     assert_cache({})
   end
 
@@ -81,7 +81,7 @@ class CacheAtHasOneTest < BaseTest
     Rails.cache.write('active_model_cachers_Profile_by_user_id_2', profile)
     assert_cache('active_model_cachers_Profile_by_user_id_2' => profile)
 
-    assert_queries(0){ User.cacher_at(profile.id).clean(:profile) }
+    assert_queries(0){ User.cacher_at(2).clean(:profile) }
     assert_cache({})
   end
 
@@ -191,8 +191,8 @@ class CacheAtHasOneTest < BaseTest
   end
 
   def test_destroyed_by_dependent_delete
-    profile = Profile.create(id: -3, user_id: -2, point: 17)
-    user = User.create(profile: profile)
+    profile = Profile.create(id: -3, point: 17)
+    user = User.create(id: -2, profile: profile)
 
     assert_queries(1){ assert_equal 17, User.cacher_at(-2).profile.point }
     assert_queries(0){ assert_equal 17, User.cacher_at(-2).profile.point }
