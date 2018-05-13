@@ -30,12 +30,11 @@ Or install it yourself as:
 
     $ gem install active_model_cachers
 
-### Specify where the cache will be stored
+Add an initializer with this code to your project:
 
-Add the following to your environment files (production.rb, development.rb, test.rb):
 ```rb
 ActiveModelCachers.config do |config|
-  config.store = Rails.cache
+  config.store = Rails.cache # specify where the cache will be stored
 end
 ```
 
