@@ -15,7 +15,7 @@ class ActiveModelCachers::ColumnValueCache
       no_data_keys = @cache1[class_name].select{|k, v| v == :not_set }.keys
       ids = no_data_keys.map(&:first).uniq
       columns = ['id', *no_data_keys.map(&:second)].uniq
-      object.where(id: ids).limit(ids.size).pluck(*columns).each do |columns_data|
+      pluck_columns(object, object.where(id: ids).limit(ids.size), columns).each do |columns_data|
         model_id = columns_data.first
         columns.each_with_index do |column, index|
           cache[[model_id, column]] = columns_data[index]
@@ -31,6 +31,10 @@ class ActiveModelCachers::ColumnValueCache
   end
 
   private
+
+  def pluck_columns(_, relation, columns)
+    relation.pluck(*columns)
+  end
 
   def get_id_from(object, id, column, model)
     return id if column == 'id'
