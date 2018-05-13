@@ -22,7 +22,7 @@ class CacheAtHasManyTest < BaseTest
 
   def test_instance_cacher_to_use_association_cache
     user = User.find_by(name: 'John1')
-    posts = user.posts
+    posts = user.posts.to_a # to_a to make sure posts is loaded
 
     assert_queries(0){ assert_equal 3, user.cacher.posts.size }
     assert_cache('active_model_cachers_User_at_posts_1' => posts)
