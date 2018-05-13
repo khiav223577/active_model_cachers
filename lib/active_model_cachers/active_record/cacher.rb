@@ -41,8 +41,6 @@ module ActiveModelCachers
           if attr.has_one?
             data = @model.send(attr.column).try(primary_key)
           else
-            data = @model.send(attr.foreign_key)
-            service_klasses = [service_klasses.last]
           end
         end
         data ||= (@model ? @model.send(primary_key) : nil) || @id
