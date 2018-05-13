@@ -12,8 +12,8 @@ module ActiveModelCachers
         cache_at(nil, expire_by: self.name, primary_key: by)
       end
 
-      def cache_at(column, query = nil, expire_by: nil, on: nil, foreign_key: nil, primary_key: :id)
-        attr = AttrModel.new(self, column)
+      def cache_at(column, query = nil, expire_by: nil, on: nil, foreign_key: nil, primary_key: nil)
+        attr = AttrModel.new(self, column, primary_key: primary_key)
         return cache_belongs_to(attr) if attr.belongs_to?
 
         query ||= ->(id){ attr.query_model(self, id) }
