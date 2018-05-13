@@ -5,7 +5,6 @@ class ActiveModelCachers::ColumnValueCache
   end
 
   def add(object, class_name, id, foreign_key, model)
-    @cache2[class_name].clear
     value = (@cache1[class_name][[id, foreign_key]] ||= get_id_from(object, id, foreign_key, model))
     return ->{ (value == :not_set ? query_value(object, class_name, id, foreign_key) : value)}
   end
@@ -13,8 +12,7 @@ class ActiveModelCachers::ColumnValueCache
   def query_value(object, class_name, id, foreign_key)
     cache = @cache2[class_name]
     if cache.empty?
-      no_data_keys = @cache1[class_name].select{|k, v| v == nil }.keys
-      @cache1[class_name].clear
+      no_data_keys = @cache1[class_name].select{|k, v| v == :not_set }.keys
       ids = no_data_keys.map(&:first).uniq
       columns = ['id', *no_data_keys.map(&:second)].uniq
       object.where(id: ids).limit(ids.size).pluck(*columns).each do |columns_data|
@@ -25,6 +23,11 @@ class ActiveModelCachers::ColumnValueCache
       end
     end
     return cache[[id, foreign_key]]
+  end
+
+  def clean_cache
+    @cache1.clear
+    @cache2.clear
   end
 
   private
