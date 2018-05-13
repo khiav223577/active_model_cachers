@@ -35,9 +35,10 @@ module ActiveModelCachers
       return cache_to_raw_data(@cached_data)
     end
 
-    def clean_cache
+    def clean_cache(binding: nil)
       @cached_data = nil
       Rails.cache.delete(cache_key)
+      return nil
     end
 
     private

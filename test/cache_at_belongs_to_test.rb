@@ -33,6 +33,7 @@ class CacheAtBelongsToTest < BaseTest
     assert_queries(0){ assert_equal 'zh-tw', user.cacher.language.name }
     assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => user.language)
   end
+
   # ----------------------------------------------------------------
   # ● Create
   # ----------------------------------------------------------------
@@ -56,6 +57,45 @@ class CacheAtBelongsToTest < BaseTest
   ensure
     user.update_attributes(language_id: nil)
     language.delete if language
+  end
+
+  # ----------------------------------------------------------------
+  # ● Clean
+  # ----------------------------------------------------------------
+  def test_clean
+    user = User.find_by(name: 'John1')
+    language = user.language
+
+    Rails.cache.write('active_model_cachers_User_at_language_id_1', 2)
+    Rails.cache.write('active_model_cachers_Language_2', language)
+    assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => language)
+
+    assert_queries(0){ User.cacher_at(user.id).clean_language }
+    assert_cache('active_model_cachers_Language_2' => language) # only need to clean cache at language_id
+  end
+
+  def test_clean2
+    user = User.find_by(name: 'John1')
+    language = user.language
+
+    Rails.cache.write('active_model_cachers_User_at_language_id_1', 2)
+    Rails.cache.write('active_model_cachers_Language_2', language)
+    assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => language)
+
+    assert_queries(0){ User.cacher_at(user.id).clean(:language) }
+    assert_cache('active_model_cachers_Language_2' => language) # only need to clean cache at language_id
+  end
+
+  def test_clean_in_instance_cacher
+    user = User.find_by(name: 'John1')
+    language = user.language
+
+    Rails.cache.write('active_model_cachers_User_at_language_id_1', 2)
+    Rails.cache.write('active_model_cachers_Language_2', language)
+    assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => language)
+
+    assert_queries(0){ user.cacher.clean_language }
+    assert_cache('active_model_cachers_Language_2' => language) # only need to clean cache at language_id
   end
 
   # ----------------------------------------------------------------

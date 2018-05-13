@@ -46,6 +46,39 @@ class CacheAtAttributeTest < BaseTest
   end
 
   # ----------------------------------------------------------------
+  # ● Clean
+  # ----------------------------------------------------------------
+  def test_clean
+    profile = User.find_by(name: 'John2').profile
+
+    Rails.cache.write('active_model_cachers_Profile_at_point_1', 10)
+    assert_cache('active_model_cachers_Profile_at_point_1' => 10)
+
+    assert_queries(0){ Profile.cacher_at(profile.id).clean_point }
+    assert_cache({})
+  end
+
+  def test_clean2
+    profile = User.find_by(name: 'John2').profile
+
+    Rails.cache.write('active_model_cachers_Profile_at_point_1', 10)
+    assert_cache('active_model_cachers_Profile_at_point_1' => 10)
+
+    assert_queries(0){ Profile.cacher_at(profile.id).clean(:point) }
+    assert_cache({})
+  end
+
+  def test_clean_in_instance_cacher
+    profile = Profile.select(:id).first
+
+    Rails.cache.write('active_model_cachers_Profile_at_point_1', 10)
+    assert_cache('active_model_cachers_Profile_at_point_1' => 10)
+
+    assert_queries(0){ profile.cacher.clean_point }
+    assert_cache({})
+  end
+
+  # ----------------------------------------------------------------
   # ● Update
   # ----------------------------------------------------------------
   def test_update_nothing

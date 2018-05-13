@@ -10,6 +10,9 @@ class CacheUserCountTest < BaseTest
     assert_cache('active_model_cachers_User_at_count' => 4)
   end
 
+  # ----------------------------------------------------------------
+  # ● Create
+  # ----------------------------------------------------------------
   def test_create
     user = nil
 
@@ -27,6 +30,28 @@ class CacheUserCountTest < BaseTest
     user.destroy if user
   end
 
+  # ----------------------------------------------------------------
+  # ● Clean
+  # ----------------------------------------------------------------
+  def test_clean
+    Rails.cache.write('active_model_cachers_User_at_count', 4)
+    assert_cache('active_model_cachers_User_at_count' => 4)
+
+    assert_queries(0){ User.cacher.clean_count }
+    assert_cache({})
+  end
+
+  def test_clean2
+    Rails.cache.write('active_model_cachers_User_at_count', 4)
+    assert_cache('active_model_cachers_User_at_count' => 4)
+
+    assert_queries(0){ User.cacher.clean(:count) }
+    assert_cache({})
+  end
+
+  # ----------------------------------------------------------------
+  # ● Update
+  # ----------------------------------------------------------------
   def test_update_nothing
     user = User.find_by(name: 'John2')
 
@@ -57,6 +82,9 @@ class CacheUserCountTest < BaseTest
     user.update_attributes(name: 'John2')
   end
 
+  # ----------------------------------------------------------------
+  # ● Destroy
+  # ----------------------------------------------------------------
   def test_destroy
     user = User.create
 
@@ -74,6 +102,9 @@ class CacheUserCountTest < BaseTest
     user.destroy
   end
 
+  # ----------------------------------------------------------------
+  # ● Delete
+  # ----------------------------------------------------------------
   def test_delete
     user = User.create
 

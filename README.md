@@ -118,6 +118,23 @@ render_error if not current_user.cacher.email_valid?
 
 It can also be accessed from instance cacher. But you have to set [`primary_key`](#primary_key), which is needed to know which attribute should be passed to the parameter.
 
+### Example 5: Clean the cache manually
+
+Sometimes it needs to maintain the cache manually. For example, after calling `update_all`, `delete_all` or `import` records without calling callbacks.
+
+```rb
+class User < ActiveRecord::Base
+  has_one :profile
+  cache_at :profile
+end
+
+# clean the cache by name
+current_user.cacher.clean(:profile)
+
+# Or calling the clean_* method
+current_user.cacher.clean_profile
+```
+
 ## Smart Caching
 
 ### Multi-level Cache
@@ -128,7 +145,7 @@ There is multi-level cache in order to make the speed of data access go faster.
 3. Association Cache
 4. Database
 
-`RequestStore` is used to make sure same object will not loaded from cache twice, since the data transfer between `Cache` and `Application` still consumes time. 
+`RequestStore` is used to make sure same object will not loaded from cache twice, since the data transfer between `Cache` and `Application` still consumes time.
 
 `Association Cache` will be used to prevent preloaded objects being loaded again.
 
