@@ -7,7 +7,7 @@ class ActiveModelCachers::ColumnValueCache
   def add(object, class_name, id, foreign_key, model)
     @cache2[class_name].clear
     value = (@cache1[class_name][[id, foreign_key]] ||= get_id_from(object, id, foreign_key, model))
-    return ->{ value || query_value(object, class_name, id, foreign_key) }
+    return ->{ (value == :not_set ? query_value(object, class_name, id, foreign_key) : value)}
   end
 
   def query_value(object, class_name, id, foreign_key)
@@ -33,5 +33,6 @@ class ActiveModelCachers::ColumnValueCache
     return id if column == 'id'
     model ||= object.cacher_at(id).peek_self if object.has_cacher?
     return model.send(column) if model
+    return :not_set
   end
 end
