@@ -18,7 +18,7 @@ class CacheAtAttributeTest < BaseTest
     assert_cache('active_model_cachers_Profile_at_point_1' => 10)
   end
 
-  def test_instance_cacher_to_use_association_cache
+  def test_instance_cacher_to_use_loaded_associations
     profile = Profile.first
 
     assert_queries(0){ assert_equal 10, profile.cacher.point }

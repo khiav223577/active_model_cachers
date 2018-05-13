@@ -18,12 +18,19 @@ class CacheAtHasOneTest < BaseTest
     assert_cache('active_model_cachers_Profile_1' => user.profile)
   end
 
-  def test_instance_cacher_to_use_association_cache
+  def test_instance_cacher_to_use_loaded_associations
     user = User.find_by(name: 'John2')
     profile = user.profile
 
     assert_queries(0){ assert_equal 10, user.cacher.profile.point }
     assert_cache('active_model_cachers_Profile_1' => profile)
+  end
+
+  def test_instance_cacher_to_use_preloaded_associations
+    user = User.includes(:profile).find_by(name: 'John2')
+
+    assert_queries(0){ assert_equal 10, user.cacher.profile.point }
+    assert_cache('active_model_cachers_Profile_1' => user.profile)
   end
 
   # ----------------------------------------------------------------

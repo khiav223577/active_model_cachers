@@ -19,7 +19,7 @@ class CacheAtBelongsToTest < BaseTest
     assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => user.language)
   end
 
-  def test_instance_cacher_to_use_association_cache
+  def test_instance_cacher_to_use_loaded_associations
     user = User.find_by(name: 'John1')
     language = user.language
 
@@ -27,6 +27,12 @@ class CacheAtBelongsToTest < BaseTest
     assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => language)
   end
 
+  def test_instance_cacher_to_use_preloaded_associations
+    user = User.includes(:language).find_by(name: 'John1')
+
+    assert_queries(0){ assert_equal 'zh-tw', user.cacher.language.name }
+    assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => user.language)
+  end
   # ----------------------------------------------------------------
   # ● Create
   # ----------------------------------------------------------------
