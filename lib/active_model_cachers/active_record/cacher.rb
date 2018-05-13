@@ -44,9 +44,10 @@ module ActiveModelCachers
         bindings = [@model]
         if @model and attr.association?
           get_target = ->{ @model.association(attr.column).load_target }
-          if attr.has_one?
+          case
+          when attr.has_one?
             data = get_target.call.try(primary_key)
-          else
+          when attr.belongs_to?
             bindings << get_target.call if method != :clean_cache # no need to load binding when just cleaning cache
           end
         end
