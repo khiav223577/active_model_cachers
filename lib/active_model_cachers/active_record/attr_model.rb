@@ -88,9 +88,9 @@ module ActiveModelCachers
         return binding.association(@column).load_target if binding.is_a?(::ActiveRecord::Base)
         id = @reflect.active_record.where(id: id).limit(1).pluck(foreign_key).first if foreign_key != 'id'
         case
-        when @reflect.collection? ; return id ? @reflect.klass.where(@reflect.foreign_key => id).to_a : []
-        when @reflect.has_one?    ; return id ? @reflect.klass.find_by(foreign_key(reverse: true) => id) : nil
-        else                      ; return id ? @reflect.klass.find_by(primary_key => id) : nil
+        when collection? ; return id ? @reflect.klass.where(@reflect.foreign_key => id).to_a : []
+        when has_one?    ; return id ? @reflect.klass.find_by(foreign_key(reverse: true) => id) : nil
+        else             ; return id ? @reflect.klass.find_by(primary_key => id) : nil
         end
       end
     end
