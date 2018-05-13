@@ -89,7 +89,7 @@ module ActiveModelCachers
           end
 
           after_delete do |_, model|
-            clean_ids.each{|s| clean.call(s.get_id) }
+            clean_ids.each{|s| clean.call(s.call) }
             clean_ids = []
             @@column_value_cache.clear_at(class_name)
           end
