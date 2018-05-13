@@ -10,6 +10,15 @@ class InstanceScopeTest < BaseTest
     assert_cache('active_model_cachers_User_at_has_post2?_1' => true)
   end
 
+  def test_without_association_cache
+    user1 = User.find_by(name: 'John1')
+    user2 = User.find_by(name: 'John1')
+
+    assert_queries(1){ assert_equal true, user1.cacher.has_post2? }
+    assert_queries(0){ assert_equal true, user2.cacher.has_post2? }
+    assert_cache('active_model_cachers_User_at_has_post2?_1' => true)
+  end
+
   # ----------------------------------------------------------------
   # ● Create
   # ----------------------------------------------------------------

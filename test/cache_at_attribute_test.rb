@@ -18,6 +18,15 @@ class CacheAtAttributeTest < BaseTest
     assert_cache('active_model_cachers_Profile_at_point_1' => 10)
   end
 
+  def test_instance_cacher_without_association_cache
+    profile1 = Profile.select(:id).first # The only use case of this may be that profile doesn't select the attribute.
+    profile2 = Profile.select(:id).first # The only use case of this may be that profile doesn't select the attribute.
+
+    assert_queries(1){ assert_equal 10, profile1.cacher.point }
+    assert_queries(0){ assert_equal 10, profile2.cacher.point }
+    assert_cache('active_model_cachers_Profile_at_point_1' => 10)
+  end
+
   def test_instance_cacher_to_use_loaded_associations
     profile = Profile.first
 

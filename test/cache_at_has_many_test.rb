@@ -13,11 +13,19 @@ class CacheAtHasManyTest < BaseTest
 
   def test_basic_usage_of_instance_cacher
     user = User.find_by(name: 'John1')
-    posts = user.posts
 
     assert_queries(1){ assert_equal 3, user.cacher.posts.size }
     assert_queries(0){ assert_equal 3, user.cacher.posts.size }
     assert_cache('active_model_cachers_User_at_posts_1' => user.posts)
+  end
+
+  def test_instance_cacher_without_association_cache
+    user1 = User.find_by(name: 'John1')
+    user2 = User.find_by(name: 'John1')
+
+    assert_queries(1){ assert_equal 3, user1.cacher.posts.size }
+    assert_queries(0){ assert_equal 3, user2.cacher.posts.size }
+    assert_cache('active_model_cachers_User_at_posts_1' => user1.posts)
   end
 
   def test_instance_cacher_to_use_loaded_associations

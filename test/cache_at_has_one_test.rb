@@ -18,6 +18,15 @@ class CacheAtHasOneTest < BaseTest
     assert_cache('active_model_cachers_Profile_1' => user.profile)
   end
 
+  def test_instance_cacher_without_association_cache
+    user1 = User.find_by(name: 'John2')
+    user2 = User.find_by(name: 'John2')
+
+    assert_queries(1){ assert_equal 10, user1.cacher.profile.point }
+    assert_queries(0){ assert_equal 10, user2.cacher.profile.point }
+    assert_cache('active_model_cachers_Profile_1' => user1.profile)
+  end
+
   def test_instance_cacher_to_use_loaded_associations
     user = User.find_by(name: 'John2')
     profile = user.profile
