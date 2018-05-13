@@ -63,9 +63,20 @@ module ActiveModelCachers
       end
 
       def query_model(binding, id)
-        return binding.send(@column) if association? and binding.is_a?(::ActiveRecord::Base)
         return @klass.find_by(id: id) if @column == nil # Cache self
-        return @klass.where(id: id).limit(1).pluck(@column).first if not association? # Cache attributes
+        return query_association(binding, id) if association?
+        return query_attribute(binding, id)
+      end
+
+      private
+
+      def query_attribute(binding, id)
+        return binding.send(@column) if binding.is_a?(::ActiveRecord::Base) and binding.has_attribute?(@column)
+        return @klass.where(id: id).limit(1).pluck(@column).first
+      end
+
+      def query_association(binding, id)
+        return binding.send(@column) if binding.is_a?(::ActiveRecord::Base)
         id = @reflect.active_record.where(id: id).limit(1).pluck(foreign_key).first if foreign_key != 'id'
         if @reflect.collection?
           return id ? @reflect.klass.where(@reflect.foreign_key => id).to_a : []
