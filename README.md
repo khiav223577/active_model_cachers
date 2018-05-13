@@ -8,6 +8,11 @@
 
 Provide cachers to the model so that you could specify which you want to cache. Data will be cached at `Rails.cache` and also at application level via `RequestStore` to cache values between requests. Cachers will maintain cached objects and expire them when they are changed (by create, update, destroy, and even delete).
 
+- [Multi-level Cache](#multi-level-cache)
+- Do not pollute original ActiveModel API.
+- Support ActiveRecord 3, 4, 5.
+- High test coverage
+
 
 ## Installation
 
