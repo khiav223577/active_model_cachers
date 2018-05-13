@@ -59,8 +59,7 @@ class CacheAtHasOneTest < BaseTest
   def test_clean
     profile = User.find_by(name: 'John2').profile
 
-    assert_queries(1){ assert_equal 10, User.cacher_at(profile.id).profile.point }
-    assert_queries(0){ assert_equal 10, User.cacher_at(profile.id).profile.point }
+    Rails.cache.write('active_model_cachers_Profile_1', profile)
     assert_cache('active_model_cachers_Profile_1' => profile)
 
     assert_queries(0){ User.cacher_at(profile.id).clean_profile }
@@ -70,8 +69,7 @@ class CacheAtHasOneTest < BaseTest
   def test_clean_in_instance_cacher
     user = User.find_by(name: 'John2')
 
-    assert_queries(1){ assert_equal 10, user.cacher.profile.point }
-    assert_queries(0){ assert_equal 10, user.cacher.profile.point }
+    Rails.cache.write('active_model_cachers_Profile_1', user.profile)
     assert_cache('active_model_cachers_Profile_1' => user.profile)
 
     assert_queries(0){ user.cacher.clean_profile }

@@ -39,8 +39,7 @@ class CacheSelfTest < BaseTest
   def test_clean
     profile = User.find_by(name: 'John2').profile
 
-    assert_queries(1){ assert_equal 10, Profile.cacher_at(profile.id).self.point }
-    assert_queries(0){ assert_equal 10, Profile.cacher_at(profile.id).self.point }
+    Rails.cache.write('active_model_cachers_Profile_1', profile)
     assert_cache('active_model_cachers_Profile_1' => profile)
 
     assert_queries(0){ Profile.cacher_at(profile.id).clean_self }

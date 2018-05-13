@@ -39,9 +39,7 @@ class CacheEmailValidTest < BaseTest
   # ● Clean
   # ----------------------------------------------------------------
   def test_clean
-    user = User.find_by(name: 'John2')
-    assert_queries(1){ assert_equal true, User.cacher_at('john2@example.com').email_valid? }
-    assert_queries(0){ assert_equal true, User.cacher_at('john2@example.com').email_valid? }
+    Rails.cache.write('active_model_cachers_User_at_email_valid?_john2@example.com', true)
     assert_cache('active_model_cachers_User_at_email_valid?_john2@example.com' => true)
 
     assert_queries(0){ User.cacher_at('john2@example.com').clean_email_valid? }
@@ -50,8 +48,8 @@ class CacheEmailValidTest < BaseTest
 
   def test_clean_in_instance_cacher
     user = User.find_by(name: 'John2')
-    assert_queries(1){ assert_equal true, user.cacher.email_valid? }
-    assert_queries(0){ assert_equal true, user.cacher.email_valid? }
+
+    Rails.cache.write('active_model_cachers_User_at_email_valid?_john2@example.com', true)
     assert_cache('active_model_cachers_User_at_email_valid?_john2@example.com' => true)
 
     assert_queries(0){ user.cacher.clean_email_valid? }

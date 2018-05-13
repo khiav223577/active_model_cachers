@@ -66,8 +66,8 @@ class CacheAtBelongsToTest < BaseTest
     user = User.find_by(name: 'John1')
     language = user.language
 
-    assert_queries(2){ assert_equal 'zh-tw', User.cacher_at(user.id).language.name }
-    assert_queries(0){ assert_equal 'zh-tw', User.cacher_at(user.id).language.name }
+    Rails.cache.write('active_model_cachers_User_at_language_id_1', 2)
+    Rails.cache.write('active_model_cachers_Language_2', language)
     assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => language)
 
     assert_queries(0){ User.cacher_at(user.id).clean_language }
@@ -76,10 +76,11 @@ class CacheAtBelongsToTest < BaseTest
 
   def test_clean_in_instance_cacher
     user = User.find_by(name: 'John1')
+    language = user.language
 
-    assert_queries(1){ assert_equal 'zh-tw', user.cacher.language.name }
-    assert_queries(0){ assert_equal 'zh-tw', user.cacher.language.name }
-    assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => user.language)
+    Rails.cache.write('active_model_cachers_User_at_language_id_1', 2)
+    Rails.cache.write('active_model_cachers_Language_2', language)
+    assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => language)
 
     assert_queries(0){ user.cacher.clean_language }
     assert_cache({})

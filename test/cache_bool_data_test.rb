@@ -54,8 +54,7 @@ class CacheBoolDataTest < BaseTest
   def test_clean
     user = User.find_by(name: 'John1')
 
-    assert_queries(1){ assert_equal true, User.cacher_at(user.id).has_post? }
-    assert_queries(0){ assert_equal true, User.cacher_at(user.id).has_post? }
+    Rails.cache.write('active_model_cachers_User_at_has_post?_1', true)
     assert_cache('active_model_cachers_User_at_has_post?_1' => true)
 
     assert_queries(0){ User.cacher_at(user.id).clean_has_post? }
@@ -65,8 +64,7 @@ class CacheBoolDataTest < BaseTest
   def test_clean_in_instance_cacher
     user = User.find_by(name: 'John1')
 
-    assert_queries(1){ assert_equal true, user.cacher.has_post? }
-    assert_queries(0){ assert_equal true, user.cacher.has_post? }
+    Rails.cache.write('active_model_cachers_User_at_has_post?_1', true)
     assert_cache('active_model_cachers_User_at_has_post?_1' => true)
 
     assert_queries(0){ user.cacher.clean_has_post? }

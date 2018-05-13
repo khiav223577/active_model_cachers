@@ -34,10 +34,7 @@ class CacheActiveUserCountTest < BaseTest
   # ● Clean
   # ----------------------------------------------------------------
   def test_clean
-    assert_queries(1){ assert_equal 2, User.cacher.active_count }
-    assert_cache('active_model_cachers_User_at_active_count' => 2)
-
-    assert_queries(0){ assert_equal 2, User.cacher.active_count }
+    Rails.cache.write('active_model_cachers_User_at_active_count', 2)
     assert_cache('active_model_cachers_User_at_active_count' => 2)
 
     assert_queries(0){ User.cacher.clean_active_count }
