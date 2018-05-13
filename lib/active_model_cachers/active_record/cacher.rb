@@ -6,7 +6,7 @@ module ActiveModelCachers
 
       class << self
         def define_cacher_method(attr, primary_key, service_klasses)
-          method = attr.column || :self
+          method = attr.column || (primary_key == :id ? :self : :"self_by_#{primary_key}")
           cacher_klass = get_cacher_klass(attr.klass)
           cacher_klass.attributes << method
           cacher_klass.send(:define_method, method){ exec_by(attr, primary_key, service_klasses, :get) }

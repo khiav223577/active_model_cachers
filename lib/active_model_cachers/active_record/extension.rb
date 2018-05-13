@@ -8,8 +8,8 @@ require 'active_model_cachers/hook/on_model_delete'
 module ActiveModelCachers
   module ActiveRecord
     module Extension
-      def cache_self
-        cache_at(nil, expire_by: self.name)
+      def cache_self(by: :id)
+        cache_at(nil, expire_by: self.name, primary_key: by)
       end
 
       def cache_at(column, query = nil, expire_by: nil, on: nil, foreign_key: nil, primary_key: :id)
