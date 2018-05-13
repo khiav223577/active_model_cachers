@@ -16,4 +16,34 @@ class OverrideAssociationMethodTest < BaseTest
     assert_queries(0){ assert_equal 'zh-tw', user.cacher.language.name }
     assert_cache('active_model_cachers_User_at_language_id_2' => 2, 'active_model_cachers_Language_2' => language)
   end
+
+  def test_override_has_one_association_method
+    user = User.find_by(name: 'John2')
+    profile = user.profile
+
+    counter = 1
+    user.define_singleton_method(:profile) do
+      counter += 1
+      raise SystemStackError.new('stack level too deep') if counter > 3
+      next cacher.profile
+    end
+
+    assert_queries(0){ assert_equal 10, user.cacher.profile.point }
+    assert_cache('active_model_cachers_Profile_1' => profile)
+  end
+
+  def test_override_has_many_association_method
+    user = User.find_by(name: 'John2')
+    posts = user.posts.to_a
+
+    counter = 1
+    user.define_singleton_method(:posts) do
+      counter += 1
+      raise SystemStackError.new('stack level too deep') if counter > 3
+      next cacher.posts
+    end
+
+    assert_queries(0){ assert_equal 2, user.cacher.posts.size }
+    assert_cache('active_model_cachers_User_at_posts_2' => posts)
+  end
 end
