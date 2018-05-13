@@ -37,14 +37,19 @@ module ActiveModelCachers
       private
 
       def exec_by(attr, primary_key, service_klasses, method)
+        bindings = [@model]
         if @model and attr.association?
           if attr.has_one?
             data = @model.send(attr.column).try(primary_key)
           else
+            bindings << @model.send(attr.column) if @model.is_a?(::ActiveRecord::Base)
           end
         end
         data ||= (@model ? @model.send(primary_key) : nil) || @id
-        service_klasses.all?{|s| (data = s.instance(data).send(method, binding: @model)) != nil }
+        service_klasses.each_with_index do |service_klass, index|
+          data = service_klass.instance(data).send(method, binding: bindings[index])
+          return if data == nil
+        end
         return data
       end
     end

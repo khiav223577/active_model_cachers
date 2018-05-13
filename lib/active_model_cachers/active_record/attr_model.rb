@@ -63,12 +63,17 @@ module ActiveModelCachers
       end
 
       def query_model(binding, id)
-        return @klass.find_by(id: id) if @column == nil # Cache self
+        return query_self(binding, id) if @column == nil
         return query_association(binding, id) if association?
         return query_attribute(binding, id)
       end
 
       private
+
+      def query_self(binding, id)
+        return binding if binding.is_a?(::ActiveRecord::Base)
+        return @klass.find_by(id: id)
+      end
 
       def query_attribute(binding, id)
         return binding.send(@column) if binding.is_a?(::ActiveRecord::Base) and binding.has_attribute?(@column)

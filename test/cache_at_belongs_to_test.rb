@@ -24,7 +24,7 @@ class CacheAtBelongsToTest < BaseTest
     language = user.language
 
     assert_queries(0){ assert_equal 'zh-tw', user.cacher.language.name }
-    assert_cache('active_model_cachers_Language_2' => language)
+    assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => language)
   end
 
   # ----------------------------------------------------------------
