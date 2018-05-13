@@ -71,7 +71,7 @@ class CacheAtBelongsToTest < BaseTest
     assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => language)
 
     assert_queries(0){ User.cacher_at(user.id).clean_language }
-    assert_cache({})
+    assert_cache('active_model_cachers_Language_2' => language) # only need to clean cache at language_id
   end
 
   def test_clean2
@@ -83,7 +83,7 @@ class CacheAtBelongsToTest < BaseTest
     assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => language)
 
     assert_queries(0){ User.cacher_at(user.id).clean(:language) }
-    assert_cache({})
+    assert_cache('active_model_cachers_Language_2' => language) # only need to clean cache at language_id
   end
 
   def test_clean_in_instance_cacher
@@ -95,7 +95,7 @@ class CacheAtBelongsToTest < BaseTest
     assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => language)
 
     assert_queries(0){ user.cacher.clean_language }
-    assert_cache({})
+    assert_cache('active_model_cachers_Language_2' => language) # only need to clean cache at language_id
   end
 
   # ----------------------------------------------------------------
