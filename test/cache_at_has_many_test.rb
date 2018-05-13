@@ -58,6 +58,21 @@ class CacheAtHasManyTest < BaseTest
   end
 
   # ----------------------------------------------------------------
+  # ● Clean
+  # ----------------------------------------------------------------
+  def test_clean
+    user = User.find_by(name: 'John1')
+    posts = user.posts
+
+    assert_queries(1){ assert_equal 3, User.cacher_at(user.id).posts.size }
+    assert_queries(0){ assert_equal 3, User.cacher_at(user.id).posts.size }
+    assert_cache('active_model_cachers_User_at_posts_1' => posts)
+
+    assert_queries(0){ User.cacher_at(user.id).clean_posts }
+    assert_cache({})
+  end
+
+  # ----------------------------------------------------------------
   # ● Update
   # ----------------------------------------------------------------
   def test_update_nothing

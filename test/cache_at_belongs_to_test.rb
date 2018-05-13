@@ -33,6 +33,7 @@ class CacheAtBelongsToTest < BaseTest
     assert_queries(0){ assert_equal 'zh-tw', user.cacher.language.name }
     assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => user.language)
   end
+
   # ----------------------------------------------------------------
   # ● Create
   # ----------------------------------------------------------------
@@ -56,6 +57,21 @@ class CacheAtBelongsToTest < BaseTest
   ensure
     user.update_attributes(language_id: nil)
     language.delete if language
+  end
+
+  # ----------------------------------------------------------------
+  # ● Clean
+  # ----------------------------------------------------------------
+  def test_clean
+    user = User.find_by(name: 'John1')
+    language = user.language
+
+    assert_queries(2){ assert_equal 'zh-tw', User.cacher_at(user.id).language.name }
+    assert_queries(0){ assert_equal 'zh-tw', User.cacher_at(user.id).language.name }
+    assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => language)
+
+    assert_queries(0){ User.cacher_at(user.id).clean_language }
+    assert_cache({})
   end
 
   # ----------------------------------------------------------------

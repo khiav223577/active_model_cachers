@@ -36,6 +36,19 @@ class CacheEmailValidTest < BaseTest
   end
 
   # ----------------------------------------------------------------
+  # ● Clean
+  # ----------------------------------------------------------------
+  def test_clean
+    user = User.find_by(name: 'John2')
+    assert_queries(1){ assert_equal true, User.cacher_at('john2@example.com').email_valid? }
+    assert_queries(0){ assert_equal true, User.cacher_at('john2@example.com').email_valid? }
+    assert_cache('active_model_cachers_User_at_email_valid?_john2@example.com' => true)
+
+    assert_queries(0){ User.cacher_at('john2@example.com').clean_email_valid? }
+    assert_cache({})
+  end
+
+  # ----------------------------------------------------------------
   # ● Update
   # ----------------------------------------------------------------
   def test_update_nothing

@@ -11,6 +11,7 @@ module ActiveModelCachers
           cacher_klass.attributes << method
           cacher_klass.send(:define_method, method){ exec_by(attr, primary_key, service_klasses, :get) }
           cacher_klass.send(:define_method, "peek_#{method}"){ exec_by(attr, primary_key, service_klasses, :peek) }
+          cacher_klass.send(:define_method, "clean_#{method}"){ exec_by(attr, primary_key, service_klasses, :clean_cache) }
         end
 
         def get_cacher_klass(klass)

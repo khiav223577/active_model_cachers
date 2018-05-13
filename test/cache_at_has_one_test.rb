@@ -53,6 +53,23 @@ class CacheAtHasOneTest < BaseTest
     profile.destroy if profile
   end
 
+  # ----------------------------------------------------------------
+  # ● Clean
+  # ----------------------------------------------------------------
+  def test_clean
+    profile = User.find_by(name: 'John2').profile
+
+    assert_queries(1){ assert_equal 10, User.cacher_at(profile.id).profile.point }
+    assert_queries(0){ assert_equal 10, User.cacher_at(profile.id).profile.point }
+    assert_cache('active_model_cachers_Profile_1' => profile)
+
+    assert_queries(0){ User.cacher_at(profile.id).clean_profile }
+    assert_cache({})
+  end
+
+  # ----------------------------------------------------------------
+  # ● Update
+  # ----------------------------------------------------------------
   def test_update_nothing
     profile = User.find_by(name: 'John2').profile
 
