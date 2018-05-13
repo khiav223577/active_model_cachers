@@ -166,7 +166,7 @@ end
 @profile = current_user.cacher.profile
 
 # directly get profile without loading user.
-@profile = User.cacher_at(profile_id).profile
+@profile = User.cacher_at(user_id).profile
 ```
 
 ### Caching Polymorphic Associations

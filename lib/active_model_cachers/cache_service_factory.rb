@@ -31,7 +31,8 @@ module ActiveModelCachers
       def get_cache_key(attr)
         class_name, column = (attr.single_association? ? [attr.class_name, nil] : [attr.klass, attr.column])
         return "active_model_cachers_#{class_name}_at_#{column}" if column
-        return "active_model_cachers_#{class_name}_by_#{attr.primary_key}" if attr.primary_key and attr.primary_key.to_s != 'id'
+        foreign_key = attr.foreign_key(reverse: true)
+        return "active_model_cachers_#{class_name}_by_#{foreign_key}" if foreign_key and foreign_key.to_s != 'id'
         return "active_model_cachers_#{class_name}"
       end
     end
