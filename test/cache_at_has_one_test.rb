@@ -191,7 +191,7 @@ class CacheAtHasOneTest < BaseTest
   end
 
   def test_destroyed_by_dependent_delete
-    profile = Profile.create(id: -3, point: 17)
+    profile = Profile.create(id: -3, user_id: -2, point: 17)
     user = User.create(id: -2, profile: profile)
 
     assert_queries(1){ assert_equal 17, User.cacher_at(-2).profile.point }
