@@ -16,7 +16,7 @@ module ActiveModelCachers
         attr = AttrModel.new(self, column)
         return cache_belongs_to(attr) if attr.belongs_to?
 
-        query ||= ->(id){ attr.query_model(id) }
+        query ||= ->(id){ attr.query_model(self, id) }
         service_klass = CacheServiceFactory.create_for_active_model(attr, query)
         Cacher.define_cacher_method(attr, primary_key, [service_klass])
 
