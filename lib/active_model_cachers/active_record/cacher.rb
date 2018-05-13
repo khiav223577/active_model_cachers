@@ -43,10 +43,11 @@ module ActiveModelCachers
       def exec_by(attr, primary_key, service_klasses, method)
         bindings = [@model]
         if @model and attr.association?
+          get_target = ->{ @model.association(attr.column).load_target }
           if attr.has_one?
-            data = @model.send(attr.column).try(primary_key)
+            data = get_target.call.try(primary_key)
           else
-            bindings << @model.send(attr.column) if @model.is_a?(::ActiveRecord::Base)
+            bindings << get_target.call if method != :clean_cache # no need to load binding when just cleaning cache
           end
         end
         data ||= (@model ? @model.send(primary_key) : nil) || @id

@@ -83,7 +83,7 @@ module ActiveModelCachers
       end
 
       def query_association(binding, id)
-        return binding.send(@column) if binding.is_a?(::ActiveRecord::Base)
+        return binding.association(@column).load_target if binding.is_a?(::ActiveRecord::Base)
         id = @reflect.active_record.where(id: id).limit(1).pluck(foreign_key).first if foreign_key != 'id'
         if @reflect.collection?
           return id ? @reflect.klass.where(@reflect.foreign_key => id).to_a : []
