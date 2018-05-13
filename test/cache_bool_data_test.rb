@@ -62,6 +62,17 @@ class CacheBoolDataTest < BaseTest
     assert_cache({})
   end
 
+  def test_clean_in_instance_cacher
+    user = User.find_by(name: 'John1')
+
+    assert_queries(1){ assert_equal true, user.cacher.has_post? }
+    assert_queries(0){ assert_equal true, user.cacher.has_post? }
+    assert_cache('active_model_cachers_User_at_has_post?_1' => true)
+
+    assert_queries(0){ user.cacher.clean_has_post? }
+    assert_cache({})
+  end
+
   # ----------------------------------------------------------------
   # ● Destroy
   # ----------------------------------------------------------------

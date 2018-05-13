@@ -74,6 +74,17 @@ class CacheAtBelongsToTest < BaseTest
     assert_cache({})
   end
 
+  def test_clean_in_instance_cacher
+    user = User.find_by(name: 'John1')
+
+    assert_queries(1){ assert_equal 'zh-tw', user.cacher.language.name }
+    assert_queries(0){ assert_equal 'zh-tw', user.cacher.language.name }
+    assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => user.language)
+
+    assert_queries(0){ user.cacher.clean_language }
+    assert_cache({})
+  end
+
   # ----------------------------------------------------------------
   # ● Update
   # ----------------------------------------------------------------

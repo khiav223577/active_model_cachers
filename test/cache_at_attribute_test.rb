@@ -59,6 +59,17 @@ class CacheAtAttributeTest < BaseTest
     assert_cache({})
   end
 
+  def test_clean_in_instance_cacher
+    profile = Profile.select(:id).first
+
+    assert_queries(1){ assert_equal 10, profile.cacher.point }
+    assert_queries(0){ assert_equal 10, profile.cacher.point }
+    assert_cache('active_model_cachers_Profile_at_point_1' => 10)
+
+    assert_queries(0){ profile.cacher.clean_point }
+    assert_cache({})
+  end
+
   # ----------------------------------------------------------------
   # ● Update
   # ----------------------------------------------------------------

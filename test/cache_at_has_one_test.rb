@@ -67,6 +67,16 @@ class CacheAtHasOneTest < BaseTest
     assert_cache({})
   end
 
+  def test_clean_in_instance_cacher
+    user = User.find_by(name: 'John2')
+
+    assert_queries(1){ assert_equal 10, user.cacher.profile.point }
+    assert_queries(0){ assert_equal 10, user.cacher.profile.point }
+    assert_cache('active_model_cachers_Profile_1' => user.profile)
+
+    assert_queries(0){ user.cacher.clean_profile }
+    assert_cache({})
+  end
   # ----------------------------------------------------------------
   # ● Update
   # ----------------------------------------------------------------
