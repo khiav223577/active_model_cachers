@@ -57,7 +57,8 @@ module ActiveModelCachers
     def raw_to_cache_data(raw)
       return NilObject if raw == nil
       return FalseObject if raw == false
-      return raw
+      clean_ar_cache(raw.is_a?(Array) ? raw : [raw])
+      return raw_without_singleton_methods(raw)
     end
 
     def cache_to_raw_data(cached_data)
@@ -74,6 +75,20 @@ module ActiveModelCachers
       ActiveModelCachers.config.store.fetch(cache_key, expires_in: 30.minutes) do
         raw_to_cache_data(get_without_cache(binding))
       end
+    end
+
+    def clean_ar_cache(models)
+      return if not models.first.is_a?(::ActiveRecord::Base)
+      models.each_with_index do |model, index|
+        model.send(:clear_aggregation_cache)
+        model.send(:clear_association_cache)
+      end
+    end
+
+    def raw_without_singleton_methods(raw)
+      return raw if raw.singleton_methods.empty?
+      return raw.class.find_by(id: raw.id) if raw.is_a?(::ActiveRecord::Base) # cannot marshal singleton, so load a new record instead.
+      return raw # not sure what to do with other cases
     end
   end
 end

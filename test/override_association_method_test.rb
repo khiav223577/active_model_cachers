@@ -2,6 +2,23 @@
 require 'base_test'
 
 class OverrideAssociationMethodTest < BaseTest
+  # ----------------------------------------------------------------
+  # ● Singleton method
+  # ----------------------------------------------------------------
+  def test_define_singleton_method_on_association
+    user = User.find_by(name: 'John2')
+    profile = user.profile
+
+    def profile.test
+    end
+
+    assert_queries(1){ assert_equal 10, user.cacher.profile.point } # cannot marshal singleton, so load a new record instead.
+    assert_cache('active_model_cachers_Profile_by_user_id_2' => profile)
+  end
+
+  # ----------------------------------------------------------------
+  # ● Override original association method
+  # ----------------------------------------------------------------
   def test_override_belongs_to_association_method
     user = User.find_by(name: 'John2')
     language = user.language
