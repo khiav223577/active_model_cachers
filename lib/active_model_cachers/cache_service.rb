@@ -57,10 +57,7 @@ module ActiveModelCachers
     def raw_to_cache_data(raw)
       return NilObject if raw == nil
       return FalseObject if raw == false
-      if raw.is_a?(::ActiveRecord::Base)
-        raw.clear_aggregation_cache
-        raw.clear_association_cache
-      end
+      raw.is_a?(Array) ? clean_ar_cache(raw) : clean_ar_cache([raw])
       return raw
     end
 
@@ -77,6 +74,14 @@ module ActiveModelCachers
     def fetch_from_cache(binding: nil)
       ActiveModelCachers.config.store.fetch(cache_key, expires_in: 30.minutes) do
         raw_to_cache_data(get_without_cache(binding))
+      end
+    end
+
+    def clean_ar_cache(models)
+      return if not models.first.is_a?(::ActiveRecord::Base)
+      for model in models
+        model.clear_aggregation_cache
+        model.clear_association_cache
       end
     end
   end
