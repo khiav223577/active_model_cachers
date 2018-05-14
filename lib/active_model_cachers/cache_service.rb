@@ -57,6 +57,10 @@ module ActiveModelCachers
     def raw_to_cache_data(raw)
       return NilObject if raw == nil
       return FalseObject if raw == false
+      if raw.is_a?(::ActiveRecord::Base)
+        raw.clear_aggregation_cache
+        raw.clear_association_cache
+      end
       return raw
     end
 
