@@ -12,7 +12,7 @@ class OverrideAssociationMethodTest < BaseTest
     def profile.test
     end
 
-    assert_queries(0){ assert_equal 10, User.cacher.profile.point }
+    assert_queries(0){ assert_equal 10, user.cacher.profile.point }
     assert_cache('active_model_cachers_Profile_by_user_id_2' => profile)
   end
 
