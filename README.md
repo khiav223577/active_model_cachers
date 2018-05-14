@@ -132,6 +132,9 @@ current_user.cacher.clean(:profile)
 
 # Or calling the clean_* method
 current_user.cacher.clean_profile
+
+# clean the cache without loading model
+User.cacher_at(user_id).clean_profile
 ```
 
 ## Smart Caching
@@ -166,7 +169,7 @@ end
 @profile = current_user.cacher.profile
 
 # directly get profile without loading user.
-@profile = User.cacher_at(profile_id).profile
+@profile = User.cacher_at(user_id).profile
 ```
 
 ### Caching Polymorphic Associations

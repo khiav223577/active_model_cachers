@@ -27,6 +27,15 @@ class CacheBoolDataTest < BaseTest
     assert_cache('active_model_cachers_User_at_has_post?_1' => true)
   end
 
+  def test_instance_cacher_without_association_cache
+    user1 = User.find_by(name: 'John1')
+    user2 = User.find_by(name: 'John1')
+
+    assert_queries(1){ assert_equal true, user1.cacher.has_post? }
+    assert_queries(0){ assert_equal true, user2.cacher.has_post? }
+    assert_cache('active_model_cachers_User_at_has_post?_1' => true)
+  end
+
   # ----------------------------------------------------------------
   # ● Create
   # ----------------------------------------------------------------

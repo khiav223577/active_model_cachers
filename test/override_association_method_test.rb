@@ -29,7 +29,7 @@ class OverrideAssociationMethodTest < BaseTest
     end
 
     assert_queries(0){ assert_equal 10, user.cacher.profile.point }
-    assert_cache('active_model_cachers_Profile_1' => profile)
+    assert_cache('active_model_cachers_Profile_by_user_id_2' => profile)
   end
 
   def test_override_has_many_association_method

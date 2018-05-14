@@ -4,10 +4,11 @@ module ActiveModelCachers
     class AttrModel
       attr_reader :klass, :column, :reflect
 
-      def initialize(klass, column, primary_key: nil)
+      def initialize(klass, column, primary_key: nil, foreign_key: nil)
         @klass = klass
         @column = column
         @primary_key = primary_key
+        @foreign_key = foreign_key
         @reflect = klass.reflect_on_association(column)
       end
 
@@ -48,6 +49,7 @@ module ActiveModelCachers
       end
 
       def foreign_key(reverse: false)
+        return @foreign_key if @foreign_key
         return if not association?
         # key may be symbol if specify foreign_key in association options
         return @reflect.chain.last.foreign_key.to_s if reverse and join_table
@@ -85,10 +87,10 @@ module ActiveModelCachers
       def query_association(binding, id)
         return binding.association(@column).load_target if binding.is_a?(::ActiveRecord::Base)
         id = @reflect.active_record.where(id: id).limit(1).pluck(foreign_key).first if foreign_key != 'id'
-        if @reflect.collection?
-          return id ? @reflect.klass.where(@reflect.foreign_key => id).to_a : []
-        else
-          return id ? @reflect.klass.find_by(primary_key => id) : nil
+        case
+        when collection? ; return id ? @reflect.klass.where(@reflect.foreign_key => id).to_a : []
+        when has_one?    ; return id ? @reflect.klass.find_by(foreign_key(reverse: true) => id) : nil
+        else             ; return id ? @reflect.klass.find_by(primary_key => id) : nil
         end
       end
     end
