@@ -73,13 +73,6 @@ module ActiveModelCachers
         end
       end
 
-      def get_column_value_from_id(id, column, model)
-        return id if column == 'id'
-        model ||= cacher_at(id).peek_self if has_cacher?
-        return model.send(column) if model
-        return where(id: id).limit(1).pluck(column).first
-      end
-
       @@column_value_cache = ActiveModelCachers::ColumnValueCache.new
       def define_callback_for_cleaning_cache(class_name, column, foreign_key, on: nil, &clean)
         ActiveSupport::Dependencies.onload(class_name) do
