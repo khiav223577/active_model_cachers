@@ -14,7 +14,7 @@ module Rails
 
     def read(key)
       return nil if not exist?(key)
-      return @cache[key][:data]
+      return Marshal.load(@cache[key][:data])
     end
 
     def delete(key)
@@ -29,7 +29,7 @@ module Rails
     end
 
     def write(key, val, options = {})
-      @cache[key] ||= { data: val, expired_at: Time.now + 30.minutes }
+      @cache[key] ||= { data: Marshal.dump(val), expired_at: Time.now + 30.minutes }
       return val
     end
 
