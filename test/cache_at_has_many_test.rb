@@ -66,6 +66,35 @@ class CacheAtHasManyTest < BaseTest
   end
 
   # ----------------------------------------------------------------
+  # ● Assign
+  # ----------------------------------------------------------------
+  def test_assign_association
+    user = User.create(id: -1)
+    post1 = Post.create(id: -3)
+    post2 = Post.create(id: -2)
+
+    assert_queries(1){ assert_equal [], user.cacher.posts }
+    assert_queries(0){ assert_equal [], user.cacher.posts }
+    assert_cache('active_model_cachers_User_at_posts_-1' => [])
+
+    assert_queries(1){ user.posts << post1 }
+    assert_cache({})
+
+    assert_queries(0){ assert_equal [post1], user.cacher.posts}
+    assert_cache('active_model_cachers_User_at_posts_-1' => [post1])
+
+    assert_queries(1){ user.posts << post2 }
+    assert_cache({})
+
+    assert_queries(1){ assert_equal [post1, post2], User.cacher_at(-1).posts}
+    assert_cache('active_model_cachers_User_at_posts_-1' => [post1, post2])
+  ensure
+    user.delete if user
+    post1.delete if post1
+    post2.delete if post2
+  end
+
+  # ----------------------------------------------------------------
   # ● Clean
   # ----------------------------------------------------------------
   def test_clean

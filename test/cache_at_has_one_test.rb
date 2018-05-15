@@ -63,6 +63,27 @@ class CacheAtHasOneTest < BaseTest
   end
 
   # ----------------------------------------------------------------
+  # ● Assign
+  # ----------------------------------------------------------------
+  def test_assign_association
+    user = User.create(id: -1)
+    profile = Profile.create(id: -2, point: 3)
+
+    assert_queries(1){ assert_nil user.cacher.profile }
+    assert_queries(0){ assert_nil user.cacher.profile }
+    assert_cache('active_model_cachers_Profile_by_user_id_-1' => ActiveModelCachers::NilObject)
+
+    assert_queries(1){ user.profile = profile; user.save }
+    assert_cache({})
+
+    assert_queries(0){ assert_equal profile, user.cacher.profile }
+    assert_cache('active_model_cachers_Profile_by_user_id_-1' => profile)
+  ensure
+    user.delete if user
+    profile.delete if profile
+  end
+
+  # ----------------------------------------------------------------
   # ● Clean
   # ----------------------------------------------------------------
   def test_clean
