@@ -169,6 +169,9 @@ current_user.cacher.peek(:profile)
 
 # or calling the peek_* method
 current_user.cacher.peek_profile
+
+# peek the cache without loading model
+User.cacher_at(user_id).peek_profile
 ```
 
 
