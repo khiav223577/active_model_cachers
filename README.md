@@ -40,14 +40,31 @@ end
 
 ## Usage
 
+### Cache whatever you want by `cache_at` method
+
 `cache_at(name, query = nil, options = {})`
 
-Specifie a cache on the model.
+Specify a cache on the model.
  - name: the attribute name.
  - query: how to get data on cache miss. It will be set automatically if the name match an association or an attribute.
  - options: see [here](#options)
 
-## Cache whatever you want
+### Asscess the cached attributes
+
+The `cacher` is defined as `class method` and `instance method` of Model. You could call the method and get the cacher instance, e.g. `User.cacher` or `user.cacher`. An attribute will define a method on cacher, cached attributes are asscessable via it, e.g. `user.cacher.the_attribute_name`.
+
+
+### Basic Example
+```rb
+class User < ActiveRecord::Base
+  cache_at :something_you_want_to_cache, ->{ get_the_data_on_cache_miss }
+end
+
+user.cacher.something_you_want_to_cache
+```
+
+
+## Examples
 
 ### Example 1: Cache the number of active user
 
