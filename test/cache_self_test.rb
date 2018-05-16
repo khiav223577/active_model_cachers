@@ -94,8 +94,8 @@ class CacheSelfTest < BaseTest
     assert_queries(1){ profile.destroy }
     assert_cache({})
 
-    assert_queries(1){ assert_nil User.cacher.find_by(id: -11).profile }
-    assert_queries(0){ assert_nil User.cacher.find_by(id: -11).profile }
+    assert_queries(1){ assert_nil User.cacher_at(-11).profile }
+    assert_queries(0){ assert_nil User.cacher_at(-11).profile }
     assert_cache('active_model_cachers_Profile_by_user_id_-11' => ActiveModelCachers::NilObject)
   ensure
     profile.destroy
