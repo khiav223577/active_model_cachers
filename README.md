@@ -147,12 +147,30 @@ end
 # clean the cache by name
 current_user.cacher.clean(:profile)
 
-# Or calling the clean_* method
+# or calling the clean_* method
 current_user.cacher.clean_profile
 
 # clean the cache without loading model
 User.cacher_at(user_id).clean_profile
 ```
+
+### Example 6: Peek the data stored in cache
+
+If you just want to check the cached objects, but don't want it to load from database automatically when there is no cache. You could use `peek` method on `cacher`.
+
+```rb
+class User < ActiveRecord::Base
+  has_one :profile
+  cache_at :profile
+end
+
+# peek the cache by name
+current_user.cacher.peek(:profile)
+
+# or calling the peek_* method
+current_user.cacher.peek_profile
+```
+
 
 ## Smart Caching
 
