@@ -56,13 +56,13 @@ module ActiveModelCachers
       private
 
       def exec_find_by(args, method) # e.g. args = {course_id: xx}
-        primary_key = args.keys.sort.join(',')
+        primary_key = args.keys.sort.first # Support only one key now.
         attr, service_klasses = self.class.get_data_from_find_by_mapping(primary_key)
         return if service_klasses == nil
-        return exec_by(attr, primary_key, service_klasses, method)
+        return exec_by(attr, primary_key, service_klasses, method, data: args[primary_key])
       end
 
-      def exec_by(attr, primary_key, service_klasses, method)
+      def exec_by(attr, primary_key, service_klasses, method, data: nil)
         bindings = [@model]
         if @model and attr.association?
           if attr.belongs_to? and method != :clean_cache # no need to load binding when just cleaning cache
