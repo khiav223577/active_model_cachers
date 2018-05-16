@@ -154,8 +154,8 @@ class CacheSelfByOtherColumnTest < BaseTest
 
     assert_queries(1){ assert_equal 7, Profile.cacher.find_by(token: 'a').point }
     assert_queries(0){ assert_equal 7, Profile.cacher.find_by(token: 'a').point }
-    assert_queries(1){ assert_equal 4, Difficulty.cacher.find_by(id: difficulty.id).self.level }
-    assert_queries(0){ assert_equal 4, Difficulty.cacher.find_by(id: difficulty.id).self.level }
+    assert_queries(1){ assert_equal 4, Difficulty.cacher.find_by(id: difficulty.id).level }
+    assert_queries(0){ assert_equal 4, Difficulty.cacher.find_by(id: difficulty.id).level }
     assert_cache('active_model_cachers_Profile_by_token_a' => profile, 'active_model_cachers_Difficulty_-1' => difficulty)
 
     # delete difficulty with id = -1 should not clean the cache of profile with same id.
@@ -163,8 +163,8 @@ class CacheSelfByOtherColumnTest < BaseTest
     assert_cache('active_model_cachers_Profile_by_token_a' => profile)
 
     assert_queries(0){ assert_equal 7, Profile.cacher.find_by(token: 'a').point }
-    assert_queries(1){ assert_nil Difficulty.cacher.find_by(id: difficulty.id).self }
-    assert_queries(0){ assert_nil Difficulty.cacher.find_by(id: difficulty.id).self }
+    assert_queries(1){ assert_nil Difficulty.cacher.find_by(id: difficulty.id) }
+    assert_queries(0){ assert_nil Difficulty.cacher.find_by(id: difficulty.id) }
     assert_cache('active_model_cachers_Profile_by_token_a' => profile, 'active_model_cachers_Difficulty_-1' => ActiveModelCachers::NilObject)
   ensure
     profile.delete
