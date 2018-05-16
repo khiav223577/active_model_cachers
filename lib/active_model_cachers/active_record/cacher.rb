@@ -23,6 +23,7 @@ module ActiveModelCachers
           if @find_by_mapping == nil
             @find_by_mapping = {}
             define_method(:find_by){|args| exec_find_by(args, :get) }
+            define_method(:peek_by){|args| exec_find_by(args, :peek) }
             define_method(:clean_by){|args| exec_find_by(args, :clean_cache) }
           end
           @find_by_mapping[primary_key] = [attr, service_klasses]
