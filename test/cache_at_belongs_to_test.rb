@@ -69,6 +69,26 @@ class CacheAtBelongsToTest < BaseTest
   end
 
   # ----------------------------------------------------------------
+  # ● Assign
+  # ----------------------------------------------------------------
+  def test_assign_association
+    user = User.create(id: -1)
+    language = Language.create(id: -3, name: 'ne')
+
+    assert_queries(0){ assert_nil user.cacher.language }
+    assert_cache('active_model_cachers_User_at_language_id_-1' => ActiveModelCachers::NilObject)
+
+    assert_queries(1){ user.language = language; user.save }
+    assert_cache({})
+
+    assert_queries(0){ assert_equal language, user.cacher.language }
+    assert_cache('active_model_cachers_User_at_language_id_-1' => -3, 'active_model_cachers_Language_-3' => language)
+  ensure
+    user.delete if user
+    language.delete if language
+  end
+
+  # ----------------------------------------------------------------
   # ● Clean
   # ----------------------------------------------------------------
   def test_clean
