@@ -191,8 +191,8 @@ class CacheBoolDataTest < BaseTest
     assert_queries(0){ assert_equal true, User.cacher_at(user.id).has_post? }
     assert_cache("active_model_cachers_User_at_has_post?_#{user.id}" => true)
 
-    assert_queries(1){ assert_equal post, Post.cacher_at(post.id).self }
-    assert_queries(0){ assert_equal post, Post.cacher_at(post.id).self }
+    assert_queries(1){ assert_equal post, Post.cacher.find_by(id: post.id) }
+    assert_queries(0){ assert_equal post, Post.cacher.find_by(id: post.id) }
     assert_cache("active_model_cachers_User_at_has_post?_#{user.id}" => true, "active_model_cachers_Post_#{post.id}" => post)
 
     assert_queries(1){ Post.delete(-2) } # 1: select post.user_id from Post.cache_self to clean cache on user.posts. 2: delete post.

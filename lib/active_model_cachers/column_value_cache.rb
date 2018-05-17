@@ -39,7 +39,7 @@ class ActiveModelCachers::ColumnValueCache
 
   def get_id_from(object, id, column, model)
     return id if column == 'id'
-    model ||= object.cacher_at(id).peek_self if object.has_cacher?
+    model ||= object.cacher.peek_by(id: id) if object.has_cacher?
     return model.send(column) if model
     return :not_set
   end

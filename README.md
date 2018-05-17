@@ -222,16 +222,28 @@ class User < ActiveRecord::Base
   cache_self
 end
 
-@user = User.cacher_at(user_id).self
+@user = User.cacher.find_by(id: user_id)
+
+# peek cache
+User.cacher.peek_by(id: user_id)
+
+# clean cache
+User.cacher.clean_by(id: user_id)
 ```
 
 Also support caching self by other columns.
 ```rb
 class User < ActiveRecord::Base
-  cache_self, by: :account
+  cache_self by: :account
 end
 
-@user = User.cacher_at('khiav').self_by_account
+@user = User.cacher.find_by(account: 'khiav')
+
+# peek cache
+User.cacher.peek_by(account: 'khiav')
+
+# clean cache
+User.cacher.clean_by(account: 'khiav')
 ```
 
 ### Caching Attributes
