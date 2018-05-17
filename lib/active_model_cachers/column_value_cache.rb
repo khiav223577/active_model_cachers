@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 class ActiveModelCachers::ColumnValueCache
   def initialize
     @cache1 = Hash.new{|h, k| h[k] = {} }
