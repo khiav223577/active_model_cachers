@@ -143,17 +143,19 @@ class Skill < ActiveRecord::Base
   cache_at :atk_power
 end
 
-attack = skill_ids.inject(0){|sum, id| sum + Skill.cacher_at(id).atk_power } # will query the cache server multiple times
+# This will retrieve the data from cache servers multiple times.
+@attack = skill_ids.inject(0){|sum, id| sum + Skill.cacher_at(id).atk_power }
 ```
 
-One of the solution is that you could store a lookup table into cache, so that only one cache object is stored and one query can retrieve all of the needed data.
+One of the solution is that you could store a lookup table into cache, so that only one cache object is stored and you can retrieve all of the needed data in one query.
 
 ```rb
 class Skill < ActiveRecord::Base
   cache_at :atk_powers, ->{ Skill.pluck(:id, :atk_power).to_h }, expire_by: 'Skill#atk_power'
 end
 
-attack = skill_ids.inject(0){|sum, id| sum + Skill.cacher.atk_powers[id] } # will query the cache server only 1 times
+# This will retrieve the data from cache servers only 1 times.
+@attack = skill_ids.inject(0){|sum, id| sum + Skill.cacher.atk_powers[id] }
 ```
 
 ### Example 6: Clean the cache manually
