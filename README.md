@@ -134,7 +134,29 @@ render_error if not current_user.cacher.email_valid?
 
 It can also be accessed from instance cacher. But you have to set [`primary_key`](#primary_key), which is needed to know which attribute should be passed to the parameter.
 
-### Example 5: Clean the cache manually
+### Example 5: Store all data in hash
+
+Sometimes you may need to query multiple objects. Although the query results will be cached, the application still needs to query the cache server multiple times. If one communication take 0.1 ms, 1000 communications will take 100ms! For example:
+
+```rb
+class Skill < ActiveRecord::Base
+  cache_at :atk_power
+end
+
+attack = skill_ids.inject(0){|sum, id| sum + Skill.cacher_at(id).atk_power } # will query the cache server multiple times
+```
+
+One of the solution is that you could store a lookup table into cache, so that only one cache object is stored and one query can retrieve all of the needed data.
+
+```rb
+class Skill < ActiveRecord::Base
+  cache_at :atk_powers, ->{ Skill.pluck(:id, :atk_power).to_h }, expire_by: 'Skill#atk_power'
+end
+
+attack = skill_ids.inject(0){|sum, id| sum + Skill.cacher.atk_powers[id] } # will query the cache server only 1 times
+```
+
+### Example 6: Clean the cache manually
 
 Sometimes it needs to maintain the cache manually. For example, after calling `update_all`, `delete_all` or `import` records without calling callbacks.
 
@@ -154,7 +176,7 @@ current_user.cacher.clean_profile
 User.cacher_at(user_id).clean_profile
 ```
 
-### Example 6: Peek the data stored in cache
+### Example 7: Peek the data stored in cache
 
 If you just want to check the cached objects, but don't want it to load from database automatically when there is no cache. You could use `peek` method on `cacher`.
 
