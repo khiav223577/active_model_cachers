@@ -39,6 +39,7 @@ module ActiveModelCachers
 
         def create_cacher_klass_at(target)
           cacher_klass = Class.new(self)
+          cacher_klass.instance_variable_set(:@find_by_mapping, nil) # to remove warning: instance variable @find_by_mapping not initialized
           cacher_klass.define_singleton_method(:attributes){ @attributes ||= [] }
           cacher_klass.send(:define_method, 'peek'){|column| send("peek_#{column}") }
           cacher_klass.send(:define_method, 'clean'){|column| send("clean_#{column}") }

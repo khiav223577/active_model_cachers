@@ -47,6 +47,11 @@ ActiveRecord::Schema.define do
     t.integer :level
     t.string :description
   end
+
+  create_table :skills, :force => true do |t|
+    t.string :name
+    t.integer :atk_power
+  end
 end
 
 ActiveSupport::Dependencies.autoload_paths << File.expand_path('../models/', __FILE__)
@@ -56,6 +61,33 @@ languages = Language.create([
   {name: 'en'},
   {name: 'zh-tw'},
   {name: 'jp'},
+])
+
+skills = Skill.create([
+  {
+    :name      => 'Heavy Strike',
+    :atk_power => 120,
+  },
+  {
+    :name      => 'Fire Trap',
+    :atk_power => 40,
+  },
+  {
+    :name      => 'Sweep',
+    :atk_power => 80,
+  },
+  {
+    :name      => 'Frost Bomb',
+    :atk_power => 60,
+  },
+  {
+    :name      => 'Earthquake',
+    :atk_power => 75,
+  },
+  {
+    :name      => 'Dark Shock',
+    :atk_power => 70,
+  },
 ])
 
 users = User.create([
