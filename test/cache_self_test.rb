@@ -36,7 +36,6 @@ class CacheSelfTest < BaseTest
   # ----------------------------------------------------------------
   # ● Clean
   # ----------------------------------------------------------------
-
   def test_clean
     profile = User.find_by(name: 'John2').profile
 
