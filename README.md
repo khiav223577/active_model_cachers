@@ -74,7 +74,7 @@ You could access the cached data by calling `active_count` method on the cacher,
 ```rb
 class User < ActiveRecord::Base
   scope :active, ->{ where('last_login_at > ?', 7.days.ago) }
-  cache_at :active_count, ->{ User.active.count }, expire_by: 'User#last_login_at'
+  cache_at :active_count, ->{ active.count }, expire_by: 'User#last_login_at'
 end
 
 @count = User.cacher.active_count
@@ -88,7 +88,7 @@ In this example, the cache should be cleaned on user `destroyed`, or new user `c
 
 ```rb
 class User < ActiveRecord::Base
-  cache_at :count, ->{ User.count }, expire_by: 'User', on: [:create, :destroy]
+  cache_at :count, ->{ count }, expire_by: 'User', on: [:create, :destroy]
 end
 
 @count = User.cacher.count
@@ -151,7 +151,7 @@ One of the solution is that you could store a lookup table into cache, so that o
 
 ```rb
 class Skill < ActiveRecord::Base
-  cache_at :atk_powers, ->{ Skill.pluck(:id, :atk_power).to_h }, expire_by: 'Skill#atk_power'
+  cache_at :atk_powers, ->{ pluck(:id, :atk_power).to_h }, expire_by: 'Skill#atk_power'
 end
 
 # This will retrieve the data from cache servers only 1 times.

@@ -17,8 +17,8 @@ class User < ActiveRecord::Base
   cache_at :language2
   cache_at :posts
 
-  cache_at :count, ->{ User.count }, expire_by: 'User', on: [:create, :destroy]
-  cache_at :active_count, ->{ User.active.count }, expire_by: 'User#last_login_at'
+  cache_at :count, ->{ count }, expire_by: 'User', on: [:create, :destroy]
+  cache_at :active_count, ->{ active.count }, expire_by: 'User#last_login_at'
 
   cache_at :has_post?, ->(id){ Post.where(user_id: id).exists? }, expire_by: 'Post#user_id', foreign_key: :user_id
   cache_at :has_post2?, ->{ posts.exists? }, expire_by: :posts
