@@ -1,6 +1,8 @@
 # frozen_string_literal: true
 require 'base_test'
 
+if Gem::Version.new(ActiveRecord::VERSION::STRING) >= Gem::Version.new('4') # we can't pluck multiple columns in rails 3
+
 class CacheAllSkillsPowerTest < BaseTest
   def test_basic_usage
     assert_queries(1){ assert_equal 40, Skill.cacher.atk_powers[2] }
@@ -129,4 +131,6 @@ class CacheAllSkillsPowerTest < BaseTest
   ensure
     skill.delete if skill
   end
+end
+
 end
