@@ -14,6 +14,14 @@ Provide cachers to the model so that you could specify which you want to cache. 
 - High test coverage
 
 
+## Compare with [identity_cache](https://github.com/Shopify/identity_cache)
+
+`active_model_cachers` allows you to specify what to cache and when to expire those caches. So that you could cache raw sql query results, time-consuming methods, responses of requests, and so on. It also supports AR associations / attibutes (has_many, has_one, belongs_to) and secondary indexes.
+
+`identity_cache` focuses on AR, and doesn't have the flexibility to specify the query. It has more features for caching AR associations / attibutes, such as caching attibutes by multiple keys, embedding associations to load data in one fetch, non-unique secondary indexes, and caching polymorphic associations, etc.
+
+There is also a difference worths mentioning, `active_model_cachers` encapsulated methods to `cacher`, while `identity_cache` adds a number of `fetch_*` method to `AR` directly. Therefore, it's more possible to have method name collision.
+
 ## Installation
 
 Add this line to your application's Gemfile:
