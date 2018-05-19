@@ -20,7 +20,7 @@ Provide cachers to the model so that you could specify which you want to cache. 
 
 `identity_cache` focuses on AR, and doesn't have the flexibility to specify the query. It has more features for caching AR associations / attibutes, such as caching attibutes by multiple keys, embedding associations to load data in one fetch, non-unique secondary indexes, and caching polymorphic associations, etc.
 
-There is also a difference worths mentioning, `active_model_cachers` encapsulated methods to `cacher`, while `identity_cache` adds a number of `fetch_*` method to `AR` directly. Therefore, it's more possible to have method name collision.
+There is also a difference worths mentioning, `active_model_cachers` encapsulates methods to `cacher`, while `identity_cache` adds a number of `fetch_*` method to `AR` directly. Therefore, it's more possible to have method name collision.
 
 ## Installation
 
