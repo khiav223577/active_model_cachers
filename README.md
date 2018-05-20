@@ -242,10 +242,6 @@ end
 @profile = User.cacher_at(user_id).profile
 ```
 
-### Caching Polymorphic Associations
-
-TODO
-
 ### Caching Self
 
 Cache self by id.
@@ -331,6 +327,15 @@ This option is needed only for caching assoication and need not to set if [`expi
 This option is needed to know which attribute should be passed to the parameter when you are using instance cacher. For example, if a query, named `email_valid?`, uses `user.email` as parameter, and you call it from instance: `user.cacher.email_valid?`. You need to tell it to pass `user.email` instead of `user.id` as the argument.
 
   - Default value is `:id`
+
+## Future works
+
+- [ ] caching polymorphic associations
+- [ ] non-unique secondary indexes
+- [ ] caching attibutes by multiple keys
+- [ ] testing counter cache
+- [ ] testing has_many through
+- [ ] testing has_and_belongs_to_many
 
 ## Development
 
