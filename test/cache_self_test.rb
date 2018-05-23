@@ -88,6 +88,10 @@ class CacheSelfTest < BaseTest
     assert_cache("active_model_cachers_Difficulty_#{difficulty.id}" => difficulty)
 
     Time.stub :now, Time.at(0) do
+      # Do not use the `difficulty` object created above.
+      # Due to Rails issues, it has wrong `previous_changes` which should be equal to the result of `touch` changes.
+      # More details: https://github.com/rails/rails/issues/32962
+      difficulty = Difficulty.find(difficulty.id)
       assert_queries(1){ difficulty.touch }
     end
     assert_cache({})
