@@ -19,7 +19,9 @@ module ActiveModelCachers
       end
 
       @@column_value_cache = ActiveModelCachers::ColumnValueCache.new
-      def define_callback_for_cleaning_cache(class_name, column, foreign_key, on: nil, &clean)
+      def define_callback_for_cleaning_cache(class_name, column, foreign_key, with_id, on: nil)
+        clean = ->(id){ clean_at(with_id ? id : nil) }
+
         ActiveSupport::Dependencies.onload(class_name) do
           clean_ids = []
 
