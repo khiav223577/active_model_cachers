@@ -88,7 +88,7 @@ class CacheSelfTest < BaseTest
     assert_cache("active_model_cachers_Difficulty_#{difficulty.id}" => difficulty)
 
     Time.stub :now, Time.at(0) do
-      assert_queries(2){ Difficulty.find(difficulty.id).touch }
+      assert_queries(1){ difficulty.touch }
     end
     assert_cache({})
 
