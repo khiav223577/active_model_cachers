@@ -14,10 +14,12 @@ module Rails
 
     def read(key)
       return nil if not exist?(key)
+      ActiveSupport::Notifications.instrument('cache.active_record', sql: "Read cache at #{key}")
       return Marshal.load(@cache[key][:data])
     end
 
     def delete(key)
+      ActiveSupport::Notifications.instrument('cache.active_record', sql: "Delete cache at #{key}")
       @cache.delete(key)
     end
 
@@ -29,6 +31,7 @@ module Rails
     end
 
     def write(key, val, options = {})
+      ActiveSupport::Notifications.instrument('cache.active_record', sql: "write cache at #{key} with val: #{val}")
       @cache[key] ||= { data: Marshal.dump(val), expired_at: Time.now + 30.minutes }
       return val
     end

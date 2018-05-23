@@ -19,9 +19,9 @@ end
 require 'lib/rails_cache'
 require 'lib/seeds'
 
-def assert_queries(expected_count)
+def assert_queries(expected_count, event_key = 'sql.active_record')
   sqls = []
-  subscriber = ActiveSupport::Notifications.subscribe('sql.active_record') do |_, _, _, _, payload|
+  subscriber = ActiveSupport::Notifications.subscribe(event_key) do |_, _, _, _, payload|
     sqls << "  ● #{payload[:sql]}" if payload[:sql] !~ /\A(?:BEGIN TRANSACTION|COMMIT TRANSACTION)/i
   end
   yield
@@ -35,4 +35,8 @@ end
 
 def assert_cache(data)
   assert_equal(data, Rails.cache.all_data)
+end
+
+def assert_cache_queries(expected_count, &block)
+  assert_queries(expected_count, 'cache.active_record', &block)
 end
