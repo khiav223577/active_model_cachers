@@ -83,8 +83,8 @@ class CacheSelfTest < BaseTest
   def test_touch
     time = Time.now
     difficulty = Difficulty.create(updated_at: time)
-    assert_queries(1){ assert_equal time, Difficulty.cacher.find_by(id: difficulty.id).updated_at }
-    assert_queries(0){ assert_equal time, Difficulty.cacher.find_by(id: difficulty.id).updated_at }
+    assert_queries(1){ assert_equal time.to_i, Difficulty.cacher.find_by(id: difficulty.id).updated_at.to_i }
+    assert_queries(0){ assert_equal time.to_i, Difficulty.cacher.find_by(id: difficulty.id).updated_at.to_i }
     assert_cache("active_model_cachers_Difficulty_#{difficulty.id}" => difficulty)
 
     Time.stub :now, Time.at(0) do
@@ -92,8 +92,8 @@ class CacheSelfTest < BaseTest
     end
     assert_cache({})
 
-    assert_queries(1){ assert_equal Time.at(0), Difficulty.cacher.find_by(id: difficulty.id).updated_at }
-    assert_queries(0){ assert_equal Time.at(0), Difficulty.cacher.find_by(id: difficulty.id).updated_at }
+    assert_queries(1){ assert_equal 0, Difficulty.cacher.find_by(id: difficulty.id).updated_at.to_i }
+    assert_queries(0){ assert_equal 0, Difficulty.cacher.find_by(id: difficulty.id).updated_at.to_i }
     assert_cache("active_model_cachers_Difficulty_#{difficulty.id}" => difficulty)
   ensure
     difficulty.delete
