@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 require 'active_model_cachers/nil_object'
 require 'active_model_cachers/false_object'
+require 'active_model_cachers/column_value_cache'
 
 module ActiveModelCachers
   class CacheService
@@ -15,6 +16,35 @@ module ActiveModelCachers
 
       def clean_at(id)
         instance(id).clean_cache
+      end
+
+      @@column_value_cache = ActiveModelCachers::ColumnValueCache.new
+      def define_callback_for_cleaning_cache(class_name, column, foreign_key, on: nil, &clean)
+        ActiveSupport::Dependencies.onload(class_name) do
+          clean_ids = []
+
+          prepend_before_delete do |id, model|
+            clean_ids << @@column_value_cache.add(self, class_name, id, foreign_key, model)
+          end
+
+          before_delete do |_, model|
+            clean_ids.each{|s| clean.call(s.call) }
+            clean_ids = []
+          end
+
+          after_delete do
+            @@column_value_cache.clean_cache()
+          end
+
+          on_nullify(column){|ids| ids.each{|s| clean.call(s) }}
+
+          after_commit ->{
+            changed = column ? previous_changes.key?(column) : previous_changes.present?
+            clean.call(send(foreign_key)) if changed || destroyed?
+          }, on: on
+
+          after_touch ->{ clean.call(send(foreign_key)) }
+        end
       end
     end
 
