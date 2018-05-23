@@ -46,6 +46,7 @@ ActiveRecord::Schema.define do
   create_table :difficulties, :force => true do |t|
     t.integer :level
     t.string :description
+    t.datetime :updated_at
   end
 
   create_table :skills, :force => true do |t|

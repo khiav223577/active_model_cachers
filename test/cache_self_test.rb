@@ -80,6 +80,29 @@ class CacheSelfTest < BaseTest
     profile.update_attributes(point: 10)
   end
 
+  def test_touch
+    time = Time.now
+    difficulty = Difficulty.create(updated_at: time)
+    assert_queries(1){ assert_equal time.to_i, Difficulty.cacher.find_by(id: difficulty.id).updated_at.to_i }
+    assert_queries(0){ assert_equal time.to_i, Difficulty.cacher.find_by(id: difficulty.id).updated_at.to_i }
+    assert_cache("active_model_cachers_Difficulty_#{difficulty.id}" => difficulty)
+
+    Time.stub :now, Time.at(0) do
+      # Do not use the `difficulty` object created above.
+      # Due to Rails issues, it has wrong `previous_changes` which should be equal to the result of `touch` changes.
+      # More details: https://github.com/rails/rails/issues/32962
+      difficulty = Difficulty.find(difficulty.id)
+      assert_queries(1){ difficulty.touch }
+    end
+    assert_cache({})
+
+    assert_queries(1){ assert_equal 0, Difficulty.cacher.find_by(id: difficulty.id).updated_at.to_i }
+    assert_queries(0){ assert_equal 0, Difficulty.cacher.find_by(id: difficulty.id).updated_at.to_i }
+    assert_cache("active_model_cachers_Difficulty_#{difficulty.id}" => difficulty)
+  ensure
+    difficulty.delete
+  end
+
   # ----------------------------------------------------------------
   # ● Destroy
   # ----------------------------------------------------------------
