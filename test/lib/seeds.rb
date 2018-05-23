@@ -53,6 +53,15 @@ ActiveRecord::Schema.define do
     t.string :name
     t.integer :atk_power
   end
+
+  create_table :shared_cache_users, :force => true do |t|
+    t.string :name
+  end
+
+  create_table :shared_cache_profiles, :force => true do |t|
+    t.integer :user_id
+    t.integer :point
+  end
 end
 
 ActiveSupport::Dependencies.autoload_paths << File.expand_path('../models/', __FILE__)
@@ -130,4 +139,13 @@ Difficulty.create([
   {:level => 1, :description => 'easy'},
   {:level => 2, :description => 'normal'},
   {:level => 3, :description => 'hard'},
+])
+
+shared_cache_users = SharedCache::User.create([
+  {name: 'Pearl'},
+  {name: 'Khiav'},
+])
+
+shared_cache_profiles = SharedCache::Profile.create([
+  {user_id: shared_cache_users[0].id, point: 19},
 ])
