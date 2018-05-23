@@ -97,6 +97,8 @@ module ActiveModelCachers
             changed = column ? previous_changes.key?(column) : previous_changes.present?
             clean.call(send(foreign_key)) if changed || destroyed?
           }, on: on
+
+          after_touch ->{ clean.call(send(foreign_key)) }
         end
       end
     end
