@@ -1,5 +1,10 @@
 ## Change Log
 
+### [v2.1.1](https://github.com/khiav223577/active_model_cachers/compare/v2.1.0...v2.1.1) 2018/05/25
+- [#35](https://github.com/khiav223577/active_model_cachers/pull/35) Preventing registering same callbacks in some cases (@khiav223577)
+- [#34](https://github.com/khiav223577/active_model_cachers/pull/34) Enhance - automatically clean cache when `#touch` (@ff2248)
+- [#33](https://github.com/khiav223577/active_model_cachers/pull/33) [Enhance] Code Climate Gem Deprecation (@berniechiu)
+
 ### [v2.1.0](https://github.com/khiav223577/active_model_cachers/compare/v2.0.3...v2.1.0) 2018/05/18
 - [#32](https://github.com/khiav223577/active_model_cachers/pull/32) Add test cases to test "store all data in hash" (@khiav223577)
 - [#31](https://github.com/khiav223577/active_model_cachers/pull/31) Change the syntax of getting self from cache (@khiav223577)
