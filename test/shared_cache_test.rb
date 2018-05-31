@@ -9,7 +9,7 @@ class SharedCacheTest < BaseTest
     assert_queries(0){ assert_equal 19, user.cacher.profile.point }
     assert_cache('active_model_cachers_SharedCache::Profile_by_user_id_1' => user.profile)
 
-    assert_cache_queries(1) do
+    assert_cache_queries(2) do # Delete cache at self and at self_by_user_id
       assert_queries(1){ user.profile.update_attributes(point: 12) }
     end
     assert_cache({})
