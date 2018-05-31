@@ -12,11 +12,8 @@ module ActiveModelCachers
         return (@key_class_mapping[get_cache_key(attr)] != nil)
       end
 
-      def create_for_active_model(attr, query, current_klass)
-        class_name, _ = attr.extract_class_and_column
-        cache_key = get_cache_key(attr)
-        clean_klass_cache_if_reloaded!(cache_key, current_klass) if current_klass.name == class_name.to_s
-        return create(cache_key, query)
+      def create_for_active_model(attr, query)
+        create(get_cache_key(attr), query)
       end
 
       def create(cache_key, query)
@@ -27,6 +24,12 @@ module ActiveModelCachers
           klass.instance_variable_set(:@callbacks_defined, false) # to remove warning: instance variable @callbacks_defined not initialized
           next klass
         }[]
+      end
+
+      def set_klass_to_mapping(attr, current_klass)
+        cache_key = get_cache_key(attr)
+        clean_klass_cache_if_reloaded!(cache_key, current_klass)
+        @cache_key_klass_mapping[cache_key] = current_klass
       end
 
       private

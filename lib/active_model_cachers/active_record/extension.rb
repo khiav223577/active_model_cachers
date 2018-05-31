@@ -17,12 +17,19 @@ module ActiveModelCachers
         return cache_belongs_to(attr) if attr.belongs_to?
 
         query ||= ->(id){ attr.query_model(self, id) }
-        service_klass = CacheServiceFactory.create_for_active_model(attr, query, self)
+
+        class_name, *infos = get_expire_infos(attr, expire_by, foreign_key)
+
+        ActiveSupport::Dependencies.onload(class_name || self.to_s) do
+          CacheServiceFactory.set_klass_to_mapping(attr, self)
+        end
+
+        service_klass = CacheServiceFactory.create_for_active_model(attr, query)
         Cacher.define_cacher_method(attr, attr.primary_key || :id, [service_klass])
 
-        if (infos = get_expire_infos(attr, expire_by, foreign_key))
+        if class_name
           with_id = (expire_by.is_a?(Symbol) || query.parameters.size == 1)
-          service_klass.define_callback_for_cleaning_cache(*infos, with_id, on: on)
+          service_klass.define_callback_for_cleaning_cache(class_name, *infos, with_id, on: on)
         end
 
         return service_klass
