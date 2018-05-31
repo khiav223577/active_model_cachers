@@ -17,7 +17,7 @@ module ActiveModelCachers
         return cache_belongs_to(attr) if attr.belongs_to?
 
         query ||= ->(id){ attr.query_model(self, id) }
-        service_klass = CacheServiceFactory.create_for_active_model(attr, query, registed?(self))
+        service_klass = CacheServiceFactory.create_for_active_model(attr, query, self)
         Cacher.define_cacher_method(attr, attr.primary_key || :id, [service_klass])
 
         if (infos = get_expire_infos(attr, expire_by, foreign_key))
@@ -68,13 +68,6 @@ module ActiveModelCachers
         ActiveSupport::Dependencies.onload(attr.class_name) do
           service_klasses << cache_self
         end
-      end
-
-      @@registraion_mapping = {}
-      def registed?(key)
-        return true if @@registraion_mapping[key]
-        @@registraion_mapping[key] = true
-        return false
       end
     end
   end
