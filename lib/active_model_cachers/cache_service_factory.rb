@@ -11,11 +11,12 @@ module ActiveModelCachers
         return (@key_class_mapping[get_cache_key(attr)] != nil)
       end
 
-      def create_for_active_model(attr, query)
-        create(get_cache_key(attr), query)
+      def create_for_active_model(attr, query, recreate)
+        create(get_cache_key(attr), query, recreate)
       end
 
-      def create(cache_key, query)
+      def create(cache_key, query, recreate)
+        @key_class_mapping[cache_key] = nil if recreate
         @key_class_mapping[cache_key] ||= ->{
           klass = Class.new(CacheService)
           klass.cache_key = cache_key
@@ -24,9 +25,6 @@ module ActiveModelCachers
           klass.instance_variable_set(:@active_model_klass, nil) # to remove warning: instance variable @active_model_klass not initialized
           next klass
         }[]
-
-        @key_class_mapping[cache_key].query = query
-        @key_class_mapping[cache_key]
       end
 
       private
