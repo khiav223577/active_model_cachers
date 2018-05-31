@@ -72,6 +72,11 @@ module ActiveModelCachers
         return query_attribute(binding, id)
       end
 
+      def extract_class_and_column
+        return [class_name, nil] if single_association?
+        return [@klass.to_s, @column]
+      end
+
       private
 
       def query_self(binding, id)
