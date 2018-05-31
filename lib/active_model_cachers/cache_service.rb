@@ -31,7 +31,7 @@ module ActiveModelCachers
         clean = ->(id){ clean_at(with_id ? id : nil) }
 
         ActiveSupport::Dependencies.onload(class_name) do
-          next if check.call(class_name)
+          next if check.call(self)
 
           clean_ids = []
 
