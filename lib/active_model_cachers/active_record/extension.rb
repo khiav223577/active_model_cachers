@@ -19,10 +19,7 @@ module ActiveModelCachers
         query ||= ->(id){ attr.query_model(self, id) }
 
         class_name, *infos = get_expire_infos(attr, expire_by, foreign_key)
-
-        ActiveSupport::Dependencies.onload(class_name || self.to_s) do
-          CacheServiceFactory.set_klass_to_mapping(attr, self)
-        end
+        set_klass_to_mapping(attr, class_name)
 
         service_klass = CacheServiceFactory.create_for_active_model(attr, query)
         Cacher.define_cacher_method(attr, attr.primary_key || :id, [service_klass])
@@ -41,6 +38,12 @@ module ActiveModelCachers
       end
 
       private
+
+      def set_klass_to_mapping(attr, class_name)
+        ActiveSupport::Dependencies.onload(class_name || self.to_s) do
+          CacheServiceFactory.set_klass_to_mapping(attr, self)
+        end
+      end
 
       def get_expire_infos(attr, expire_by, foreign_key)
         if expire_by.is_a?(Symbol)
