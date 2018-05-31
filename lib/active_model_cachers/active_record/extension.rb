@@ -72,7 +72,7 @@ module ActiveModelCachers
 
       @@registraion_mapping = {}
       def registed?(key)
-        return true if  @@registraion_mapping[key]
+        return true if @@registraion_mapping[key]
         @@registraion_mapping[key] = true
         return false
       end

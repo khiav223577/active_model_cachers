@@ -22,7 +22,6 @@ module ActiveModelCachers
           klass.cache_key = cache_key
           klass.query = query
           klass.instance_variable_set(:@callbacks_defined, false) # to remove warning: instance variable @callbacks_defined not initialized
-          klass.instance_variable_set(:@active_model_klass, nil) # to remove warning: instance variable @active_model_klass not initialized
           next klass
         }[]
       end
