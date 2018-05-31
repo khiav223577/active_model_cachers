@@ -8,6 +8,7 @@ module ActiveModelCachers
     class << self
       attr_accessor :cache_key
       attr_accessor :query
+      attr_accessor :active_model_klass
 
       def instance(id)
         hash = (RequestStore.store[self] ||= {})

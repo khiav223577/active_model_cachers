@@ -17,7 +17,7 @@ module ActiveModelCachers
         return cache_belongs_to(attr) if attr.belongs_to?
 
         query ||= ->(id){ attr.query_model(self, id) }
-        service_klass = CacheServiceFactory.create_for_active_model(attr, query)
+        service_klass = CacheServiceFactory.create_for_active_model(self, attr, query)
         Cacher.define_cacher_method(attr, attr.primary_key || :id, [service_klass])
 
         if (infos = get_expire_infos(attr, expire_by, foreign_key))
