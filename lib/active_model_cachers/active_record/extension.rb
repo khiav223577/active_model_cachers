@@ -16,7 +16,6 @@ module ActiveModelCachers
         attr = AttrModel.new(self, column, foreign_key: foreign_key, primary_key: primary_key)
         return cache_belongs_to(attr) if attr.belongs_to?
 
-        query ||= ->(id){ attr.query_model(self, id) }
         loaded = false
         class_name, *infos = get_expire_infos(attr, expire_by, foreign_key)
         set_klass_to_mapping(attr, class_name) do
@@ -46,7 +45,7 @@ module ActiveModelCachers
 
       def set_klass_to_mapping(attr, class_name)
         ActiveSupport::Dependencies.onload(class_name || self.to_s) do
-          CacheServiceFactory.set_klass_to_mapping(attr, self)
+          yield if CacheServiceFactory.set_klass_to_mapping(attr, self)
         end
       end
 
