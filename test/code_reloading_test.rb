@@ -16,10 +16,10 @@ class CodeReloadingTest < BaseTest
   end
 
   def test_association
-    posts1 = User.first.posts
+    posts1 = User.first.posts.to_a
 
     reload_models(User, Post) do
-      posts2 = User.first.posts
+      posts2 = User.first.posts.to_a
 
       assert_queries(1){ assert_equal 3, User.cacher_at(1).posts.size }
       assert_queries(0){ assert_equal 3, User.cacher_at(1).posts.size }
