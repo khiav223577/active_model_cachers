@@ -5,7 +5,7 @@ class CodeReloadingTest < BaseTest
   def test_self
     profile1 = Profile.find_by(token: 'tt9wav')
 
-    reload_models(:Profile) do
+    reload_models(Profile) do
       profile2 = Profile.find_by(token: 'tt9wav')
 
       assert_queries(1){ assert_equal 10, Profile.cacher.find_by(token: 'tt9wav').point }
@@ -18,7 +18,7 @@ class CodeReloadingTest < BaseTest
   def test_association
     posts1 = User.first.posts
 
-    reload_models(:User, :Post) do
+    reload_models(User, Post) do
       posts2 = User.first.posts
 
       assert_queries(1){ assert_equal 3, User.cacher_at(1).posts.size }
