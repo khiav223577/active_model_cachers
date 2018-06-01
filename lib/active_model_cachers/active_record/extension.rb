@@ -17,10 +17,15 @@ module ActiveModelCachers
         return cache_belongs_to(attr) if attr.belongs_to?
 
         query ||= ->(id){ attr.query_model(self, id) }
-
+        loaded = false
         class_name, *infos = get_expire_infos(attr, expire_by, foreign_key)
-        set_klass_to_mapping(attr, class_name)
+        set_klass_to_mapping(attr, class_name) do
+          next if !loaded
+          cache_at(column, query, expire_by: expire_by, on: on, foreign_key: foreign_key, primary_key: primary_key)
+        end
+        loaded = true
 
+        query ||= ->(id){ attr.query_model(self, id) }
         service_klass = CacheServiceFactory.create_for_active_model(attr, query)
         Cacher.define_cacher_method(attr, attr.primary_key || :id, [service_klass])
 

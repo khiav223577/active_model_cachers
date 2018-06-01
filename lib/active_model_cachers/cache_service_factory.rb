@@ -28,8 +28,10 @@ module ActiveModelCachers
 
       def set_klass_to_mapping(attr, current_klass)
         cache_key = get_cache_key(attr)
-        clean_klass_cache_if_reloaded!(cache_key, current_klass)
+        reflect = attr.klass.reflect_on_association(:posts)
+        changed = clean_klass_cache_if_reloaded!(cache_key, current_klass, attr)
         @cache_key_klass_mapping[cache_key] = current_klass
+        return changed
       end
 
       private
@@ -42,9 +44,11 @@ module ActiveModelCachers
         return "active_model_cachers_#{class_name}"
       end
 
-      def clean_klass_cache_if_reloaded!(cache_key, current_klass)
+      def clean_klass_cache_if_reloaded!(cache_key, current_klass, attr)
         origin_klass, @cache_key_klass_mapping[cache_key] = @cache_key_klass_mapping[cache_key], current_klass
-        @key_class_mapping[cache_key] = nil if origin_klass and origin_klass != current_klass # when code reloaded in development.
+        return false if origin_klass == nil or origin_klass == current_klass # when code reloaded in development.
+        @key_class_mapping[cache_key] = nil
+        return true
       end
     end
   end
