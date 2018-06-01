@@ -5,6 +5,7 @@ require 'active_model_cachers/cache_service'
 module ActiveModelCachers
   class CacheServiceFactory
     @key_class_mapping = {}
+    @cache_key_klass_mapping = {}
 
     class << self
       def has_cacher?(attr)
@@ -12,9 +13,7 @@ module ActiveModelCachers
       end
 
       def create_for_active_model(attr, query)
-        cache_key = get_cache_key(attr)
-        service_klass = create(cache_key, query)
-        return service_klass
+        create(get_cache_key(attr), query)
       end
 
       def create(cache_key, query)
@@ -27,14 +26,29 @@ module ActiveModelCachers
         }[]
       end
 
+      def set_klass_to_mapping(attr, current_klass)
+        cache_key = get_cache_key(attr)
+        reflect = attr.klass.reflect_on_association(:posts)
+        changed = clean_klass_cache_if_reloaded!(cache_key, current_klass, attr)
+        @cache_key_klass_mapping[cache_key] = current_klass
+        return changed
+      end
+
       private
 
       def get_cache_key(attr)
-        class_name, column = (attr.single_association? ? [attr.class_name, nil] : [attr.klass, attr.column])
+        class_name, column = attr.extract_class_and_column
         return "active_model_cachers_#{class_name}_at_#{column}" if column
         foreign_key = attr.foreign_key(reverse: true)
         return "active_model_cachers_#{class_name}_by_#{foreign_key}" if foreign_key and foreign_key.to_s != 'id'
         return "active_model_cachers_#{class_name}"
+      end
+
+      def clean_klass_cache_if_reloaded!(cache_key, current_klass, attr)
+        origin_klass, @cache_key_klass_mapping[cache_key] = @cache_key_klass_mapping[cache_key], current_klass
+        return false if origin_klass == nil or origin_klass == current_klass # when code reloaded in development.
+        @key_class_mapping[cache_key] = nil
+        return true
       end
     end
   end

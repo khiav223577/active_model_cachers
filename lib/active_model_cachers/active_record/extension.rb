@@ -16,13 +16,21 @@ module ActiveModelCachers
         attr = AttrModel.new(self, column, foreign_key: foreign_key, primary_key: primary_key)
         return cache_belongs_to(attr) if attr.belongs_to?
 
+        loaded = false
+        class_name, *infos = get_expire_infos(attr, expire_by, foreign_key)
+        set_klass_to_mapping(attr, class_name) do
+          next if !loaded
+          cache_at(column, query, expire_by: expire_by, on: on, foreign_key: foreign_key, primary_key: primary_key)
+        end
+        loaded = true
+
         query ||= ->(id){ attr.query_model(self, id) }
         service_klass = CacheServiceFactory.create_for_active_model(attr, query)
         Cacher.define_cacher_method(attr, attr.primary_key || :id, [service_klass])
 
-        if (infos = get_expire_infos(attr, expire_by, foreign_key))
+        if class_name
           with_id = (expire_by.is_a?(Symbol) || query.parameters.size == 1)
-          service_klass.define_callback_for_cleaning_cache(*infos, with_id, on: on)
+          service_klass.define_callback_for_cleaning_cache(class_name, *infos, with_id, on: on)
         end
 
         return service_klass
@@ -34,6 +42,12 @@ module ActiveModelCachers
       end
 
       private
+
+      def set_klass_to_mapping(attr, class_name)
+        ActiveSupport::Dependencies.onload(class_name || self.to_s) do
+          yield if CacheServiceFactory.set_klass_to_mapping(attr, self)
+        end
+      end
 
       def get_expire_infos(attr, expire_by, foreign_key)
         if expire_by.is_a?(Symbol)

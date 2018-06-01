@@ -5,37 +5,48 @@ module ActiveModelCachers
       @defined_map = {}
 
       class << self
+        def get_cacher_klass(klass)
+          @defined_map[klass] ||= create_cacher_klass_at(klass)
+        end
+
         def define_cacher_method(attr, primary_key, service_klasses)
           cacher_klass = get_cacher_klass(attr.klass)
           method = attr.column
           return cacher_klass.define_find_by(attr, primary_key, service_klasses) if method == nil
-          cacher_klass.attributes << method
-          cacher_klass.send(:define_method, method){ exec_by(attr, primary_key, service_klasses, :get) }
-          cacher_klass.send(:define_method, "peek_#{method}"){ exec_by(attr, primary_key, service_klasses, :peek) }
-          cacher_klass.send(:define_method, "clean_#{method}"){ exec_by(attr, primary_key, service_klasses, :clean_cache) }
-        end
-
-        def get_cacher_klass(klass)
-          @defined_map[klass] ||= create_cacher_klass_at(klass)
+          cacher_klass.send(:define_methods, method, {
+            method            => ->{ exec_by(attr, primary_key, service_klasses, :get) },
+            "peek_#{method}"  => ->{ exec_by(attr, primary_key, service_klasses, :peek) },
+            "clean_#{method}" => ->{ exec_by(attr, primary_key, service_klasses, :clean_cache) },
+          })
         end
 
         def define_find_by(attr, primary_key, service_klasses)
           if @find_by_mapping == nil
             @find_by_mapping = {}
-            attributes << :find_by
-            define_method(:find_by){|args| exec_find_by(args, :get) }
-            define_method(:peek_by){|args| exec_find_by(args, :peek) }
-            define_method(:clean_by){|args| exec_find_by(args, :clean_cache) }
+            define_methods(:find_by, {
+              :find_by   => ->(args){ exec_find_by(args, :get) },
+              :peek_by   => ->(args){ exec_find_by(args, :peek) },
+              :clean_by  => ->(args){ exec_find_by(args, :clean_cache) },
+            })
           end
           @find_by_mapping[primary_key] = [attr, service_klasses]
+        end
+
+        private
+
+        def define_methods(attribute, methods_mapping)
+          if attributes.include?(attribute)
+            methods_mapping.keys.each{|s| undef_method(s) }
+          else
+            attributes << attribute
+          end
+          methods_mapping.each{|method, block| define_method(method, &block) }
         end
 
         def get_data_from_find_by_mapping(primary_key)
           return if @find_by_mapping == nil
           return @find_by_mapping[primary_key]
         end
-
-        private
 
         def create_cacher_klass_at(target)
           cacher_klass = Class.new(self)
@@ -60,7 +71,7 @@ module ActiveModelCachers
 
       def exec_find_by(args, method) # e.g. args = {course_id: xx}
         primary_key = args.keys.sort.first # Support only one key now.
-        attr, service_klasses = self.class.get_data_from_find_by_mapping(primary_key)
+        attr, service_klasses = self.class.send(:get_data_from_find_by_mapping, primary_key)
         return if service_klasses == nil
         return exec_by(attr, primary_key, service_klasses, method, data: args[primary_key])
       end
