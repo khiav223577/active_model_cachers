@@ -40,3 +40,30 @@ end
 def assert_cache_queries(expected_count, &block)
   assert_queries(expected_count, 'cache.active_record', &block)
 end
+
+def reload_models(*klasses) # EX: klasses = [:User, :Post]
+  origin_cache = ActiveSupport::Dependencies::Reference
+  origin_loaded = ActiveSupport::Dependencies.loaded
+  ActiveSupport::Dependencies.loaded = []
+  ActiveSupport::Dependencies.send(:remove_const, :Reference)
+  ActiveSupport::Dependencies.const_set(:Reference, ActiveSupport::Dependencies::ClassCache.new)
+
+  origin_klasses = klasses.map{|class_name| [class_name, Object.const_get(class_name)] }.to_h
+  klasses.each{|s| Object.send(:remove_const, s) }
+
+  yield
+ensure
+  ActiveSupport::Dependencies.loaded = origin_loaded if origin_loaded
+
+  if origin_cache
+    ActiveSupport::Dependencies.send(:remove_const, :Reference)
+    ActiveSupport::Dependencies.const_set(:Reference, origin_cache)
+  end
+
+  if origin_klasses
+    origin_klasses.each do |class_name, klass|
+      Object.send(:remove_const, class_name)
+      Object.send(:const_set, class_name, klass)
+    end
+  end
+end
