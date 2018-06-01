@@ -1,5 +1,8 @@
 ## Change Log
 
+### [v2.1.2](https://github.com/khiav223577/active_model_cachers/compare/v2.1.1...v2.1.2) 2018/06/01
+- [#37](https://github.com/khiav223577/active_model_cachers/pull/37) Fix: ModelName cant be referred to in development (@khiav223577)
+
 ### [v2.1.1](https://github.com/khiav223577/active_model_cachers/compare/v2.1.0...v2.1.1) 2018/05/25
 - [#35](https://github.com/khiav223577/active_model_cachers/pull/35) Preventing registering same callbacks in some cases (@khiav223577)
 - [#34](https://github.com/khiav223577/active_model_cachers/pull/34) Enhance - automatically clean cache when `#touch` (@ff2248)
