@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'active_model_cachers/active_record/global_callbacks'
 require 'active_model_cachers/active_record/attr_model'
 require 'active_model_cachers/active_record/cacher'
 require 'active_model_cachers/hook/dependencies'
@@ -81,6 +82,19 @@ module ActiveModelCachers
         Cacher.define_cacher_method(attr, attr.primary_key, service_klasses)
         ActiveSupport::Dependencies.onload(attr.class_name) do
           service_klasses << cache_self
+        end
+      end
+
+
+      @@global_callbacks = GlobalCallbacks.new
+      def self.global_callbacks
+        @@global_callbacks
+      end
+
+      def self.extended(base)
+        base.instance_exec do
+          # after_commit ->{ @@callbacks.exec_after_commit(self) }
+          after_touch ->{ @@global_callbacks.after_touch.exec(self) }
         end
       end
     end

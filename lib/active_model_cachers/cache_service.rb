@@ -47,8 +47,10 @@ module ActiveModelCachers
             changed = column ? previous_changes.key?(column) : previous_changes.present?
             clean.call(send(foreign_key)) if changed || destroyed?
           }, on: on
+        end
 
-          after_touch ->{ clean.call(send(foreign_key)) }
+        ActiveRecord::Extension.global_callbacks.instance_exec do
+          after_touch(class_name){ clean.call(send(foreign_key)) }
         end
       end
     end
