@@ -24,31 +24,36 @@ module ActiveModelCachers
         @callbacks_defined = true
 
         clean = ->(id){ clean_at(with_id ? id : nil) }
+        clean_ids = []
+        fire_on = Array(on) if on
 
-        ActiveSupport::Dependencies.onload(class_name) do
-          clean_ids = []
+        ActiveRecord::Extension.global_callbacks.instance_exec do
+          on_nullify(class_name) do |nullified_column, get_ids|
+            get_ids.call.each{|s| clean.call(s) } if nullified_column == column
+          end
 
-          prepend_before_delete do |id, model|
+          after_touch(class_name) do
+            clean.call(send(foreign_key))
+          end
+
+          after_commit(class_name) do # TODO: on
+            next if fire_on and not transaction_include_any_action?(fire_on)
+            changed = column ? previous_changes.key?(column) : previous_changes.present?
+            clean.call(send(foreign_key)) if changed || destroyed?
+          end
+
+          pre_before_delete(class_name) do |id, model|
             clean_ids << @@column_value_cache.add(self, class_name, id, foreign_key, model)
           end
 
-          before_delete do |_, model|
+          before_delete(class_name) do |_, model|
             clean_ids.each{|s| clean.call(s.call) }
             clean_ids = []
           end
 
-          after_delete do
+          after_delete(class_name) do
             @@column_value_cache.clean_cache
           end
-
-          on_nullify(column){|ids| ids.each{|s| clean.call(s) }}
-
-          after_commit ->{
-            changed = column ? previous_changes.key?(column) : previous_changes.present?
-            clean.call(send(foreign_key)) if changed || destroyed?
-          }, on: on
-
-          after_touch ->{ clean.call(send(foreign_key)) }
         end
       end
     end
