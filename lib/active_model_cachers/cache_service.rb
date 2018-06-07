@@ -24,10 +24,10 @@ module ActiveModelCachers
         @callbacks_defined = true
 
         clean = ->(id){ clean_at(with_id ? id : nil) }
+        clean_ids = []
+        fire_on = Array(on) if on
 
         ActiveRecord::Extension.global_callbacks.instance_exec do
-          clean_ids = []
-
           on_nullify(class_name) do |nullified_column, get_ids|
             get_ids.call.each{|s| clean.call(s) } if nullified_column == column
           end
@@ -37,6 +37,7 @@ module ActiveModelCachers
           end
 
           after_commit(class_name) do # TODO: on
+            next if fire_on and not transaction_include_any_action?(fire_on)
             changed = column ? previous_changes.key?(column) : previous_changes.present?
             clean.call(send(foreign_key)) if changed || destroyed?
           end
