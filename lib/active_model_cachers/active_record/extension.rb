@@ -93,8 +93,8 @@ module ActiveModelCachers
 
       def self.extended(base)
         base.instance_exec do
-          # after_commit ->{ @@callbacks.exec_after_commit(self) }
-          after_touch ->{ @@global_callbacks.after_touch.exec(self) }
+          after_commit ->{ @@global_callbacks.after_commit.exec(self, self.class) }
+          after_touch ->{ @@global_callbacks.after_touch.exec(self, self.class) }
         end
       end
     end

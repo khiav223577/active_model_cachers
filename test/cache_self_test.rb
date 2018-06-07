@@ -166,7 +166,7 @@ class CacheSelfTest < BaseTest
 
     # make sure Difficulty only have cache_self, and doesn't cache by other models by something like cache_at :difficulty
     assert_equal [:find_by], Difficulty.cacher.class.attributes
-    assert_equal 2, Difficulty.before_delete_hooks.size
+    assert_equal 1, ActiveModelCachers::ActiveRecord::Extension.global_callbacks.before_delete.callbacks_at(Difficulty.name).size
 
     assert_queries(1){ assert_equal 4, Difficulty.cacher.find_by(id: difficulty.id).level }
     assert_queries(0){ assert_equal 4, Difficulty.cacher.find_by(id: difficulty.id).level }
