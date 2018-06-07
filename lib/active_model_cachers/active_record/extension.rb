@@ -85,7 +85,6 @@ module ActiveModelCachers
         end
       end
 
-
       @@global_callbacks = GlobalCallbacks.new
       def self.global_callbacks
         @@global_callbacks

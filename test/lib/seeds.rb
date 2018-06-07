@@ -63,8 +63,13 @@ ActiveRecord::Schema.define do
     t.integer :point
   end
 
+  create_table :eager_loaded_languages, :force => true do |t|
+    t.string :name
+  end
+
   create_table :eager_loaded_users, :force => true do |t|
     t.string :name
+    t.integer :language_id
   end
 
   create_table :eager_loaded_profiles, :force => true do |t|
@@ -78,6 +83,7 @@ ActiveSupport::Dependencies.autoload_paths << File.expand_path('../services/', _
 
 require_relative 'models/eager_loaded/user.rb'
 require_relative 'models/eager_loaded/profile.rb'
+require_relative 'models/eager_loaded/language.rb'
 
 languages = Language.create([
   {name: 'en'},
@@ -162,9 +168,15 @@ shared_cache_profiles = SharedCache::Profile.create([
   {user_id: shared_cache_users[0].id, point: 19},
 ])
 
+eager_loaded_languages = EagerLoaded::Language.create([
+  {name: 'en'},
+  {name: 'zh-tw'},
+  {name: 'jp'},
+])
+
 eager_loaded_users = EagerLoaded::User.create([
-  {name: 'Pearl'},
-  {name: 'Khiav'},
+  {:name => 'Pearl', :language => eager_loaded_languages[1]},
+  {:name => 'Khiav', :language => eager_loaded_languages[2]},
 ])
 
 eager_loaded_profiles = EagerLoaded::Profile.create([
