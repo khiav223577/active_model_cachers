@@ -62,10 +62,22 @@ ActiveRecord::Schema.define do
     t.integer :user_id
     t.integer :point
   end
+
+  create_table :eager_loaded_users, :force => true do |t|
+    t.string :name
+  end
+
+  create_table :eager_loaded_profiles, :force => true do |t|
+    t.integer :user_id
+    t.integer :point
+  end
 end
 
 ActiveSupport::Dependencies.autoload_paths << File.expand_path('../models/', __FILE__)
 ActiveSupport::Dependencies.autoload_paths << File.expand_path('../services/', __FILE__)
+
+require_relative 'models/eager_loaded/user.rb'
+require_relative 'models/eager_loaded/profile.rb'
 
 languages = Language.create([
   {name: 'en'},
