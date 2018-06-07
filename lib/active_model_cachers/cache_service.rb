@@ -25,12 +25,12 @@ module ActiveModelCachers
 
         clean = ->(id){ clean_at(with_id ? id : nil) }
 
-        ActiveSupport::Dependencies.onload(class_name) do
-          on_nullify(column){|ids| ids.each{|s| clean.call(s) }}
-        end
-
         ActiveRecord::Extension.global_callbacks.instance_exec do
           clean_ids = []
+
+          on_nullify(class_name) do |nullified_column, get_ids|
+            get_ids.call.each{|s| clean.call(s) } if nullified_column == column
+          end
 
           after_touch(class_name) do
             clean.call(send(foreign_key))

@@ -27,10 +27,15 @@ module ActiveModelCachers::Hook
 
     private
 
-    def call_hooks
-      return if (hooks = reflection.klass.nullify_hooks_at(reflection.foreign_key)).blank?
-      ids = yield
-      hooks.each{|s| s.call(ids) }
+    def call_hooks(&get_ids)
+      ids = nil
+      get_ids_with_cache = ->{ ids ||= get_ids.call }
+      ActiveModelCachers::ActiveRecord::Extension.global_callbacks.on_nullify.exec(
+        self,
+        reflection.klass,
+        reflection.foreign_key,
+        get_ids_with_cache,
+      )
     end
   end
 end

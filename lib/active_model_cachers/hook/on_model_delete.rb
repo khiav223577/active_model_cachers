@@ -21,15 +21,6 @@ module ActiveModelCachers::Hook
         ActiveModelCachers::ActiveRecord::Extension.global_callbacks.after_delete.exec(self, self, id, model)
         return result
       end
-
-      def nullify_hooks_at(column)
-        @nullify_hooks ||= Hash.new{|h, k| h[k] = [] }
-        return @nullify_hooks[column]
-      end
-
-      def on_nullify(column, &callback)
-        nullify_hooks_at(column) << callback
-      end
     end
   end
 end
