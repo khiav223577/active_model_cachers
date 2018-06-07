@@ -13,8 +13,8 @@ end
 module ActiveRecord
   module Transactions
     if not method_defined?(:transaction_include_any_action?)
-      def transaction_include_any_action?(*args)
-        transaction_include_action?(*args)
+      def transaction_include_any_action?(fire_on)
+        fire_on.any?{|s| transaction_include_action?(s) }
       end
     end
   end
