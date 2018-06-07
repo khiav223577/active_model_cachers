@@ -11,6 +11,16 @@ module ActiveModelCachers
 end
 
 module ActiveRecord
+  module Transactions
+    if not method_defined?(:transaction_include_any_action?)
+      def transaction_include_any_action?(*args)
+        transaction_include_action?(*args)
+      end
+    end
+  end
+end
+
+module ActiveRecord
   module Associations
     # = Active Record Associations
     #
