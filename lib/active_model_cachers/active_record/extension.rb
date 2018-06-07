@@ -85,15 +85,16 @@ module ActiveModelCachers
         end
       end
 
-      @@global_callbacks = GlobalCallbacks.new
+      @global_callbacks = GlobalCallbacks.new
       def self.global_callbacks
-        @@global_callbacks
+        @global_callbacks
       end
 
       def self.extended(base)
+        global_callbacks = @global_callbacks
         base.instance_exec do
-          after_commit ->{ @@global_callbacks.after_commit.exec(self, self.class) }
-          after_touch ->{ @@global_callbacks.after_touch.exec(self, self.class) }
+          after_commit ->{ global_callbacks.after_commit.exec(self, self.class) }
+          after_touch ->{ global_callbacks.after_touch.exec(self, self.class) }
         end
       end
     end
