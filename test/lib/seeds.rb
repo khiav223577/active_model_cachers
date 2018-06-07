@@ -161,3 +161,12 @@ shared_cache_users = SharedCache::User.create([
 shared_cache_profiles = SharedCache::Profile.create([
   {user_id: shared_cache_users[0].id, point: 19},
 ])
+
+eager_loaded_users = EagerLoaded::User.create([
+  {name: 'Pearl'},
+  {name: 'Khiav'},
+])
+
+eager_loaded_profiles = EagerLoaded::Profile.create([
+  {user_id: eager_loaded_users[0].id, point: 19},
+])
