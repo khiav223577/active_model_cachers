@@ -28,7 +28,6 @@ module ActiveModelCachers
 
       def set_klass_to_mapping(attr, current_klass)
         cache_key = get_cache_key(attr)
-        reflect = attr.klass.reflect_on_association(:posts)
         changed = clean_klass_cache_if_reloaded!(cache_key, current_klass, attr)
         @cache_key_klass_mapping[cache_key] = current_klass
         return changed

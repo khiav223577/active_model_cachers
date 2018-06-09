@@ -83,7 +83,8 @@ ActiveSupport::Dependencies.autoload_paths << File.expand_path('../services/', _
 
 require_relative 'models/eager_loaded/user.rb'
 require_relative 'models/eager_loaded/profile.rb'
-require_relative 'models/eager_loaded/language.rb'
+# require_relative 'models/eager_loaded/language.rb' # EagerLoaded::Language is auto-loaded in models/eager_loaded/user.rb
+fail 'language should be defined here' if not defined?(EagerLoaded::Language)
 
 languages = Language.create([
   {name: 'en'},
@@ -91,7 +92,7 @@ languages = Language.create([
   {name: 'jp'},
 ])
 
-skills = Skill.create([
+Skill.create([
   {
     :name      => 'Heavy Strike',
     :atk_power => 120,
@@ -164,7 +165,7 @@ shared_cache_users = SharedCache::User.create([
   {name: 'Khiav'},
 ])
 
-shared_cache_profiles = SharedCache::Profile.create([
+SharedCache::Profile.create([
   {user_id: shared_cache_users[0].id, point: 19},
 ])
 
@@ -179,6 +180,6 @@ eager_loaded_users = EagerLoaded::User.create([
   {:name => 'Khiav', :language => eager_loaded_languages[2]},
 ])
 
-eager_loaded_profiles = EagerLoaded::Profile.create([
+EagerLoaded::Profile.create([
   {user_id: eager_loaded_users[0].id, point: 19},
 ])
