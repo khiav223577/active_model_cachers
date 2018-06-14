@@ -65,17 +65,17 @@ module ActiveModelCachers
       @id = id
     end
 
-    def get(binding: nil, attr: nil)
-      @cached_data ||= fetch_from_cache(binding: binding, attr: attr)
+    def get(binding: nil, reflect: nil)
+      @cached_data ||= fetch_from_cache(binding: binding, reflect: reflect)
       return cache_to_raw_data(@cached_data)
     end
 
-    def peek(binding: nil, attr: nil)
+    def peek(binding: nil, reflect: nil)
       @cached_data ||= get_from_cache
       return cache_to_raw_data(@cached_data)
     end
 
-    def clean_cache(binding: nil, attr: nil)
+    def clean_cache(binding: nil, reflect: nil)
       @cached_data = nil
       Rails.cache.delete(cache_key)
       return nil
@@ -88,8 +88,8 @@ module ActiveModelCachers
       return @id ? "#{key}_#{@id}" : key
     end
 
-    def get_query(binding, attr)
-      self.class.query_mapping[attr] || self.class.query_mapping.values.first
+    def get_query(binding, reflect)
+      self.class.query_mapping[reflect] || self.class.query_mapping.values.first
     end
 
     def get_without_cache(binding, attr)
@@ -115,9 +115,9 @@ module ActiveModelCachers
       ActiveModelCachers.config.store.read(cache_key)
     end
 
-    def fetch_from_cache(binding: nil, attr: nil)
+    def fetch_from_cache(binding: nil, reflect: nil)
       ActiveModelCachers.config.store.fetch(cache_key, expires_in: 30.minutes) do
-        raw_to_cache_data(get_without_cache(binding, attr))
+        raw_to_cache_data(get_without_cache(binding, reflect))
       end
     end
 

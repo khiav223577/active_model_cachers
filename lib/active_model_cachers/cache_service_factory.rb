@@ -23,7 +23,7 @@ module ActiveModelCachers
           next klass
         }[]
 
-        klass.query_mapping[attr] = query
+        klass.query_mapping[attr.reflect] = query
         return klass
       end
 
