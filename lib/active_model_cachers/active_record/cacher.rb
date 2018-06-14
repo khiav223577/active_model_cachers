@@ -78,6 +78,7 @@ module ActiveModelCachers
 
       def exec_by(attr, primary_key, service_klasses, method, data: nil)
         bindings = [@model]
+        reflects = (attr.belongs_to? ? [] : [attr.reflect])
         if @model and attr.association?
           if attr.belongs_to? and method != :clean_cache # no need to load binding when just cleaning cache
             association = @model.association(attr.column)
@@ -86,7 +87,7 @@ module ActiveModelCachers
         end
         data ||= (@model ? @model.send(primary_key) : nil) || @id
         service_klasses.each_with_index do |service_klass, index|
-          data = service_klass.instance(data).send(method, binding: bindings[index])
+          data = service_klass.instance(data).send(method, binding: bindings[index], reflect: reflects[index])
           return if data == nil
         end
         return data

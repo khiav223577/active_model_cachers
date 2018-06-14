@@ -13,17 +13,18 @@ module ActiveModelCachers
       end
 
       def create_for_active_model(attr, query)
-        create(get_cache_key(attr), query)
-      end
+        cache_key = get_cache_key(attr)
 
-      def create(cache_key, query)
-        @key_class_mapping[cache_key] ||= ->{
+        klass = @key_class_mapping[cache_key] ||= ->{
           klass = Class.new(CacheService)
           klass.cache_key = cache_key
-          klass.query = query
+          klass.query_mapping = {}
           klass.instance_variable_set(:@callbacks_defined, false) # to remove warning: instance variable @callbacks_defined not initialized
           next klass
         }[]
+
+        klass.query_mapping[attr.reflect] = query
+        return klass
       end
 
       def set_klass_to_mapping(attr, current_klass)

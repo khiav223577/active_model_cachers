@@ -7,7 +7,7 @@ module ActiveModelCachers
   class CacheService
     class << self
       attr_accessor :cache_key
-      attr_accessor :query
+      attr_accessor :query_mapping
 
       def instance(id)
         hash = (RequestStore.store[self] ||= {})
@@ -65,17 +65,17 @@ module ActiveModelCachers
       @id = id
     end
 
-    def get(binding: nil)
-      @cached_data ||= fetch_from_cache(binding: binding)
+    def get(binding: nil, reflect: nil)
+      @cached_data ||= fetch_from_cache(binding: binding, reflect: reflect)
       return cache_to_raw_data(@cached_data)
     end
 
-    def peek(binding: nil)
+    def peek(binding: nil, reflect: nil)
       @cached_data ||= get_from_cache
       return cache_to_raw_data(@cached_data)
     end
 
-    def clean_cache(binding: nil)
+    def clean_cache(binding: nil, reflect: nil)
       @cached_data = nil
       Rails.cache.delete(cache_key)
       return nil
@@ -88,8 +88,15 @@ module ActiveModelCachers
       return @id ? "#{key}_#{@id}" : key
     end
 
-    def get_without_cache(binding)
-      query = self.class.query
+    def get_query(binding, reflect)
+      self.class.query_mapping[reflect] || begin
+        puts "Warning: cannot find query. possible reflects: #{self.class.query_mapping.keys}, reflect: #{reflect}"
+        self.class.query_mapping.values.first
+      end
+    end
+
+    def get_without_cache(binding, attr)
+      query = get_query(binding, attr)
       return binding ? binding.instance_exec(@id, &query) : query.call(@id) if @id and query.parameters.size == 1
       return binding ? binding.instance_exec(&query) : query.call
     end
@@ -111,9 +118,9 @@ module ActiveModelCachers
       ActiveModelCachers.config.store.read(cache_key)
     end
 
-    def fetch_from_cache(binding: nil)
+    def fetch_from_cache(binding: nil, reflect: nil)
       ActiveModelCachers.config.store.fetch(cache_key, expires_in: 30.minutes) do
-        raw_to_cache_data(get_without_cache(binding))
+        raw_to_cache_data(get_without_cache(binding, reflect))
       end
     end
 
