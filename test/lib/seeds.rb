@@ -81,8 +81,9 @@ end
 ActiveSupport::Dependencies.autoload_paths << File.expand_path('../models/', __FILE__)
 ActiveSupport::Dependencies.autoload_paths << File.expand_path('../services/', __FILE__)
 
-require_relative 'models/eager_loaded/user.rb'
+# make sure `Profile.cache_self` be executed first, then `User.cache_at :profile`
 require_relative 'models/eager_loaded/profile.rb'
+require_relative 'models/eager_loaded/user.rb'
 # require_relative 'models/eager_loaded/language.rb' # EagerLoaded::Language is auto-loaded in models/eager_loaded/user.rb
 fail 'language should be defined here' if not defined?(EagerLoaded::Language)
 
