@@ -1,5 +1,9 @@
 ## Change Log
 
+### [v2.1.4](https://github.com/khiav223577/active_model_cachers/compare/v2.1.3...v2.1.4) 2018/06/14
+- [#41](https://github.com/khiav223577/active_model_cachers/pull/41) Fix: binding problem (@khiav223577)
+- [#40](https://github.com/khiav223577/active_model_cachers/pull/40) [Refactor] Solve warnings (@khiav223577)
+
 ### [v2.1.3](https://github.com/khiav223577/active_model_cachers/compare/v2.1.2...v2.1.3) 2018/06/07
 - [#38](https://github.com/khiav223577/active_model_cachers/pull/38) Fix: Eager-loaded models will not register `after_commit` callback (@khiav223577)
 
