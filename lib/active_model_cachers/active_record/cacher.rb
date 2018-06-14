@@ -86,7 +86,7 @@ module ActiveModelCachers
         end
         data ||= (@model ? @model.send(primary_key) : nil) || @id
         service_klasses.each_with_index do |service_klass, index|
-          data = service_klass.instance(data).send(method, binding: bindings[index])
+          data = service_klass.instance(data).send(method, binding: bindings[index], attr: attr)
           return if data == nil
         end
         return data
