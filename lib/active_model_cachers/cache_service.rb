@@ -89,7 +89,10 @@ module ActiveModelCachers
     end
 
     def get_query(binding, reflect)
-      self.class.query_mapping[reflect] || self.class.query_mapping.values.first
+      self.class.query_mapping[reflect] || begin
+        puts "Warning: cannot find query. possible reflects: #{self.class.query_mapping.keys}, reflect: #{reflect}"
+        self.class.query_mapping.values.first
+      end
     end
 
     def get_without_cache(binding, attr)
