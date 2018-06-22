@@ -186,7 +186,7 @@ class CacheAtHasManyTest < BaseTest
   def test_update_title_without_select_foreign_key
     user = User.find_by(name: 'John4')
     post = Post.create(id: -1, user: user)
-    post_with_only_title = Post.select(:id, :title).find_by(id: -1)
+    post_with_only_title = Post.select('id, title').find_by(id: -1)
 
     assert_queries(1){ assert_equal [post], User.cacher_at(user.id).posts }
     assert_queries(0){ assert_equal [post], User.cacher_at(user.id).posts }
