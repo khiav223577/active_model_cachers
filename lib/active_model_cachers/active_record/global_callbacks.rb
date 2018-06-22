@@ -5,12 +5,12 @@ module ActiveModelCachers
         @type_callbacks = {}
       end
 
-      def pre_before_delete(class_name = nil, &block)
-        define_callbacks(:pre_before_delete, class_name, &block)
+      def before_delete1(class_name = nil, &block)
+        define_callbacks(:before_delete1, class_name, &block)
       end
 
-      def before_delete(class_name = nil, &block)
-        define_callbacks(:before_delete, class_name, &block)
+      def before_delete2(class_name = nil, &block)
+        define_callbacks(:before_delete2, class_name, &block)
       end
 
       def after_delete(class_name = nil, &block)
@@ -21,12 +21,20 @@ module ActiveModelCachers
         define_callbacks(:on_nullify, class_name, &block)
       end
 
-      def after_commit(class_name = nil, &block)
-        define_callbacks(:after_commit, class_name, &block)
+      def after_commit1(class_name = nil, &block)
+        define_callbacks(:after_commit1, class_name, &block)
       end
 
-      def after_touch(class_name = nil, &block)
-        define_callbacks(:after_touch, class_name, &block)
+      def after_commit2(class_name = nil, &block)
+        define_callbacks(:after_commit2, class_name, &block)
+      end
+
+      def after_touch1(class_name = nil, &block)
+        define_callbacks(:after_touch1, class_name, &block)
+      end
+
+      def after_touch2(class_name = nil, &block)
+        define_callbacks(:after_touch2, class_name, &block)
       end
 
       private

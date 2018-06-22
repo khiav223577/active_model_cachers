@@ -13,8 +13,8 @@ module ActiveModelCachers::Hook
 
     module ClassMethods
       def delete(id, model = nil)
-        ActiveModelCachers::ActiveRecord::Extension.global_callbacks.pre_before_delete.exec(self, self, id, model)
-        ActiveModelCachers::ActiveRecord::Extension.global_callbacks.before_delete.exec(self, self, id, model)
+        ActiveModelCachers::ActiveRecord::Extension.global_callbacks.before_delete1.exec(self, self, id, model)
+        ActiveModelCachers::ActiveRecord::Extension.global_callbacks.before_delete2.exec(self, self, id, model)
 
         result = super(id)
 
