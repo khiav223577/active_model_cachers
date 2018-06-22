@@ -1,4 +1,6 @@
 # frozen_string_literal: true
+require 'active_model_cachers/active_record/query_helper'
+
 module ActiveModelCachers
   module ActiveRecord
     class AttrModel
@@ -85,7 +87,7 @@ module ActiveModelCachers
       end
 
       def query_attribute(binding, id)
-        return binding.send(@column) if binding.is_a?(::ActiveRecord::Base) and binding.has_attribute?(@column)
+        return QueryHelper.get_attribute(binding, @column) if binding.is_a?(::ActiveRecord::Base)
         return @klass.where(id: id).limit(1).pluck(@column).first
       end
 

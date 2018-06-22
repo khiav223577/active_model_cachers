@@ -2,6 +2,7 @@
 require 'active_model_cachers/nil_object'
 require 'active_model_cachers/false_object'
 require 'active_model_cachers/column_value_cache'
+require 'active_model_cachers/active_record/query_helper'
 
 module ActiveModelCachers
   class CacheService
@@ -33,13 +34,13 @@ module ActiveModelCachers
           end
 
           after_touch(class_name) do
-            clean.call(send(foreign_key))
+            clean.call(ActiveRecord::QueryHelper.get_attribute(self, foreign_key))
           end
 
-          after_commit(class_name) do # TODO: on
+          after_commit(class_name) do
             next if fire_on and not transaction_include_any_action?(fire_on)
             changed = column ? previous_changes.key?(column) : previous_changes.present?
-            clean.call(send(foreign_key)) if changed || destroyed?
+            clean.call(ActiveRecord::QueryHelper.get_attribute(self, foreign_key)) if changed || destroyed?
           end
 
           pre_before_delete(class_name) do |id, model|
