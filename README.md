@@ -1,3 +1,9 @@
+## Table of contents 
+
+1. [ActiveModelCachers](#activemodelcachers)
+
+
+
 # ActiveModelCachers
 
 [![Gem Version](https://img.shields.io/gem/v/active_model_cachers.svg?style=flat)](http://rubygems.org/gems/active_model_cachers)
@@ -18,7 +24,7 @@ ActiveModelCachers:
 
 `active_model_cachers` allows you to specify what to cache and when to expire those caches, so that you can cache raw sql query results, time-consuming methods, responses of requests, and so on. It also supports AR associations/attibutes (has_many, has_one, belongs_to) and secondary indexes.
 
-`identity_cache` focuses on AR, and doesn't have the flexibility to specify the query. For caching AR associations/attibutes, `identity_cache` has more features, such as caching attibutes by multiple keys, embedding associations to load data in one fetch, non-unique secondary indexes, and caching polymorphic associations.
+`identity_cache` focuses on AR, and doesn't have the flexibility to specify the query.`identity_cache` has more features for caching AR associations/attibutes. Some of these feature are : Caching attibutes by multiple keys, embedding associations to load data in one fetch, non-unique secondary indexes, and caching polymorphic associations.
 
 Another important difference is that `active_model_cachers` encapsulates methods to `cacher`, while `identity_cache` adds a number of `fetch_*` method to `AR` directly, therefore it's more possible to have method name collision when using `identity_cache`.
 
@@ -48,13 +54,14 @@ end
 
 ## Usage
 
-### Cache whatever you want by `cache_at` method
+### Use`cache_at` method to cache whatever you want
+
+Specify a cache on the model:
 
 `cache_at(name, query = nil, options = {})`
-
-Specify a cache on the model.
- - name: the attribute name.
- - query: how to get data on cache miss. It will be set automatically if the name match an association or an attribute.
+Parameters:
+ - name: the attribute name
+ - query: how to get data on cache miss. It will be set automatically if the name matches an association or an attribute.
  - options: see [here](#options)
 
 ### Asscess the cached attributes
