@@ -1,8 +1,17 @@
 ## Table of contents 
 
 1. [ActiveModelCachers](#activemodelcachers)
-
-
+2. [Compare with identity_cache](#compare-with-identity_cache)
+3. [Installation](#installation)
+4. [Usage](#usage)
+5. [Examples](#examples)
+6. [Smart Caching](#smart-caching)
+7. [Convenient syntax sugar for caching ActiveRecord](#convenient-syntax-sugar-for-caching-activerecord)
+8. [Options](#options)
+9. [Future Works](#future-works)
+10. [Development](#development)
+11. [Contributing](#contributing)
+12. [License](#license)
 
 # ActiveModelCachers
 
@@ -54,9 +63,9 @@ end
 
 ## Usage
 
-### Use`cache_at` method to cache whatever you want
+### `cache_at` method
 
-Specify a cache on the model:
+Use `cache_at` method to cache whatever you want. Specify a cache on the model:
 
 `cache_at(name, query = nil, options = {})`
 Parameters:
