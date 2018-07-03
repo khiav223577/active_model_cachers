@@ -6,12 +6,12 @@
 [![Code Climate](https://codeclimate.com/github/khiav223577/active_model_cachers/badges/gpa.svg)](https://codeclimate.com/github/khiav223577/active_model_cachers)
 [![Test Coverage](https://codeclimate.com/github/khiav223577/active_model_cachers/badges/coverage.svg)](https://codeclimate.com/github/khiav223577/active_model_cachers/coverage)
 
-Provide cachers to the model so that you could specify which you want to cache. Data will be cached at `Rails.cache` and also at application level via `RequestStore` to cache values between requests. Cachers will maintain cached objects and expire them when they are changed (including create, update, destroy, and even delete).
+ActiveModelCachers provides cachers to models and allows the users to specify what needs to be cached. The data will be cached at `Rails.cache` and also at application level via `RequestStore`, to cache values between requests. The cachers will maintain cached objects and expire them when they are changed (e.g. created, updated, destroyed, or deleted).
 
-- [Multi-level Cache](#multi-level-cache)
-- Do not pollute original ActiveModel API.
-- Support ActiveRecord 3, 4, 5.
-- High test coverage
+ActiveModelCachers:
+- Does not pollute the original ActiveModel API
+- Supports ActiveRecord 3, 4 and 5
+- Has high test coverage
 
 
 ## Compare with [identity_cache](https://github.com/Shopify/identity_cache)
