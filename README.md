@@ -63,19 +63,20 @@ end
 
 ## Usage
 
-### `cache_at` method
+### The `cache_at` method
 
-Use `cache_at` method to cache whatever you want. Specify a cache on the model:
+Use the `cache_at` method to cache whatever you want. Specify a cache on the model:
 
 `cache_at(name, query = nil, options = {})`
+
 Parameters:
  - name: the attribute name
  - query: how to get data on cache miss. It will be set automatically if the name matches an association or an attribute.
  - options: see [here](#options)
 
-### Asscess the cached attributes
+### Access the cached attributes
 
-The `cacher` is defined as `class method` and `instance method` of Model. You could call the method and get the cacher instance, e.g. `User.cacher` or `user.cacher`. An attribute will define a method on cacher, cached attributes are asscessable via it, e.g. `user.cacher.the_attribute_name`.
+The `cacher` is defined as a `class method` and `instance method` of the model. You can call the method and get the cacher instance (e.g. `User.cacher` or `user.cacher`). Cached attributes can be accessed by defining a method on cacher (e.g. `user.cacher.the_attribute_name`).
 
 
 ### Basic Example
