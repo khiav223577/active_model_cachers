@@ -313,7 +313,13 @@ Monitor on the specific model. Clean the cached objects if targets are changed.
 
   - If symbol, e.g. `:posts`: Monitoring on the association. It will monitor all attributes of `Post` and set the `foreign_key'.
 
-  - The default value depends on the `name`. If is an association, monitoring the association klass. If is an attribute, monitoring current klass and the attribute name. If others, monitoring nothing.
+  - The default value depends on the `name`. If `name`:
+  
+  - Is an association, monitoring the association klass
+  
+  - Is an attribute, monitoring current klass and the attribute name
+  
+  - In other cases, monitoring nothing
 
 ### :on
 
@@ -331,17 +337,25 @@ Monitor on the specific model. Clean the cached objects if targets are changed.
 
 ### :foreign_key
 
-This option is needed only for caching assoication and need not to set if [`expire_by`](#expire_by) is set to monitor association. Used for backtracing the cache key from cached objects. For examle, if `user` has_many `posts`, and cached the `posts` by user.id. When a post is changed, it needs to know which column to use (in this example, `user_id`) to clean the cache at user.
+foreign_key:
 
-  - Default value is `:id`
+- Is needed only for caching assoication
 
-  - Will be automatically determined if [`expire_by`](#expire_by) is symbol.
+- Does not need to be set if [`expire_by`](#expire_by) is set to monitor association.
+
+- Is used for backtracing the cache key from cached objects. For example, it is used if `user` has_many `posts`, and `posts` is cached by user.id. If the post is changed, the column it is going to target must be specified so that the post can clean the cache at user (In this example mentioned, the column was `user_id`).
+
+- Has the default value `:id`.
+
+- Will be automatically determined if [`expire_by`](#expire_by) is symbol
 
 ### :primary_key
 
-This option is needed to know which attribute should be passed to the parameter when you are using instance cacher. For example, if a query, named `email_valid?`, uses `user.email` as parameter, and you call it from instance: `user.cacher.email_valid?`. You need to tell it to pass `user.email` instead of `user.id` as the argument.
+primary_key:
 
-  - Default value is `:id`
+- Is needed to know which attribute should be passed to the parameter when you are using instance cacher. For example, if a query, named `email_valid?`, uses `user.email` as parameter, and you call it from instance: `user.cacher.email_valid?`, you need to tell it to pass `user.email` instead of `user.id` as the argument.
+
+- Has the default value `:id`.
 
 ## Future works
 
