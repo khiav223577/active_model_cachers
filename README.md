@@ -337,8 +337,6 @@ Monitor on the specific model. Clean the cached objects if targets are changed.
 
 ### :foreign_key
 
-foreign_key:
-
 - Is needed only for caching assoication
 
 - Does not need to be set if [`expire_by`](#expire_by) is set to monitor association.
@@ -353,7 +351,7 @@ foreign_key:
 
 primary_key:
 
-- Is needed to know which attribute should be passed to the parameter when you are using instance cacher. For example, if a query, named `email_valid?`, uses `user.email` as parameter, and you call it from instance: `user.cacher.email_valid?`, you need to tell it to pass `user.email` instead of `user.id` as the argument.
+- Is needed to know which attribute should be passed to the parameter when using the instance `cacher`. For example, if a query, named `email_valid?`, uses `user.email` as parameter, and you call it from instance: `user.cacher.email_valid?`, pass `user.id` as the argument.
 
 - Has the default value `:id`.
 
@@ -370,7 +368,7 @@ primary_key:
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release` (this will create a git tag for the version). Push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
 ## Contributing
 
