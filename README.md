@@ -1,18 +1,3 @@
-## Table of contents 
-
-1. [ActiveModelCachers](#activemodelcachers)
-2. [Compare with identity_cache](#compare-with-identity_cache)
-3. [Installation](#installation)
-4. [Usage](#usage)
-5. [Examples](#examples)
-6. [Smart Caching](#smart-caching)
-7. [Convenient syntax sugar for caching ActiveRecord](#convenient-syntax-sugar-for-caching-activerecord)
-8. [Options](#options)
-9. [Future Works](#future-works)
-10. [Development](#development)
-11. [Contributing](#contributing)
-12. [License](#license)
-
 # ActiveModelCachers
 
 [![Gem Version](https://img.shields.io/gem/v/active_model_cachers.svg?style=flat)](http://rubygems.org/gems/active_model_cachers)
@@ -24,16 +9,31 @@
 ActiveModelCachers provides cachers to models and allows the users to specify what needs to be cached. The data will be cached at `Rails.cache` and also at application level via `RequestStore`, to cache values between requests. The cachers will maintain cached objects and expire them when they are changed (e.g. created, updated, destroyed, or deleted).
 
 ActiveModelCachers:
+
+- Uses multiple levels of cache ([Multi-level Cache](#multi-level-cache))
 - Does not pollute the original ActiveModel API
 - Supports ActiveRecord 3, 4 and 5
 - Has high test coverage
 
+### Table of contents 
+
+1. [Compare with identity_cache](#compare-with-identity_cache)
+2. [Installation](#installation)
+3. [Usage](#usage)
+4. [Examples](#examples)
+5. [Smart Caching](#smart-caching)
+6. [Convenient syntax sugar for caching ActiveRecord](#convenient-syntax-sugar-for-caching-activerecord)
+7. [Options](#options)
+8. [Future Works](#future-works)
+9. [Development](#development)
+10. [Contributing](#contributing)
+11. [License](#license)
 
 ## Compare with [identity_cache](https://github.com/Shopify/identity_cache)
 
 `active_model_cachers` allows you to specify what to cache and when to expire those caches, so that you can cache raw sql query results, time-consuming methods, responses of requests, and so on. It also supports AR associations/attibutes (has_many, has_one, belongs_to) and secondary indexes.
 
-`identity_cache` focuses on AR, and doesn't have the flexibility to specify the query.`identity_cache` has more features for caching AR associations/attibutes. Some of these feature are : Caching attibutes by multiple keys, embedding associations to load data in one fetch, non-unique secondary indexes, and caching polymorphic associations.
+`identity_cache` focuses on AR, and doesn't have the flexibility to specify the query.`identity_cache` has more features for caching AR associations/attibutes. Some of these feature are: Caching attibutes by multiple keys, embedding associations to load data in one fetch, non-unique secondary indexes, and caching polymorphic associations.
 
 Another important difference is that `active_model_cachers` encapsulates methods to `cacher`, while `identity_cache` adds a number of `fetch_*` method to `AR` directly, therefore it's more possible to have method name collision when using `identity_cache`.
 
@@ -349,8 +349,6 @@ Monitor on the specific model. Clean the cached objects if targets are changed.
 
 ### :primary_key
 
-primary_key:
-
 - Is needed to know which attribute should be passed to the parameter when using the instance `cacher`. For example, if a query, named `email_valid?`, uses `user.email` as parameter, and you call it from instance: `user.cacher.email_valid?`, pass `user.id` as the argument.
 
 - Has the default value `:id`.
@@ -368,7 +366,7 @@ primary_key:
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release` (this will create a git tag for the version). Push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb` before running `bundle exec rake release` (This command will create a git tag for the version, push the git commits, tags and the `.gem` files to rubygems.org).
 
 ## Contributing
 
