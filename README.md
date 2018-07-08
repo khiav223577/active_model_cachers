@@ -76,7 +76,7 @@ Parameters:
 
 ### Access the cached attributes
 
-The `cacher` is defined as a `class method` and `instance method` of the model. You can call the method and get the cacher instance (e.g. `User.cacher` or `user.cacher`). Cached attributes can be accessed by defining a method on cacher (e.g. `user.cacher.the_attribute_name`).
+The `cacher` is defined as a `class method` and `instance method` of the model. You can call the method and get the cacher instance (e.g. `User.cacher` or `user.cacher`). Cached attributes can be accessed via `user.cacher` (e.g. `user.cacher.the_attribute_name`).
 
 
 ### Basic Example
@@ -92,7 +92,7 @@ user.cacher.something_you_want_to_cache
 ## Examples
 
 ### Example 1: Cache the number of active users
-Specify the variable name as `active_count`. After using lambda `User.active.count` to define how the data can be accessed when there is a cache miss, you can get the cached data by calling `active_count` method on the cacher `User.cacher`.
+Specify the method name as `active_count`. After using lambda `User.active.count` to define how the data can be accessed when there is a cache miss, you can get the cached data by calling `active_count` method on the cacher `User.cacher`.
 
 ```rb
 class User < ActiveRecord::Base
