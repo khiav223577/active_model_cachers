@@ -6,35 +6,50 @@
 [![Code Climate](https://codeclimate.com/github/khiav223577/active_model_cachers/badges/gpa.svg)](https://codeclimate.com/github/khiav223577/active_model_cachers)
 [![Test Coverage](https://codeclimate.com/github/khiav223577/active_model_cachers/badges/coverage.svg)](https://codeclimate.com/github/khiav223577/active_model_cachers/coverage)
 
-Provide cachers to the model so that you could specify which you want to cache. Data will be cached at `Rails.cache` and also at application level via `RequestStore` to cache values between requests. Cachers will maintain cached objects and expire them when they are changed (including create, update, destroy, and even delete).
+ActiveModelCachers provides cachers to models and allows the users to specify what needs to be cached. The data will be cached at `Rails.cache` and also at application level via `RequestStore`, to cache values between requests. The cachers will maintain cached objects and expire them when they are changed (e.g. created, updated, destroyed, or deleted).
 
-- [Multi-level Cache](#multi-level-cache)
-- Do not pollute original ActiveModel API.
-- Support ActiveRecord 3, 4, 5.
-- High test coverage
+ActiveModelCachers:
 
+- Uses multiple levels of cache ([Multi-level Cache](#multi-level-cache))
+- Does not pollute the original ActiveModel API
+- Supports ActiveRecord 3, 4 and 5
+- Has high test coverage
+
+### Table of contents 
+
+1. [Compare with identity_cache](#compare-with-identity_cache)
+2. [Installation](#installation)
+3. [Usage](#usage)
+4. [Examples](#examples)
+5. [Smart Caching](#smart-caching)
+6. [Convenient syntax sugar for caching ActiveRecord](#convenient-syntax-sugar-for-caching-activerecord)
+7. [Options](#options)
+8. [Future Works](#future-works)
+9. [Development](#development)
+10. [Contributing](#contributing)
+11. [License](#license)
 
 ## Compare with [identity_cache](https://github.com/Shopify/identity_cache)
 
-`active_model_cachers` allows you to specify what to cache and when to expire those caches. So that you could cache raw sql query results, time-consuming methods, responses of requests, and so on. It also supports AR associations / attibutes (has_many, has_one, belongs_to) and secondary indexes.
+`active_model_cachers` allows you to specify what to cache and when to expire those caches, so that you can cache raw sql query results, time-consuming methods, responses of requests, and so on. It also supports AR associations/attibutes (has_many, has_one, belongs_to) and secondary indexes.
 
-`identity_cache` focuses on AR, and doesn't have the flexibility to specify the query. It has more features for caching AR associations / attibutes, such as caching attibutes by multiple keys, embedding associations to load data in one fetch, non-unique secondary indexes, and caching polymorphic associations, etc.
+`identity_cache` focuses on AR, and doesn't have the flexibility to specify the query.`identity_cache` has more features for caching AR associations/attibutes. Some of these feature are: Caching attibutes by multiple keys, embedding associations to load data in one fetch, non-unique secondary indexes, and caching polymorphic associations.
 
-There is also a difference worths mentioning, `active_model_cachers` encapsulates methods to `cacher`, while `identity_cache` adds a number of `fetch_*` method to `AR` directly. Therefore, it's more possible to have method name collision.
+Another important difference is that `active_model_cachers` encapsulates methods to `cacher`, while `identity_cache` adds a number of `fetch_*` method to `AR` directly, therefore it's more possible to have method name collision when using `identity_cache`.
 
 ## Installation
 
-Add this line to your application's Gemfile:
+To install active_model_cachers, add this line to your application's Gemfile:
 
 ```ruby
 gem 'active_model_cachers'
 ```
 
-And then execute:
+Then execute:
 
     $ bundle
 
-Or install it yourself as:
+Or install it yourself by executing:
 
     $ gem install active_model_cachers
 
@@ -48,19 +63,20 @@ end
 
 ## Usage
 
-### Cache whatever you want by `cache_at` method
+### The `cache_at` method
+
+Use the `cache_at` method to cache whatever you want. Specify a cache on the model:
 
 `cache_at(name, query = nil, options = {})`
 
-Specify a cache on the model.
- - name: the attribute name.
- - query: how to get data on cache miss. It will be set automatically if the name match an association or an attribute.
+Parameters:
+ - name: the attribute name
+ - query: how to get data on cache miss. It will be set automatically if the name matches an association or an attribute.
  - options: see [here](#options)
 
-### Asscess the cached attributes
+### Access the cached attributes
 
-The `cacher` is defined as `class method` and `instance method` of Model. You could call the method and get the cacher instance, e.g. `User.cacher` or `user.cacher`. An attribute will define a method on cacher, cached attributes are asscessable via it, e.g. `user.cacher.the_attribute_name`.
-
+"To avoid method name collision, all methods will be defined on the `Cacher` instead of `ActiveModel`. You can get the `cacher` from the class or from the instance (e.g. `User.cacher` or `user.cacher`), then access cached attributes via the method defined by `cache_at` (e.g. `user.cacher.the_attribute_name`)."
 
 ### Basic Example
 ```rb
@@ -74,10 +90,8 @@ user.cacher.something_you_want_to_cache
 
 ## Examples
 
-### Example 1: Cache the number of active user
-
-After specifying the name as `active_count` and how to get data when cache miss by lambda `User.active.count`.
-You could access the cached data by calling `active_count` method on the cacher, `User.cacher`.
+### Example 1: Cache the number of active users
+Specify the method name as `active_count`. After using lambda `User.active.count` to define how the data can be accessed when there is a cache miss, you can get the cached data by calling `active_count` method on the cacher `User.cacher`.
 
 ```rb
 class User < ActiveRecord::Base
@@ -88,11 +102,11 @@ end
 @count = User.cacher.active_count
 ```
 
-You may want to flush cache on the number of active user changed. It can be done by simply setting [`expire_by`](#expire_by). In this case, `User#last_login_at` means flushing the cache when a user's `last_login_at` is changed (whenever by save, update, create, destroy or delete).
+You may want to flush cache on the number of active users changed. It can be done by setting [`expire_by`](#expire_by). In this case, `User#last_login_at` means flushing the cache when a user's `last_login_at` is changed (by save, update, create, destroy or delete).
 
-### Example 2: Cache the number of user
+### Example 2: Cache the number of users
 
-In this example, the cache should be cleaned on user `destroyed`, or new user `created`, but not on user `updated`. You could specify the cleaning callback to only fire on certain events by [`on`](#on).
+In this example, the cache should be cleaned on user `destroyed`, or new user `created`, but not on user `updated`. You can specify the cleaning callback to only fire on certain events by [`on`](#on).
 
 ```rb
 class User < ActiveRecord::Base
@@ -104,7 +118,7 @@ end
 
 ### Example 3: Access the cacher from a model instance
 
-You could use the cacher from instance scope, e.g. `user.cacher`, instead of `User.cacher`. The difference is that the `binding` of query lambda is changed. In this example, you could write the query as `posts.exists?` in that it's in instance scope, and the binding of the lambda is `user`, not `User`. So that it accesses `posts` method of `user`.
+You could use the cacher from the instance scope, e.g. `user.cacher`, instead of `User.cacher`. The difference is that the `binding` of query lambda is changed. In this example, you can write the query as `posts.exists?` which is in instance scope. The binding of the lambda is `user`, not `User`, so that it accesses `posts` method of `user`.
 
 ```rb
 class User < ActiveRecord::Base
@@ -115,12 +129,12 @@ end
 do_something if current_user.cacher.has_post?
 ```
 
-In this example, the cache should be cleaned when the `posts` of the user changed. You could just set `expire_by` to the association: `:posts`, and then it will do all the works for you magically. (If you want know more details, it actually set [`expire_by`](#expire_by) to `Post#user_id` and [`foreign_key`](#foreign_key), which is needed for backtracing the user id from post, to `:user_id`)
+In this example, the cache should be cleaned when the `posts` of the user is changed. If you set `expire_by` to the association: `:posts`, it will do all the work for you (It actually sets [`expire_by`](#expire_by) to `Post#user_id` and [`foreign_key`](#foreign_key), which is needed for backtracing the user id from post, to `:user_id`). 
 
 
-### Example 4: Pass an argument to the query lambda.
+### Example 4: Pass an argument to the query lambda
 
-You could cache not only the query result of database but also the result of outer service. Becasue `email_valid?` doesn't match an association or an attribute, by default, the cache will not be cleaned by any changes.
+You can also cache the result of outer service.`email_valid?` doesn't match an association or an attribute, so by default, the cache will not be cleaned by any changes.
 
 ```rb
 class User < ActiveRecord::Base
@@ -130,7 +144,7 @@ end
 render_error if not User.cacher_at('pearl@example.com').email_valid?
 ```
 
-The query lambda can have one parameter, you could pass variable to it by using `cacher_at`. For example, `User.cacher_at(email)`.
+The query lambda can have one parameter. You can pass variable to it by using `cacher_at`. For example, `User.cacher_at(email)`.
 
 ```rb
 class User < ActiveRecord::Base
@@ -140,11 +154,11 @@ end
 render_error if not current_user.cacher.email_valid?
 ```
 
-It can also be accessed from instance cacher. But you have to set [`primary_key`](#primary_key), which is needed to know which attribute should be passed to the parameter.
+The query lambda can also be accessed from instance cacher, but you have to set [`primary_key`](#primary_key). The primary key specifies which attribute should be passed to the parameter.
 
 ### Example 5: Store all data in hash
 
-Sometimes you may need to query multiple objects. Although the query results will be cached, the application still needs to query the cache server multiple times. If one communication take 0.1 ms, 1000 communications will take 100ms! For example:
+Sometimes you may need to query multiple objects. Although the query results will be cached, the application still needs to query the cache server multiple times. If one communication takes 0.1 ms, 1000 communications will take 100ms! For example:
 
 ```rb
 class Skill < ActiveRecord::Base
@@ -155,7 +169,7 @@ end
 @attack = skill_ids.inject(0){|sum, id| sum + Skill.cacher_at(id).atk_power }
 ```
 
-One of the solution is that you could store a lookup table into cache, so that only one cache object is stored and you can retrieve all of the needed data in one query.
+One solution is to store a lookup table into the cache, so that only one cache object is stored. This will allow you to retrieve all of the needed data in one query.
 
 ```rb
 class Skill < ActiveRecord::Base
@@ -168,7 +182,7 @@ end
 
 ### Example 6: Clean the cache manually
 
-Sometimes it needs to maintain the cache manually. For example, after calling `update_all`, `delete_all` or `import` records without calling callbacks.
+Sometimes it is necessary to maintain the cache manually (For example, after calling `update_all`, `delete_all` or `import` records without calling callbacks).
 
 ```rb
 class User < ActiveRecord::Base
@@ -188,7 +202,7 @@ User.cacher_at(user_id).clean_profile
 
 ### Example 7: Peek the data stored in cache
 
-If you just want to check the cached objects, but don't want it to load from database automatically when there is no cache. You could use `peek` method on `cacher`.
+If you only want to check the cached objects, but don't want it to load them from the database automatically when there is no cache, you can use `peek` method on `cacher`.
 
 ```rb
 class User < ActiveRecord::Base
@@ -210,16 +224,16 @@ User.cacher_at(user_id).peek_profile
 ## Smart Caching
 
 ### Multi-level Cache
-There is multi-level cache in order to make the speed of data access go faster.
+There is multi-level cache in order to increase the speed of data access.
 
 1. RequestStore
 2. Rails.cache
 3. Association Cache
 4. Database
 
-`RequestStore` is used to make sure same object will not loaded from cache twice, since the data transfer between `Cache` and `Application` still consumes time.
+`RequestStore` is used to make sure the same object will not be loaded from cache twice, since the data transfer between `Cache` and `Application` consumes time.
 
-`Association Cache` will be used to prevent preloaded objects being loaded again.
+`Association Cache` prevents preloaded objects being loaded again.
 
 For example:
 ```rb
@@ -244,7 +258,7 @@ end
 
 ### Caching Self
 
-Cache self by id.
+Cache self by id:
 ```rb
 class User < ActiveRecord::Base
   cache_self
@@ -259,7 +273,7 @@ User.cacher.peek_by(id: user_id)
 User.cacher.clean_by(id: user_id)
 ```
 
-Also support caching self by other columns.
+Also support caching self by other columns:
 ```rb
 class User < ActiveRecord::Base
   cache_self by: :account
@@ -288,17 +302,23 @@ end
 
 ### :expire_by
 
-Monitor on the specific model. Clean the cached objects if target are changed.
+Monitor on the specific model. Clean the cached objects if targets are changed.
 
-  - if empty, e.g. `nil` or `''`: Monitoring nothing.
+  - If empty, e.g. `nil` or `''`: Monitoring nothing.
 
-  - if string, e.g. `User`: Monitoring all attributes of `User`.
+  - If string, e.g. `User`: Monitoring all attributes of `User`.
 
-  - if string with keyword `#`, e.g. `User#last_login_in_at`: Monitoring only the specific attribute.
+  - If string with keyword `#`, e.g. `User#last_login_in_at`: Monitoring only an specific attribute.
 
-  - if symbol, e.g. `:posts`: Monitoring on the association. It will trying to do all the things for you, including monitoring all attributes of `Post` and set the `foreign_key`.
+  - If symbol, e.g. `:posts`: Monitoring on the association. It will monitor all attributes of `Post` and set the `foreign_key'.
 
-  - Default value depends on the `name`. If is an association, monitoring the association klass. If is an attribute, monitoring current klass and the attrribute name. If others, monitoring nothing.
+  - The default value depends on the `name`. If `name`:
+  
+  - Is an association, monitoring the association klass
+  
+  - Is an attribute, monitoring current klass and the attribute name
+  
+  - In other cases, monitoring nothing
 
 ### :on
 
@@ -316,17 +336,21 @@ Monitor on the specific model. Clean the cached objects if target are changed.
 
 ### :foreign_key
 
-This option is needed only for caching assoication and need not to set if [`expire_by`](#expire_by) is set to monitor association. Used for backtracing the cache key from cached objects. For examle, if `user` has_many `posts`, and cached the `posts` by user.id. When a post is changed, it needs to know which column to use (in this example, `user_id`) to clean the cache at user.
+- Is needed only for caching assoication
 
-  - Default value is `:id`
+- Does not need to be set if [`expire_by`](#expire_by) is set to monitor association.
 
-  - Will be automatically determined if [`expire_by`](#expire_by) is symbol.
+- Is used for backtracing the cache key from cached objects. For example, it is used if `user` has_many `posts`, and `posts` is cached by user.id. If the post is changed, the column it is going to target must be specified so that the post can clean the cache at user (In this example mentioned, the column was `user_id`).
+
+- Has the default value `:id`.
+
+- Will be automatically determined if [`expire_by`](#expire_by) is symbol
 
 ### :primary_key
 
-This option is needed to know which attribute should be passed to the parameter when you are using instance cacher. For example, if a query, named `email_valid?`, uses `user.email` as parameter, and you call it from instance: `user.cacher.email_valid?`. You need to tell it to pass `user.email` instead of `user.id` as the argument.
+- Is needed to know which attribute should be passed to the parameter when using the instance `cacher`. For example, if a query, named `email_valid?`, uses `user.email` as parameter, and you call it from instance: `user.cacher.email_valid?`, pass `user.id` as the argument.
 
-  - Default value is `:id`
+- Has the default value `:id`.
 
 ## Future works
 
@@ -341,7 +365,7 @@ This option is needed to know which attribute should be passed to the parameter 
 
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake test` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
 
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb` before running `bundle exec rake release` (This command will create a git tag for the version, push the git commits, tags and the `.gem` files to rubygems.org).
 
 ## Contributing
 
