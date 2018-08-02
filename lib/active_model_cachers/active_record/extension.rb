@@ -85,23 +85,22 @@ module ActiveModelCachers
         end
       end
 
-      @global_callbacks = GlobalCallbacks.new
+      @global_callbacks = nil
       def self.global_callbacks
-        @global_callbacks
-      end
-
-      def self.extended(base)
-        global_callbacks = @global_callbacks
-        base.instance_exec do
-          after_commit ->{
-            global_callbacks.after_commit1.exec(self, self.class)
-            global_callbacks.after_commit2.exec(self, self.class)
-          }
-          after_touch ->{
-            global_callbacks.after_touch1.exec(self, self.class)
-            global_callbacks.after_touch2.exec(self, self.class)
-          }
+        if @global_callbacks == nil
+          global_callbacks = @global_callbacks = GlobalCallbacks.new
+          ::ActiveRecord::Base.instance_exec do
+            after_commit ->{
+              global_callbacks.after_commit1.exec(self, self.class)
+              global_callbacks.after_commit2.exec(self, self.class)
+            }
+            after_touch ->{
+              global_callbacks.after_touch1.exec(self, self.class)
+              global_callbacks.after_touch2.exec(self, self.class)
+            }
+          end
         end
+        return @global_callbacks
       end
     end
   end
