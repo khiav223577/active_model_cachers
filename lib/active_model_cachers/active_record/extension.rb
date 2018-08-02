@@ -105,7 +105,3 @@ module ActiveModelCachers
     end
   end
 end
-
-if Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new('4')
-  require 'active_model_cachers/active_record/patch_rails_3'
-end
