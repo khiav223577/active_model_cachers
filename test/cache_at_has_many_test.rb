@@ -162,7 +162,7 @@ class CacheAtHasManyTest < BaseTest
     assert_queries(0){ assert_equal [post], User.cacher_at(user.id).posts }
     assert_cache('active_model_cachers_User_at_posts_4' => [post])
   ensure
-    post.delete
+    post.delete if post
   end
 
   def test_update_others_post_title
@@ -180,7 +180,26 @@ class CacheAtHasManyTest < BaseTest
     assert_queries(0){ assert_equal [], User.cacher_at(user1.id).posts }
     assert_cache('active_model_cachers_User_at_posts_4' => [])
   ensure
-    post.delete
+    post.delete if post
+  end
+
+  def test_update_title_without_select_foreign_key
+    user = User.find_by(name: 'John4')
+    post = Post.create(id: -1, user: user)
+    post_with_only_title = Post.select('id, title').find_by(id: -1)
+
+    assert_queries(1){ assert_equal [post], User.cacher_at(user.id).posts }
+    assert_queries(0){ assert_equal [post], User.cacher_at(user.id).posts }
+    assert_cache('active_model_cachers_User_at_posts_4' => [post])
+
+    assert_queries(2){ post_with_only_title.update_attributes(title: '學生退出校園') } # send extra query to select user_id
+    assert_cache({})
+
+    assert_queries(1){ assert_equal [post], User.cacher_at(user.id).posts }
+    assert_queries(0){ assert_equal [post], User.cacher_at(user.id).posts }
+    assert_cache('active_model_cachers_User_at_posts_4' => [post])
+  ensure
+    post.delete if post
   end
 
   # ----------------------------------------------------------------

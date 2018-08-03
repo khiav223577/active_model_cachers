@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 class ActiveModelCachers::ColumnValueCache
   def initialize
     @cache1 = Hash.new{|h, k| h[k] = {} }
@@ -40,7 +41,7 @@ class ActiveModelCachers::ColumnValueCache
   def get_id_from(object, id, column, model)
     return id if column == 'id'
     model ||= object.cacher.peek_by(id: id) if object.has_cacher?
-    return model.send(column) if model
+    return model.send(column) if model and model.has_attribute?(column)
     return :not_set
   end
 end

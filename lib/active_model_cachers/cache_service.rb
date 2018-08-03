@@ -32,21 +32,31 @@ module ActiveModelCachers
             get_ids.call.each{|s| clean.call(s) } if nullified_column == column
           end
 
-          after_touch(class_name) do
-            clean.call(send(foreign_key))
+          after_touch1(class_name) do
+            clean.call(@@column_value_cache.add(self.class, class_name, id, foreign_key, self).call)
           end
 
-          after_commit(class_name) do # TODO: on
+          after_touch2(class_name) do
+            @@column_value_cache.clean_cache
+          end
+
+          after_commit1(class_name) do
             next if fire_on and not transaction_include_any_action?(fire_on)
             changed = column ? previous_changes.key?(column) : previous_changes.present?
-            clean.call(send(foreign_key)) if changed || destroyed?
+             if changed || destroyed?
+               clean.call(@@column_value_cache.add(self.class, class_name, id, foreign_key, self).call)
+             end
           end
 
-          pre_before_delete(class_name) do |id, model|
+          after_commit2(class_name) do
+            @@column_value_cache.clean_cache
+          end
+
+          before_delete1(class_name) do |id, model|
             clean_ids << @@column_value_cache.add(self, class_name, id, foreign_key, model)
           end
 
-          before_delete(class_name) do |_, model|
+          before_delete2(class_name) do |_, model|
             clean_ids.each{|s| clean.call(s.call) }
             clean_ids = []
           end

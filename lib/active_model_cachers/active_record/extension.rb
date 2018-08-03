@@ -91,10 +91,12 @@ module ActiveModelCachers
           global_callbacks = @global_callbacks = GlobalCallbacks.new
           ::ActiveRecord::Base.instance_exec do
             after_commit ->{
-              global_callbacks.after_commit.exec(self, self.class)
+              global_callbacks.after_commit1.exec(self, self.class)
+              global_callbacks.after_commit2.exec(self, self.class)
             }
             after_touch ->{
-              global_callbacks.after_touch.exec(self, self.class)
+              global_callbacks.after_touch1.exec(self, self.class)
+              global_callbacks.after_touch2.exec(self, self.class)
             }
           end
         end
@@ -102,8 +104,4 @@ module ActiveModelCachers
       end
     end
   end
-end
-
-if Gem::Version.new(ActiveRecord::VERSION::STRING) < Gem::Version.new('4')
-  require 'active_model_cachers/active_record/patch_rails_3'
 end
