@@ -3,7 +3,7 @@ class User < ActiveRecord::Base
   has_many :posts
   has_many :posts_without_cache, class_name: 'PostWithoutCache'
 
-  has_and_belongs_to_many :roles, join_table: :users_user_roles
+  has_and_belongs_to_many :roles, join_table: :users_user_roles, class_name: 'UserRole'
 
   has_one :profile, dependent: :delete
   has_one :contact, dependent: :delete
@@ -28,4 +28,5 @@ class User < ActiveRecord::Base
   cache_at :has_post_without_cache2?, ->(id){ posts_without_cache.exists? }, expire_by: 'PostWithoutCache#user_id', foreign_key: :user_id
 
   cache_at :email_valid?, ->(email){ ValidEmail2::Address.new(email).valid_mx? }, primary_key: :email
+  cache_at :roles
 end

@@ -159,6 +159,19 @@ users = User.create([
   },
 ])
 
+
+roles = UserRole.create([
+  {:name => 'teacher'},
+  {:name => 'manager'},
+  {:name => 'admin'},
+])
+
+users[0].roles << roles[0]
+users[0].roles << roles[1]
+users[1].roles << roles[1]
+users[1].roles << roles[2]
+users[2].roles << roles[2]
+
 Post.create([
   {:title => "John1's post1", :user_id => users[0].id},
   {:title => "John1's post2", :user_id => users[0].id},
