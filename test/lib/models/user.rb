@@ -3,6 +3,8 @@ class User < ActiveRecord::Base
   has_many :posts
   has_many :posts_without_cache, class_name: 'PostWithoutCache'
 
+  has_and_belongs_to_many :roles, join_table: :users_user_roles
+
   has_one :profile, dependent: :delete
   has_one :contact, dependent: :delete
 

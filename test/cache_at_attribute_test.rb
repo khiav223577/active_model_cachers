@@ -188,7 +188,7 @@ class CacheAtAttributeTest < BaseTest
     assert_queries(0){ assert_equal 17, Profile.cacher_at(profile.id).point }
     assert_cache("active_model_cachers_Profile_at_point_#{profile.id}" => 17)
 
-    assert_queries(3){ user.destroy } # 1. delete user. 2: delete profile by dependent. 3: delete contact by dependent.
+    assert_queries(4){ user.destroy } # 1. delete user. 2: delete profile by dependent. 3: delete users_user_roles. 4: delete contact by dependent.
     assert_cache({})
 
     assert_queries(1){ assert_nil Profile.cacher_at(profile.id).point }

@@ -76,6 +76,19 @@ ActiveRecord::Schema.define do
     t.integer :user_id
     t.integer :point
   end
+
+  create_table "user_roles", force: :cascade do |t|
+    t.string   "name",          limit: 255
+    t.integer  "resource_id",   limit: 4
+    t.string   "resource_type", limit: 255
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+  end
+
+  create_table "users_user_roles", id: false, force: :cascade do |t|
+    t.integer "user_id",      limit: 4
+    t.integer "user_role_id", limit: 4
+  end
 end
 
 ActiveSupport::Dependencies.autoload_paths << File.expand_path('../models/', __FILE__)
