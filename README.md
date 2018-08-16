@@ -31,9 +31,9 @@ ActiveModelCachers:
 
 ## Compare with [identity_cache](https://github.com/Shopify/identity_cache)
 
-`active_model_cachers` allows you to specify what to cache and when to expire those caches, so that you can cache raw sql query results, time-consuming methods, responses of requests, and so on. It also supports AR associations/attibutes (has_many, has_one, belongs_to) and secondary indexes.
+`active_model_cachers` allows you to specify what to cache and when to expire those caches, so that you can cache raw sql query results, time-consuming methods, responses of requests, and so on. It also supports AR associations/attributes (has_many, has_one, belongs_to) and secondary indexes.
 
-`identity_cache` focuses on AR, and doesn't have the flexibility to specify the query.`identity_cache` has more features for caching AR associations/attibutes. Some of these feature are: Caching attibutes by multiple keys, embedding associations to load data in one fetch, non-unique secondary indexes, and caching polymorphic associations.
+`identity_cache` focuses on AR, and doesn't have the flexibility to specify the query.`identity_cache` has more features for caching AR associations/attributes. Some of these feature are: Caching attributes by multiple keys, embedding associations to load data in one fetch, non-unique secondary indexes, and caching polymorphic associations.
 
 Another important difference is that `active_model_cachers` encapsulates methods to `cacher`, while `identity_cache` adds a number of `fetch_*` method to `AR` directly, therefore it's more possible to have method name collision when using `identity_cache`.
 
@@ -356,7 +356,7 @@ Monitor on the specific model. Clean the cached objects if targets are changed.
 
 - [ ] caching polymorphic associations
 - [ ] non-unique secondary indexes
-- [ ] caching attibutes by multiple keys
+- [ ] caching attributes by multiple keys
 - [ ] testing counter cache
 - [ ] testing has_many through
 - [ ] testing has_and_belongs_to_many
