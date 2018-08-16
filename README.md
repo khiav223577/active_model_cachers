@@ -76,7 +76,7 @@ Parameters:
 
 ### Access the cached attributes
 
-"To avoid method name collision, all methods will be defined on the `Cacher` instead of `ActiveModel`. You can get the `cacher` from the class or from the instance (e.g. `User.cacher` or `user.cacher`), then access cached attributes via the method defined by `cache_at` (e.g. `user.cacher.the_attribute_name`)."
+To avoid method name collision, all methods will be defined on the `Cacher` instead of `ActiveModel`. You can get the `cacher` from the class or from the instance (e.g. `User.cacher` or `user.cacher`), then access cached attributes via the method defined by `cache_at` (e.g. `user.cacher.the_attribute_name`).
 
 ### Basic Example
 ```rb
