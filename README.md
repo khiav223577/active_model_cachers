@@ -15,7 +15,7 @@ ActiveModelCachers:
 - Supports ActiveRecord 3, 4 and 5
 - Has high test coverage
 
-### Table of contents 
+## Table of contents
 
 1. [Compare with identity_cache](#compare-with-identity_cache)
 2. [Installation](#installation)
@@ -129,7 +129,7 @@ end
 do_something if current_user.cacher.has_post?
 ```
 
-In this example, the cache should be cleaned when the `posts` of the user is changed. If you set `expire_by` to the association: `:posts`, it will do all the work for you (It actually sets [`expire_by`](#expire_by) to `Post#user_id` and [`foreign_key`](#foreign_key), which is needed for backtracing the user id from post, to `:user_id`). 
+In this example, the cache should be cleaned when the `posts` of the user is changed. If you set `expire_by` to the association: `:posts`, it will do all the work for you (It actually sets [`expire_by`](#expire_by) to `Post#user_id` and [`foreign_key`](#foreign_key), which is needed for backtracing the user id from post, to `:user_id`).
 
 
 ### Example 4: Pass an argument to the query lambda
@@ -313,11 +313,11 @@ Monitor on the specific model. Clean the cached objects if targets are changed.
   - If symbol, e.g. `:posts`: Monitoring on the association. It will monitor all attributes of `Post` and set the `foreign_key'.
 
   - The default value depends on the `name`. If `name`:
-  
+
   - Is an association, monitoring the association klass
-  
+
   - Is an attribute, monitoring current klass and the attribute name
-  
+
   - In other cases, monitoring nothing
 
 ### :on
