@@ -92,7 +92,7 @@ class CacheUserCountTest < BaseTest
     assert_queries(0){ assert_equal 5, User.cacher.count }
     assert_cache("active_model_cachers_User_at_count" => 5)
 
-    assert_queries(3){ user.destroy } # 1. delete user. 2: delete profile by dependent. 3: delete contact by dependent.
+    assert_queries(user_destroy_dependents_count){ user.destroy }
     assert_cache({})
 
     assert_queries(1){ assert_equal 4, User.cacher.count }

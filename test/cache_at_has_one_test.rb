@@ -219,7 +219,7 @@ class CacheAtHasOneTest < BaseTest
     assert_queries(0){ assert_equal 17, User.cacher_at(-2).profile.point }
     assert_cache('active_model_cachers_Profile_by_user_id_-2' => profile)
 
-    assert_queries(3){ user.destroy } # 1. delete user. 2: delete profile by dependent. 3: delete contact by dependent.
+    assert_queries(user_destroy_dependents_count){ user.destroy }
     assert_cache({})
 
     assert_queries(1){ assert_nil User.cacher_at(-2).profile }

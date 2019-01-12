@@ -9,6 +9,9 @@ class User < ActiveRecord::Base
   belongs_to :language
   belongs_to :language2
 
+  has_many :achievements, through: :user_achievements
+  has_and_belongs_to_many :achievements_by_belongs_to_many, class_name: 'Achievement', join_table: :user_achievements
+
   scope :active, ->{ where('last_login_at > ?', 7.days.ago) }
 
   cache_at :profile

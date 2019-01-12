@@ -76,6 +76,15 @@ ActiveRecord::Schema.define do
     t.integer :user_id
     t.integer :point
   end
+
+  create_table :user_achievements, force: true do |t|
+    t.references :user, index: true
+    t.references :achievement, index: true
+  end
+
+  create_table :achievements, force: true do |t|
+    t.string :name
+  end
 end
 
 ActiveSupport::Dependencies.autoload_paths << File.expand_path('../models/', __FILE__)
@@ -183,4 +192,16 @@ eager_loaded_users = EagerLoaded::User.create([
 
 EagerLoaded::Profile.create([
   {user_id: eager_loaded_users[0].id, point: 19},
+])
+
+achievements = Achievement.create([
+  { name: 'achievement1' },
+  { name: 'achievement2' },
+  { name: 'achievement3' },
+])
+
+UserAchievement.create([
+  { user_id: users[0].id, achievement_id: achievements[0].id },
+  { user_id: users[1].id, achievement_id: achievements[0].id },
+  { user_id: users[1].id, achievement_id: achievements[2].id },
 ])

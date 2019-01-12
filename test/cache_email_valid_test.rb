@@ -120,7 +120,7 @@ class CacheEmailValidTest < BaseTest
     assert_queries(0){ assert_equal false, User.cacher_at('fake@fake.com').email_valid? }
     assert_cache('active_model_cachers_User_at_email_valid?_fake@fake.com' => ActiveModelCachers::FalseObject)
 
-    assert_queries(3){ user.destroy } # 1. delete user. 2: delete profile by dependent. 3: delete contact by dependent.
+    assert_queries(user_destroy_dependents_count){ user.destroy }
     assert_cache('active_model_cachers_User_at_email_valid?_fake@fake.com' => ActiveModelCachers::FalseObject)
   ensure
     user.delete
