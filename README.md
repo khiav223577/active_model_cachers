@@ -121,18 +121,24 @@ end
 You could use the cacher from the instance scope, e.g. `user.cacher`, instead of `User.cacher`. The difference is that the `binding` of query lambda is changed. In this example, you can write the query as `posts.exists?` which is in instance scope. The binding of the lambda is `user`, not `User`, so that it accesses `posts` method of `user`.
 
 ```rb
+# Access cacher from instance
 class User < ActiveRecord::Base
   has_many :posts
   cache_at :has_post?, ->{ posts.exists? }, expire_by: :posts
 end
 
-user_id = 1
-user = User.find(user_id)
-
-# Access cacher from instance
+user = User.take
 do_something if user.cacher.has_post?
+```
 
+```rb
 # Access cacher from class (It's useful when you don't want to do an extra query)
+class User < ActiveRecord::Base
+  has_many :posts
+  cache_at :has_post?, ->(id){ Post.where(user_id: id).exists? }, expire_by: :posts
+end
+
+user_id = 1
 do_something if User.cacher_at(user_id).has_post?
 ```
 
