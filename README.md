@@ -126,7 +126,14 @@ class User < ActiveRecord::Base
   cache_at :has_post?, ->{ posts.exists? }, expire_by: :posts
 end
 
-do_something if current_user.cacher.has_post?
+user_id = 1
+user = User.find(user_id)
+
+# Access cacher from instance
+do_something if user.cacher.has_post?
+
+# Access cacher from class (It's useful when you don't want to do an extra query)
+do_something if User.cacher_at(user_id).has_post?
 ```
 
 In this example, the cache should be cleaned when the `posts` of the user is changed. If you set `expire_by` to the association: `:posts`, it will do all the work for you (It actually sets [`expire_by`](#expire_by) to `Post#user_id` and [`foreign_key`](#foreign_key), which is needed for backtracing the user id from post, to `:user_id`).
