@@ -11,7 +11,11 @@ class User < ActiveRecord::Base
 
   has_many :user_achievements
   has_many :achievements, through: :user_achievements
-  has_and_belongs_to_many :achievements_by_belongs_to_many, class_name: 'Achievement', join_table: :user_achievements
+  has_and_belongs_to_many :achievements_by_belongs_to_many,
+                          class_name: 'Achievement',
+                          join_table: :user_achievements,
+                          after_add: ->(this, that){ this.cacher.clean(:has_achievements_by_belongs_to_many?) },
+                          after_remove: ->(this, that){ this.cacher.clean(:has_achievements_by_belongs_to_many?) }
 
   scope :active, ->{ where('last_login_at > ?', 7.days.ago) }
 
