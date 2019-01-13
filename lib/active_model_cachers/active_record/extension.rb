@@ -56,8 +56,10 @@ module ActiveModelCachers
           if expire_attr.reflect.is_a?(::ActiveRecord::Reflection::HasAndBelongsToManyReflection)
             expire_attr.klass.send(:"after_add_for_#{expire_by}") << ->(_, this, _that){ this.cacher.clean(attr.column) }
             expire_attr.klass.send(:"after_remove_for_#{expire_by}") << ->(_, this, _that){ this.cacher.clean(attr.column) }
+            expire_by = expire_attr.join_table_class_name
+          else
+            expire_by = get_expire_by_from(expire_attr)
           end
-          expire_by = get_expire_by_from(expire_attr)
         else
           expire_attr = attr
           expire_by ||= get_expire_by_from(expire_attr)

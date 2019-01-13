@@ -29,6 +29,10 @@ module ActiveModelCachers
         return nil
       end
 
+      def join_table_class_name
+        @klass.reflect_on_association(join_table).class_name
+      end
+
       def belongs_to?
         return false if not association?
         return @reflect.belongs_to?
