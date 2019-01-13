@@ -30,7 +30,7 @@ module ActiveModelCachers
       end
 
       def join_table_class_name
-        @klass.reflect_on_association(join_table).class_name
+        join_table.try{|s| @klass.reflect_on_association(s).class_name }
       end
 
       def belongs_to?

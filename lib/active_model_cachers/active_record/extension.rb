@@ -53,7 +53,7 @@ module ActiveModelCachers
       def get_expire_infos(attr, expire_by, foreign_key)
         if expire_by.is_a?(Symbol)
           expire_attr = get_association_attr(expire_by)
-          if expire_attr.reflect.is_a?(::ActiveRecord::Reflection::HasAndBelongsToManyReflection)
+          if expire_attr.join_table_class_name
             expire_attr.klass.send(:"after_add_for_#{expire_by}") << ->(_, this, _that){ this.cacher.clean(attr.column) }
             expire_attr.klass.send(:"after_remove_for_#{expire_by}") << ->(_, this, _that){ this.cacher.clean(attr.column) }
             expire_by = expire_attr.join_table_class_name
