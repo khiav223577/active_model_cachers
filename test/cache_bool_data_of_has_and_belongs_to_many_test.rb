@@ -49,10 +49,28 @@ class CacheBoolDataOfHasAndBelongsToManyTest < BaseTest
     user.user_achievements.delete_all
   end
 
-  def test_assign_empty
+  def test_create_by_assigning
     user = User.find_by(name: 'John4')
     achievement = Achievement.first
-    user_achievement = UserAchievement.create(user: user, achievement: achievement)
+
+    assert_queries(1){ assert_equal false, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_queries(0){ assert_equal false, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_cache('active_model_cachers_User_at_has_achievements_by_belongs_to_many?_4' => ActiveModelCachers::FalseObject)
+
+    assert_queries(2){ user.achievements_by_belongs_to_many = [achievement] }
+    assert_cache({})
+
+    assert_queries(1){ assert_equal true, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_queries(0){ assert_equal true, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_cache('active_model_cachers_User_at_has_achievements_by_belongs_to_many?_4' => true)
+  ensure
+    user.user_achievements.delete_all
+  end
+
+  def test_delete_by_assigning_empty
+    user = User.find_by(name: 'John4')
+    achievement = Achievement.first
+    UserAchievement.create(user: user, achievement: achievement)
 
     assert_queries(1){ assert_equal true, user.cacher.has_achievements_by_belongs_to_many? }
     assert_queries(0){ assert_equal true, user.cacher.has_achievements_by_belongs_to_many? }
@@ -65,7 +83,27 @@ class CacheBoolDataOfHasAndBelongsToManyTest < BaseTest
     assert_queries(0){ assert_equal false, user.cacher.has_achievements_by_belongs_to_many? }
     assert_cache('active_model_cachers_User_at_has_achievements_by_belongs_to_many?_4' => ActiveModelCachers::FalseObject)
   ensure
-    user_achievement.delete
+    user.user_achievements.delete_all
+  end
+
+  def test_delete_by_assigning_other_achievement
+    user = User.find_by(name: 'John4')
+    achievement = Achievement.first
+    other_achievement = Achievement.last
+    UserAchievement.create(user: user, achievement: achievement)
+
+    assert_queries(1){ assert_equal true, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_queries(0){ assert_equal true, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_cache('active_model_cachers_User_at_has_achievements_by_belongs_to_many?_4' => true)
+
+    assert_queries(3){ user.achievements_by_belongs_to_many = [other_achievement] }
+    assert_cache({})
+
+    assert_queries(1){ assert_equal true, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_queries(0){ assert_equal true, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_cache('active_model_cachers_User_at_has_achievements_by_belongs_to_many?_4' => true)
+  ensure
+    user.user_achievements.delete_all
   end
 
   # ----------------------------------------------------------------
