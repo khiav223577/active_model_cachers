@@ -86,7 +86,7 @@ class CacheBoolDataOfHasManyThroughTest < BaseTest
     user.user_achievements.delete_all
   end
 
-  def test_delete_by_assigning_other_achievement
+  def test_delete_by_assigning_others
     user = User.find_by(name: 'John4')
     achievement = Achievement.first
     other_achievement = Achievement.last
@@ -131,7 +131,7 @@ class CacheBoolDataOfHasManyThroughTest < BaseTest
   # ----------------------------------------------------------------
   # ● Delete
   # ----------------------------------------------------------------
-  def test_destroy
+  def test_delete
     user = User.find_by(name: 'John4')
     achievement = Achievement.first
     user_achievement = UserAchievement.create(user: user, achievement: achievement)
