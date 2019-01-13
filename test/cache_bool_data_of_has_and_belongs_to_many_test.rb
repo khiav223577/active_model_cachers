@@ -159,7 +159,7 @@ class CacheBoolDataOfHasAndBelongsToManyTest < BaseTest
     assert_queries(0){ assert_equal true, user.cacher.has_achievements_by_belongs_to_many? }
     assert_cache('active_model_cachers_User_at_has_achievements_by_belongs_to_many?_4' => true)
 
-    assert_queries(2){ user.achievements_by_belongs_to_many.delete(achievement.id) }
+    assert_queries(1){ user.achievements_by_belongs_to_many.delete(achievement) }
     assert_cache({})
 
     assert_queries(1){ assert_equal false, user.cacher.has_achievements_by_belongs_to_many? }
@@ -167,5 +167,26 @@ class CacheBoolDataOfHasAndBelongsToManyTest < BaseTest
     assert_cache('active_model_cachers_User_at_has_achievements_by_belongs_to_many?_4' => ActiveModelCachers::FalseObject)
   ensure
     user.user_achievements.delete_all
+  end
+
+  def test_delete_from_collection_with_only_id
+    skip if ActiveRecord::VERSION::MAJOR < 4 # Rails 3's #delete method can only receive model
+
+    user = User.find_by(name: 'John4')
+    achievement = Achievement.first
+    UserAchievement.create(user: user, achievement: achievement)
+
+    assert_queries(1){ assert_equal true, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_queries(0){ assert_equal true, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_cache('active_model_cachers_User_at_has_achievements_by_belongs_to_many?_4' => true)
+
+    assert_queries(2){ user.achievements_by_belongs_to_many.delete(achievement.id) }
+    assert_cache({})
+
+    assert_queries(1){ assert_equal false, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_queries(0){ assert_equal false, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_cache('active_model_cachers_User_at_has_achievements_by_belongs_to_many?_4' => ActiveModelCachers::FalseObject)
+  ensure
+    user.user_achievements.delete_all if user
   end
 end
