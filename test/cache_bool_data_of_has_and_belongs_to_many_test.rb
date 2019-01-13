@@ -149,4 +149,23 @@ class CacheBoolDataOfHasAndBelongsToManyTest < BaseTest
   ensure
     user_achievement.delete
   end
+
+  def test_delete_from_collection
+    user = User.find_by(name: 'John4')
+    achievement = Achievement.first
+    UserAchievement.create(user: user, achievement: achievement)
+
+    assert_queries(1){ assert_equal true, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_queries(0){ assert_equal true, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_cache('active_model_cachers_User_at_has_achievements_by_belongs_to_many?_4' => true)
+
+    assert_queries(2){ user.achievements_by_belongs_to_many.delete(achievement.id) }
+    assert_cache({})
+
+    assert_queries(1){ assert_equal false, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_queries(0){ assert_equal false, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_cache('active_model_cachers_User_at_has_achievements_by_belongs_to_many?_4' => ActiveModelCachers::FalseObject)
+  ensure
+    user.user_achievements.delete_all
+  end
 end
