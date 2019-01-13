@@ -18,7 +18,7 @@ module ActiveModelCachers
         return cache_belongs_to(attr) if attr.belongs_to?
 
         loaded = false
-        class_name, *infos = get_expire_infos(column, attr, expire_by, foreign_key)
+        class_name, *infos = get_expire_infos(attr, expire_by, foreign_key)
         set_klass_to_mapping(attr, class_name) do
           next if !loaded
           cache_at(column, query, expire_by: expire_by, on: on, foreign_key: foreign_key, primary_key: primary_key)
@@ -50,12 +50,12 @@ module ActiveModelCachers
         end
       end
 
-      def get_expire_infos(cache_column, attr, expire_by, foreign_key)
+      def get_expire_infos(attr, expire_by, foreign_key)
         if expire_by.is_a?(Symbol)
           expire_attr = get_association_attr(expire_by)
           if expire_attr.reflect.is_a?(::ActiveRecord::Reflection::HasAndBelongsToManyReflection)
-            expire_attr.klass.send(:"after_add_for_#{expire_by}") << ->(_, this, _that){ this.cacher.clean(cache_column) }
-            expire_attr.klass.send(:"after_remove_for_#{expire_by}") << ->(_, this, _that){ this.cacher.clean(cache_column) }
+            expire_attr.klass.send(:"after_add_for_#{expire_by}") << ->(_, this, _that){ this.cacher.clean(attr.column) }
+            expire_attr.klass.send(:"after_remove_for_#{expire_by}") << ->(_, this, _that){ this.cacher.clean(attr.column) }
           end
           expire_by = get_expire_by_from(expire_attr)
         else
