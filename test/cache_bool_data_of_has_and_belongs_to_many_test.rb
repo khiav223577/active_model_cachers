@@ -15,7 +15,7 @@ class CacheBoolDataOfHasAndBelongsToManyTest < BaseTest
   # ----------------------------------------------------------------
   def test_create
     user = User.find_by(name: 'John4')
-    achievement = Achievement.take
+    achievement = Achievement.first
 
     assert_queries(1){ assert_equal false, user.cacher.has_achievements_by_belongs_to_many? }
     assert_queries(0){ assert_equal false, user.cacher.has_achievements_by_belongs_to_many? }
@@ -33,7 +33,7 @@ class CacheBoolDataOfHasAndBelongsToManyTest < BaseTest
 
   def test_create_by_pushing
     user = User.find_by(name: 'John4')
-    achievement = Achievement.take
+    achievement = Achievement.first
 
     assert_queries(1){ assert_equal false, user.cacher.has_achievements_by_belongs_to_many? }
     assert_queries(0){ assert_equal false, user.cacher.has_achievements_by_belongs_to_many? }
