@@ -30,7 +30,7 @@ module ActiveModelCachers
       end
 
       def join_table_class_name
-        join_table.try{|s| @klass.reflect_on_association(s)&.class_name || through_association.klass.name }
+        join_table.try{|table_name| @klass.reflect_on_association(table_name).try(:class_name)  || through_association.klass.name }
       end
 
       def through_association
