@@ -31,6 +31,7 @@ class User < ActiveRecord::Base
   cache_at :has_post_without_cache2?, ->(id){ posts_without_cache.exists? }, expire_by: 'PostWithoutCache#user_id', foreign_key: :user_id
 
   cache_at :has_achievements?, ->(_){ achievements.exists? }, expire_by: :achievements
+  cache_at :has_achievement2s?, ->(_){ achievement2s.exists? }, expire_by: :achievement2s
   cache_at :has_achievements_by_belongs_to_many?, ->(_){ achievements_by_belongs_to_many.exists? }, expire_by: :achievements_by_belongs_to_many
 
   cache_at :email_valid?, ->(email){ ValidEmail2::Address.new(email).valid_mx? }, primary_key: :email

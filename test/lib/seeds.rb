@@ -209,7 +209,7 @@ achievements = Achievement.create([
   { name: 'achievement3' },
 ])
 
-achievements2 = Achievement2.create([
+achievement2s = Achievement2.create([
   { name: 'achievement1' },
   { name: 'achievement2' },
   { name: 'achievement3' },
@@ -217,4 +217,7 @@ achievements2 = Achievement2.create([
 
 users[0].achievements = [achievements[0]]
 users[1].achievements = [achievements[0], achievements[2]]
+
+users[0].achievement2s = [achievement2s[0]]
+users[1].achievement2s = [achievement2s[0], achievement2s[2]]
 
