@@ -38,7 +38,7 @@ module ActiveModelCachers
       end
 
       def through_klass
-        through_reflection.try(:klass) || (User::HABTM_Achievement2s ||= Class.new(::ActiveRecord::Base).tap{|s| s.table_name = join_table })
+        through_reflection.try(:klass) || through_klass_for_rails_3
       end
 
       def belongs_to?
@@ -109,6 +109,15 @@ module ActiveModelCachers
         when has_one?    ; return id ? @reflect.klass.find_by(foreign_key(reverse: true) => id) : nil
         else             ; return id ? @reflect.klass.find_by(primary_key => id) : nil
         end
+      end
+
+      def through_klass_for_rails_3
+        const_name = "HABTM_#{@reflect.klass.name.pluralize}"
+        @klass.const_defined?(const_name) ? @klass.const_get(const_name) : @klass.const_set(const_name, create_through_klass_for_rails_3)
+      end
+
+      def create_through_klass_for_rails_3
+        Class.new(::ActiveRecord::Base).tap{|s| s.table_name = join_table }
       end
     end
   end
