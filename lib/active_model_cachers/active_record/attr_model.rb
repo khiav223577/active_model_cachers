@@ -30,11 +30,15 @@ module ActiveModelCachers
       end
 
       def join_table_class_name
-        join_table.try{|table_name| @klass.reflect_on_association(table_name).try(:class_name)  || through_association.klass.name }
+        join_table.try{|table_name| @klass.reflect_on_association(table_name).try(:class_name)  || through_klass.name }
       end
 
-      def through_association
-        @klass.new.association(@column).send(:through_association)
+      def through_reflection
+        @klass.new.association(@column).reflection.through_reflection
+      end
+
+      def through_klass
+        through_reflection.try(:klass) || (User::HABTM_Achievement2s ||= Class.new(::ActiveRecord::Base).tap{|s| s.table_name = join_table })
       end
 
       def belongs_to?
