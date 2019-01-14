@@ -2,6 +2,11 @@
 require 'base_test'
 
 class CacheBoolDataOfPureHasAndBelongsToManyTest < BaseTest
+  def setup
+    super
+    # Cannot asscess private User::HABTM_Achievement2s directly in Rails 5
+    @middle_klass = ActiveRecord::VERSION::MAJOR > 4 ? User.const_get(:HABTM_Achievement2s) : User::HABTM_Achievement2s
+  end
   def test_basic_usage
     user = User.find_by(name: 'John1')
 
@@ -21,7 +26,7 @@ class CacheBoolDataOfPureHasAndBelongsToManyTest < BaseTest
     assert_queries(0){ assert_equal false, user.cacher.has_achievement2s? }
     assert_cache('active_model_cachers_User_at_has_achievement2s?_4' => ActiveModelCachers::FalseObject)
 
-    assert_queries(1){ User::HABTM_Achievement2s.create(user_id: user.id, achievement2_id: achievement.id) }
+    assert_queries(1){ @middle_klass.create(user_id: user.id, achievement2_id: achievement.id) }
     assert_cache({})
 
     assert_queries(1){ assert_equal true, user.cacher.has_achievement2s? }
@@ -70,7 +75,7 @@ class CacheBoolDataOfPureHasAndBelongsToManyTest < BaseTest
   def test_delete_by_assigning_empty
     user = User.find_by(name: 'John4')
     achievement = Achievement2.first
-    User::HABTM_Achievement2s.create(user_id: user.id, achievement2_id: achievement.id)
+    @middle_klass.create(user_id: user.id, achievement2_id: achievement.id)
 
     assert_queries(1){ assert_equal true, user.cacher.has_achievement2s? }
     assert_queries(0){ assert_equal true, user.cacher.has_achievement2s? }
@@ -90,7 +95,7 @@ class CacheBoolDataOfPureHasAndBelongsToManyTest < BaseTest
     user = User.find_by(name: 'John4')
     achievement = Achievement2.first
     other_achievement = Achievement2.last
-    User::HABTM_Achievement2s.create(user_id: user.id, achievement2_id: achievement.id)
+    @middle_klass.create(user_id: user.id, achievement2_id: achievement.id)
 
     assert_queries(1){ assert_equal true, user.cacher.has_achievement2s? }
     assert_queries(0){ assert_equal true, user.cacher.has_achievement2s? }
@@ -112,7 +117,7 @@ class CacheBoolDataOfPureHasAndBelongsToManyTest < BaseTest
   def test_destroy
     user = User.find_by(name: 'John4')
     achievement = Achievement2.first
-    user_achievement = User::HABTM_Achievement2s.create(user_id: user.id, achievement2_id: achievement.id)
+    user_achievement = @middle_klass.create(user_id: user.id, achievement2_id: achievement.id)
 
     assert_queries(1){ assert_equal true, user.cacher.has_achievement2s? }
     assert_queries(0){ assert_equal true, user.cacher.has_achievement2s? }
@@ -134,7 +139,7 @@ class CacheBoolDataOfPureHasAndBelongsToManyTest < BaseTest
   def test_delete
     user = User.find_by(name: 'John4')
     achievement = Achievement2.first
-    user_achievement = User::HABTM_Achievement2s.create(user_id: user.id, achievement2_id: achievement.id)
+    user_achievement = @middle_klass.create(user_id: user.id, achievement2_id: achievement.id)
 
     assert_queries(1){ assert_equal true, user.cacher.has_achievement2s? }
     assert_queries(0){ assert_equal true, user.cacher.has_achievement2s? }
@@ -153,7 +158,7 @@ class CacheBoolDataOfPureHasAndBelongsToManyTest < BaseTest
   def test_delete_from_collection
     user = User.find_by(name: 'John4')
     achievement = Achievement2.first
-    User::HABTM_Achievement2s.create(user_id: user.id, achievement2_id: achievement.id)
+    @middle_klass.create(user_id: user.id, achievement2_id: achievement.id)
 
     assert_queries(1){ assert_equal true, user.cacher.has_achievement2s? }
     assert_queries(0){ assert_equal true, user.cacher.has_achievement2s? }
@@ -174,7 +179,7 @@ class CacheBoolDataOfPureHasAndBelongsToManyTest < BaseTest
 
     user = User.find_by(name: 'John4')
     achievement = Achievement2.first
-    User::HABTM_Achievement2s.create(user_id: user.id, achievement2_id: achievement.id)
+    @middle_klass.create(user_id: user.id, achievement2_id: achievement.id)
 
     assert_queries(1){ assert_equal true, user.cacher.has_achievement2s? }
     assert_queries(0){ assert_equal true, user.cacher.has_achievement2s? }
