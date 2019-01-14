@@ -85,6 +85,15 @@ ActiveRecord::Schema.define do
   create_table :achievements, force: true do |t|
     t.string :name
   end
+
+  create_table :achievement2s_users, force: true do |t|
+    t.references :user, index: true
+    t.references :achievement2, index: true
+  end
+
+  create_table :achievement2s, force: true do |t| # use pure has_and_belongs_to_many without middle table model and specifying class_name
+    t.string :name
+  end
 end
 
 ActiveSupport::Dependencies.autoload_paths << File.expand_path('../models/', __FILE__)
@@ -200,8 +209,12 @@ achievements = Achievement.create([
   { name: 'achievement3' },
 ])
 
-UserAchievement.create([
-  { user_id: users[0].id, achievement_id: achievements[0].id },
-  { user_id: users[1].id, achievement_id: achievements[0].id },
-  { user_id: users[1].id, achievement_id: achievements[2].id },
+achievements2 = Achievement2.create([
+  { name: 'achievement1' },
+  { name: 'achievement2' },
+  { name: 'achievement3' },
 ])
+
+users[0].achievements = [achievements[0]]
+users[1].achievements = [achievements[0], achievements[2]]
+

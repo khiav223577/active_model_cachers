@@ -12,6 +12,7 @@ class User < ActiveRecord::Base
   has_many :user_achievements
   has_many :achievements, through: :user_achievements
   has_and_belongs_to_many :achievements_by_belongs_to_many, class_name: 'Achievement', join_table: :user_achievements
+  has_and_belongs_to_many :achievement2s
 
   scope :active, ->{ where('last_login_at > ?', 7.days.ago) }
 

@@ -26,7 +26,8 @@ def user_destroy_dependents_count
   # 2: delete profile by dependent.
   # 3: delete contact by dependent.
   # 4: delete user_achievements by dependent.
-  4
+  # 5: delete achievement2s_users by dependent.
+  5
 end
 
 def assert_queries(expected_count, event_key = 'sql.active_record')
