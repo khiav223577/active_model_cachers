@@ -137,7 +137,10 @@ class CacheBoolDataOfHasManyThroughTest < BaseTest
     assert_queries(0){ assert_equal true, user.cacher.has_achievements? }
     assert_cache('active_model_cachers_User_at_has_achievements?_4' => true)
 
-    assert_queries(2){ achievement.destroy }
+    # 2 queries from user_achievements.destroy_all calling by `has_many :user_achievements, dependent: :destroy`
+    # 1 query from user_achievements.delete_all calling by `has_and_belongs_to_many :users_by_belongs_to_many`
+    # 1 query from achievement.destroy
+    assert_queries(4){ achievement.destroy }
     assert_cache({})
 
     assert_queries(1){ assert_equal false, user.cacher.has_achievements? }
