@@ -109,7 +109,7 @@ class CacheBoolDataOfHasAndBelongsToManyTest < BaseTest
   # ----------------------------------------------------------------
   # ● Destroy
   # ----------------------------------------------------------------
-  def test_destroy
+  def test_destroy_middle_association
     user = User.find_by(name: 'John4')
     achievement = Achievement.first
     user_achievement = UserAchievement.create(user: user, achievement: achievement)
@@ -128,10 +128,30 @@ class CacheBoolDataOfHasAndBelongsToManyTest < BaseTest
     user_achievement.delete
   end
 
+  def test_destroy
+    user = User.find_by(name: 'John4')
+    achievement = Achievement.create
+    user_achievement = UserAchievement.create(user: user, achievement: achievement)
+
+    assert_queries(1){ assert_equal true, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_queries(0){ assert_equal true, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_cache('active_model_cachers_User_at_has_achievements_by_belongs_to_many?_4' => true)
+
+    assert_queries(2){ achievement.destroy }
+    assert_cache({})
+
+    assert_queries(1){ assert_equal false, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_queries(0){ assert_equal false, user.cacher.has_achievements_by_belongs_to_many? }
+    assert_cache('active_model_cachers_User_at_has_achievements_by_belongs_to_many?_4' => ActiveModelCachers::FalseObject)
+  ensure
+    achievement.delete
+    user_achievement.delete
+  end
+
   # ----------------------------------------------------------------
   # ● Delete
   # ----------------------------------------------------------------
-  def test_delete
+  def test_delete_middle_association
     user = User.find_by(name: 'John4')
     achievement = Achievement.first
     user_achievement = UserAchievement.create(user: user, achievement: achievement)
