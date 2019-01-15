@@ -67,6 +67,24 @@ class CacheBoolDataOfHasManyThroughTest < BaseTest
     user.user_achievements.delete_all
   end
 
+  def test_create_by_assigning_reversely
+    user = User.find_by(name: 'John4')
+    achievement = Achievement.create
+
+    assert_queries(1){ assert_equal false, user.cacher.has_achievements? }
+    assert_queries(0){ assert_equal false, user.cacher.has_achievements? }
+    assert_cache('active_model_cachers_User_at_has_achievements?_4' => ActiveModelCachers::FalseObject)
+
+    assert_queries(2){ achievement.users = [user] }
+    assert_cache({})
+
+    assert_queries(1){ assert_equal true, user.cacher.has_achievements? }
+    assert_queries(0){ assert_equal true, user.cacher.has_achievements? }
+    assert_cache('active_model_cachers_User_at_has_achievements?_4' => true)
+  ensure
+    achievement.destroy
+  end
+
   def test_delete_by_assigning_empty
     user = User.find_by(name: 'John4')
     achievement = Achievement.first
@@ -84,6 +102,28 @@ class CacheBoolDataOfHasManyThroughTest < BaseTest
     assert_cache('active_model_cachers_User_at_has_achievements?_4' => ActiveModelCachers::FalseObject)
   ensure
     user.user_achievements.delete_all
+  end
+
+  def test_delete_by_calling_clear
+    # FIXME: it's is equivalent to #delete_all which will not fire any callback
+    skip
+
+    user = User.find_by(name: 'John4')
+    achievement = Achievement.first
+    UserAchievement.create(user: user, achievement: achievement)
+
+    assert_queries(1){ assert_equal true, user.cacher.has_achievements? }
+    assert_queries(0){ assert_equal true, user.cacher.has_achievements? }
+    assert_cache('active_model_cachers_User_at_has_achievements?_4' => true)
+
+    assert_queries(2){ user.achievements.clear }
+    assert_cache({})
+
+    assert_queries(1){ assert_equal false, user.cacher.has_achievements? }
+    assert_queries(0){ assert_equal false, user.cacher.has_achievements? }
+    assert_cache('active_model_cachers_User_at_has_achievements?_4' => ActiveModelCachers::FalseObject)
+  ensure
+    user.user_achievements.delete_all if user
   end
 
   def test_delete_by_assigning_others

@@ -72,6 +72,24 @@ class CacheBoolDataOfPureHasAndBelongsToManyTest < BaseTest
     user.achievement2s = []
   end
 
+  def test_create_by_assigning_reversely
+    user = User.find_by(name: 'John4')
+    achievement = Achievement2.create
+
+    assert_queries(1){ assert_equal false, user.cacher.has_achievement2s? }
+    assert_queries(0){ assert_equal false, user.cacher.has_achievement2s? }
+    assert_cache('active_model_cachers_User_at_has_achievement2s?_4' => ActiveModelCachers::FalseObject)
+
+    assert_queries(2){ achievement.users = [user] }
+    assert_cache({})
+
+    assert_queries(1){ assert_equal true, user.cacher.has_achievement2s? }
+    assert_queries(0){ assert_equal true, user.cacher.has_achievement2s? }
+    assert_cache('active_model_cachers_User_at_has_achievement2s?_4' => true)
+  ensure
+    achievement.destroy
+  end
+
   def test_delete_by_assigning_empty
     user = User.find_by(name: 'John4')
     achievement = Achievement2.first
@@ -89,6 +107,28 @@ class CacheBoolDataOfPureHasAndBelongsToManyTest < BaseTest
     assert_cache('active_model_cachers_User_at_has_achievement2s?_4' => ActiveModelCachers::FalseObject)
   ensure
     user.achievement2s = []
+  end
+
+  def test_delete_by_calling_clear
+    # FIXME: it's is equivalent to #delete_all which will not fire any callback
+    skip
+
+    user = User.find_by(name: 'John4')
+    achievement = Achievement2.first
+    @middle_klass.create(user_id: user.id, achievement2_id: achievement.id)
+
+    assert_queries(1){ assert_equal true, user.cacher.has_achievement2s? }
+    assert_queries(0){ assert_equal true, user.cacher.has_achievement2s? }
+    assert_cache('active_model_cachers_User_at_has_achievement2s?_4' => true)
+
+    assert_queries(2){ user.achievement2s.clear }
+    assert_cache({})
+
+    assert_queries(1){ assert_equal false, user.cacher.has_achievement2s? }
+    assert_queries(0){ assert_equal false, user.cacher.has_achievement2s? }
+    assert_cache('active_model_cachers_User_at_has_achievement2s?_4' => ActiveModelCachers::FalseObject)
+  ensure
+    user.achievement2s = [] if user
   end
 
   def test_delete_by_assigning_others
@@ -162,8 +202,8 @@ class CacheBoolDataOfPureHasAndBelongsToManyTest < BaseTest
     assert_queries(0){ assert_equal false, user.cacher.has_achievement2s? }
     assert_cache('active_model_cachers_User_at_has_achievement2s?_4' => ActiveModelCachers::FalseObject)
   ensure
-    achievement.delete
-    user.achievement2s = []
+    achievement.delete if achievement
+    user.achievement2s = [] if user
   end
 
   # ----------------------------------------------------------------
