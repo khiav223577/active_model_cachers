@@ -189,7 +189,7 @@ class CacheBoolDataOfPureHasAndBelongsToManyTest < BaseTest
 
     user = User.find_by(name: 'John4')
     achievement = Achievement2.create
-    user_achievement = @middle_klass.create(user_id: user.id, achievement2_id: achievement.id)
+    @middle_klass.create(user_id: user.id, achievement2_id: achievement.id)
 
     assert_queries(1){ assert_equal true, user.cacher.has_achievement2s? }
     assert_queries(0){ assert_equal true, user.cacher.has_achievement2s? }
