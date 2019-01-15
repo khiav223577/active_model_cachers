@@ -49,6 +49,25 @@ class CacheBoolDataOfHasManyThroughTest < BaseTest
     user.user_achievements.delete_all
   end
 
+  def test_create_by_pushing_reversely
+    user = User.find_by(name: 'John4')
+    achievement = Achievement.create
+
+    assert_queries(1){ assert_equal false, user.cacher.has_achievements? }
+    assert_queries(0){ assert_equal false, user.cacher.has_achievements? }
+    assert_cache('active_model_cachers_User_at_has_achievements?_4' => ActiveModelCachers::FalseObject)
+
+    assert_queries(1){ achievement.users << user }
+    assert_cache({})
+
+    assert_queries(1){ assert_equal true, user.cacher.has_achievements? }
+    assert_queries(0){ assert_equal true, user.cacher.has_achievements? }
+    assert_cache('active_model_cachers_User_at_has_achievements?_4' => true)
+  ensure
+    achievement.destroy
+    user.user_achievements.delete_all
+  end
+
   def test_create_by_assigning
     user = User.find_by(name: 'John4')
     achievement = Achievement.first
