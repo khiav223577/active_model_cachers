@@ -9,6 +9,11 @@ class User < ActiveRecord::Base
   belongs_to :language
   belongs_to :language2
 
+  has_many :user_achievements
+  has_many :achievements, through: :user_achievements
+  has_and_belongs_to_many :achievements_by_belongs_to_many, class_name: 'Achievement', join_table: :user_achievements
+  has_and_belongs_to_many :achievement2s
+
   scope :active, ->{ where('last_login_at > ?', 7.days.ago) }
 
   cache_at :profile
@@ -24,6 +29,10 @@ class User < ActiveRecord::Base
   cache_at :has_post2?, ->{ posts.exists? }, expire_by: :posts
   cache_at :has_post_without_cache?, ->(id){ PostWithoutCache.where(user_id: id).exists? }, expire_by: 'PostWithoutCache#user_id', foreign_key: :user_id
   cache_at :has_post_without_cache2?, ->(id){ posts_without_cache.exists? }, expire_by: 'PostWithoutCache#user_id', foreign_key: :user_id
+
+  cache_at :has_achievements?, ->(_){ achievements.exists? }, expire_by: :achievements
+  cache_at :has_achievement2s?, ->(_){ achievement2s.exists? }, expire_by: :achievement2s
+  cache_at :has_achievements_by_belongs_to_many?, ->(_){ achievements_by_belongs_to_many.exists? }, expire_by: :achievements_by_belongs_to_many
 
   cache_at :email_valid?, ->(email){ ValidEmail2::Address.new(email).valid_mx? }, primary_key: :email
 end

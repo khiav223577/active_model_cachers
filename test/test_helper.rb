@@ -21,6 +21,15 @@ ActiveRecord::Base.establish_connection(
 require 'lib/rails_cache'
 require 'lib/seeds'
 
+def user_destroy_dependents_count
+  # 1. delete user.
+  # 2: delete profile by dependent.
+  # 3: delete contact by dependent.
+  # 4: delete user_achievements by dependent.
+  # 5: delete achievement2s_users by dependent.
+  5
+end
+
 def assert_queries(expected_count, event_key = 'sql.active_record')
   sqls = []
   subscriber = ActiveSupport::Notifications.subscribe(event_key) do |_, _, _, _, payload|

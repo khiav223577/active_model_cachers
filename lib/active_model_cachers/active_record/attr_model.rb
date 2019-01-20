@@ -29,6 +29,18 @@ module ActiveModelCachers
         return nil
       end
 
+      def join_table_class_name
+        join_table.try{|table_name| @klass.reflect_on_association(table_name).try(:class_name)  || through_klass.name }
+      end
+
+      def through_reflection
+        @klass.new.association(@column).reflection.through_reflection
+      end
+
+      def through_klass
+        through_reflection.try(:klass) || through_klass_for_rails_3
+      end
+
       def belongs_to?
         return false if not association?
         return @reflect.belongs_to?
@@ -97,6 +109,15 @@ module ActiveModelCachers
         when has_one?    ; return id ? @reflect.klass.find_by(foreign_key(reverse: true) => id) : nil
         else             ; return id ? @reflect.klass.find_by(primary_key => id) : nil
         end
+      end
+
+      def through_klass_for_rails_3
+        const_name = "HABTM_#{@reflect.klass.name.pluralize}"
+        @klass.const_defined?(const_name) ? @klass.const_get(const_name) : @klass.const_set(const_name, create_through_klass_for_rails_3)
+      end
+
+      def create_through_klass_for_rails_3
+        Class.new(::ActiveRecord::Base).tap{|s| s.table_name = join_table }
       end
     end
   end

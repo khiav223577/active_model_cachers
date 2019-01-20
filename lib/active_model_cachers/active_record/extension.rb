@@ -53,7 +53,13 @@ module ActiveModelCachers
       def get_expire_infos(attr, expire_by, foreign_key)
         if expire_by.is_a?(Symbol)
           expire_attr = get_association_attr(expire_by)
-          expire_by = get_expire_by_from(expire_attr)
+          if expire_attr.join_table_class_name
+            expire_attr.klass.send(:"after_add_for_#{expire_by}") << gen_has_many_through_callback(attr.column)
+            expire_attr.klass.send(:"after_remove_for_#{expire_by}") << gen_has_many_through_callback(attr.column)
+            expire_by = expire_attr.join_table_class_name
+          else
+            expire_by = get_expire_by_from(expire_attr)
+          end
         else
           expire_attr = attr
           expire_by ||= get_expire_by_from(expire_attr)
@@ -64,6 +70,12 @@ module ActiveModelCachers
         foreign_key ||= expire_attr.foreign_key(reverse: true) || 'id'
 
         return class_name, column, foreign_key.to_s
+      end
+
+      NO_MACRO_FOR_AFTER_ADD = Gem::Version.new(::ActiveRecord::VERSION::STRING) < Gem::Version.new('4')
+      def gen_has_many_through_callback(column)
+        return ->(this, _that){ this.cacher.clean(column) } if NO_MACRO_FOR_AFTER_ADD
+        return ->(_, this, _that){ this.cacher.clean(column) }
       end
 
       def get_association_attr(column)

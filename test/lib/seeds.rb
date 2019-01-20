@@ -76,6 +76,24 @@ ActiveRecord::Schema.define do
     t.integer :user_id
     t.integer :point
   end
+
+  create_table :user_achievements, force: true do |t|
+    t.references :user, index: true
+    t.references :achievement, index: true
+  end
+
+  create_table :achievements, force: true do |t|
+    t.string :name
+  end
+
+  create_table :achievement2s_users, force: true do |t|
+    t.references :user, index: true
+    t.references :achievement2, index: true
+  end
+
+  create_table :achievement2s, force: true do |t| # use pure has_and_belongs_to_many without middle table model and specifying class_name
+    t.string :name
+  end
 end
 
 ActiveSupport::Dependencies.autoload_paths << File.expand_path('../models/', __FILE__)
@@ -184,3 +202,22 @@ eager_loaded_users = EagerLoaded::User.create([
 EagerLoaded::Profile.create([
   {user_id: eager_loaded_users[0].id, point: 19},
 ])
+
+achievements = Achievement.create([
+  { name: 'achievement1' },
+  { name: 'achievement2' },
+  { name: 'achievement3' },
+])
+
+achievement2s = Achievement2.create([
+  { name: 'achievement1' },
+  { name: 'achievement2' },
+  { name: 'achievement3' },
+])
+
+users[0].achievements = [achievements[0]]
+users[1].achievements = [achievements[0], achievements[2]]
+
+users[0].achievement2s = [achievement2s[0]]
+users[1].achievement2s = [achievement2s[0], achievement2s[2]]
+
