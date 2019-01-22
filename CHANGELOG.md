@@ -1,5 +1,10 @@
 ## Change Log
 
+### [v2.1.6](https://github.com/khiav223577/active_model_cachers/compare/v2.1.5...v2.1.6) 2019/01/20
+- [#48](https://github.com/khiav223577/active_model_cachers/pull/48) Support `has_and_belongs_to_many` && `has_many through` (@khiav223577)
+- [#47](https://github.com/khiav223577/active_model_cachers/pull/47) Fix: broken test cases after bundler 2.0 was released (@khiav223577)
+- [#46](https://github.com/khiav223577/active_model_cachers/pull/46) fix typo in README (@Fatmylin)
+
 ### [v2.1.5](https://github.com/khiav223577/active_model_cachers/compare/v2.1.4...v2.1.5) 2018/08/03
 - [#44](https://github.com/khiav223577/active_model_cachers/pull/44) should fire an extra query if the attribute used to clean cache is not selected (@khiav223577)
 - [#45](https://github.com/khiav223577/active_model_cachers/pull/45) lazily add global callbacks to ActiveRecord::Base (@khiav223577)
@@ -34,7 +39,7 @@
 ### [v2.0.1](https://github.com/khiav223577/active_model_cachers/compare/v2.0.0...v2.0.1) 2018/05/13
 - [#26](https://github.com/khiav223577/active_model_cachers/pull/26) Prevent infinite loop if someone override default associations' method (@khiav223577)
 
-### v2.0.0 2018/05/13
+### [v2.0.0](https://github.com/khiav223577/active_model_cachers/compare/v1.0.0...v2.0.0) 2018/05/13
 - [#25](https://github.com/khiav223577/active_model_cachers/pull/25) Support cache self by other column (@khiav223577)
 - [#24](https://github.com/khiav223577/active_model_cachers/pull/24) Support cleaning the cache manually (@khiav223577)
 - [#23](https://github.com/khiav223577/active_model_cachers/pull/23) use loaded model if possible to prevent extra queries (@khiav223577)
