@@ -26,7 +26,7 @@ Gem::Specification.new do |spec|
   spec.bindir        = "exe"
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
-  spec.metadata    = {
+  spec.metadata      = {
     'homepage_uri'      => 'https://github.com/khiav223577/active_model_cachers',
     'changelog_uri'     => 'https://github.com/khiav223577/active_model_cachers/blob/master/CHANGELOG.md',
     'source_code_uri'   => 'https://github.com/khiav223577/active_model_cachers',
