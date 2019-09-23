@@ -111,14 +111,14 @@ class CacheAtAttributeTest < BaseTest
     assert_queries(0){ assert_equal 30, Profile.cacher_at(profile.id).point }
     assert_cache('active_model_cachers_Profile_at_point_2' => 30)
 
-    assert_queries(1){ profile.update_attributes(point: 32) }
+    assert_queries(1){ profile.update(point: 32) }
     assert_cache({})
 
     assert_queries(1){ assert_equal 32, Profile.cacher_at(profile.id).point }
     assert_queries(0){ assert_equal 32, Profile.cacher_at(profile.id).point }
     assert_cache('active_model_cachers_Profile_at_point_2' => 32)
   ensure
-    profile.update_attributes(point: 30)
+    profile.update(point: 30)
   end
 
   # ----------------------------------------------------------------

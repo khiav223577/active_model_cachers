@@ -80,14 +80,14 @@ class CacheSelfByOtherColumnTest < BaseTest
     assert_queries(0){ assert_equal 10, Profile.cacher.find_by(token: 'tt9wav').point }
     assert_cache('active_model_cachers_Profile_by_token_tt9wav' => profile)
 
-    assert_queries(1){ profile.update_attributes(point: 12) }
+    assert_queries(1){ profile.update(point: 12) }
     assert_cache({})
 
     assert_queries(1){ assert_equal 12, Profile.cacher.find_by(token: 'tt9wav').point }
     assert_queries(0){ assert_equal 12, Profile.cacher.find_by(token: 'tt9wav').point }
     assert_cache('active_model_cachers_Profile_by_token_tt9wav' => profile)
   ensure
-    profile.update_attributes(point: 10)
+    profile.update(point: 10)
   end
 
   # ----------------------------------------------------------------

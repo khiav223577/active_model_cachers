@@ -73,13 +73,13 @@ class CacheUserCountTest < BaseTest
     assert_queries(0){ assert_equal 4, User.cacher.count }
     assert_cache('active_model_cachers_User_at_count' => 4)
 
-    assert_queries(1){ user.update_attributes(name: '??') }
+    assert_queries(1){ user.update(name: '??') }
     assert_cache('active_model_cachers_User_at_count' => 4)
 
     assert_queries(0){ assert_equal 4, User.cacher.count }
     assert_cache('active_model_cachers_User_at_count' => 4)
   ensure
-    user.update_attributes(name: 'John2')
+    user.update(name: 'John2')
   end
 
   # ----------------------------------------------------------------

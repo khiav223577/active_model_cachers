@@ -139,14 +139,14 @@ class CacheAtHasOneTest < BaseTest
     assert_queries(0){ assert_equal 10, User.cacher_at(2).profile.point }
     assert_cache('active_model_cachers_Profile_by_user_id_2' => profile)
 
-    assert_queries(1){ profile.update_attributes(point: 12) }
+    assert_queries(1){ profile.update(point: 12) }
     assert_cache({})
 
     assert_queries(1){ assert_equal 12, User.cacher_at(2).profile.point }
     assert_queries(0){ assert_equal 12, User.cacher_at(2).profile.point }
     assert_cache('active_model_cachers_Profile_by_user_id_2' => profile)
   ensure
-    profile.update_attributes(point: 10)
+    profile.update(point: 10)
   end
 
   def test_update_target_which_doesnt_have_cacher
@@ -161,14 +161,14 @@ class CacheAtHasOneTest < BaseTest
     assert_queries(0){ assert_equal '12345', User.cacher_at(1).contact.phone }
     assert_cache('active_model_cachers_Contact_by_user_id_1' => contact)
 
-    assert_queries(1){ contact.update_attributes(phone: '12346') }
+    assert_queries(1){ contact.update(phone: '12346') }
     assert_cache({})
 
     assert_queries(1){ assert_equal '12346', User.cacher_at(1).contact.phone }
     assert_queries(0){ assert_equal '12346', User.cacher_at(1).contact.phone }
     assert_cache('active_model_cachers_Contact_by_user_id_1' => contact)
   ensure
-    contact.update_attributes(phone: '12345')
+    contact.update(phone: '12345')
   end
 
   # ----------------------------------------------------------------

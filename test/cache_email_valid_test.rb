@@ -97,7 +97,7 @@ class CacheEmailValidTest < BaseTest
     assert_queries(0){ assert_equal true, user.cacher.email_valid? }
     assert_cache('active_model_cachers_User_at_email_valid?_john2@example.com' => true)
 
-    assert_queries(1){ user.update_attributes(email: 'fake@fake.com') }
+    assert_queries(1){ user.update(email: 'fake@fake.com') }
     assert_cache('active_model_cachers_User_at_email_valid?_john2@example.com' => true)
 
     assert_queries(1){ assert_equal false, user.cacher.email_valid? }
@@ -107,7 +107,7 @@ class CacheEmailValidTest < BaseTest
       'active_model_cachers_User_at_email_valid?_fake@fake.com' => ActiveModelCachers::FalseObject,
     )
   ensure
-    user.update_attributes(email: 'john2@example.com')
+    user.update(email: 'john2@example.com')
   end
 
   # ----------------------------------------------------------------

@@ -57,14 +57,14 @@ class CacheAtBelongsToTest < BaseTest
     assert_queries(1){ language = Language.create(id: -1, name: 'ko') }
     assert_cache('active_model_cachers_User_at_language_id_4' => ActiveModelCachers::NilObject)
 
-    user.update_attributes(language: language) # save language_id
+    user.update(language: language) # save language_id
     assert_cache({})
 
     assert_queries(2){ assert_equal 'ko', User.cacher_at(user.id).language.name }
     assert_queries(0){ assert_equal 'ko', User.cacher_at(user.id).language.name }
     assert_cache('active_model_cachers_User_at_language_id_4' => -1, 'active_model_cachers_Language_-1' => language)
   ensure
-    user.update_attributes(language_id: nil)
+    user.update(language_id: nil)
     language.delete if language
   end
 
@@ -153,13 +153,13 @@ class CacheAtBelongsToTest < BaseTest
     assert_queries(0){ assert_equal 'zh-tw', User.cacher_at(user.id).language.name }
     assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => language)
 
-    assert_queries(1){ language.update_attributes(name: 'ko') }
+    assert_queries(1){ language.update(name: 'ko') }
     assert_cache("active_model_cachers_User_at_language_id_1" => 2)
 
     assert_queries(1){ assert_equal 'ko', User.cacher_at(user.id).language.name }
     assert_cache('active_model_cachers_User_at_language_id_1' => 2, 'active_model_cachers_Language_2' => language)
   ensure
-    language.update_attributes(name: 'zh-tw')
+    language.update(name: 'zh-tw')
   end
 
   # ----------------------------------------------------------------
