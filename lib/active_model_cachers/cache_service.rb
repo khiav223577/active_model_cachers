@@ -137,7 +137,7 @@ module ActiveModelCachers
     def clean_ar_cache(models)
       return if not models.first.is_a?(::ActiveRecord::Base)
       models.each_with_index do |model, index|
-        model.send(:clear_aggregation_cache)
+        model.send(:clear_aggregation_cache) if model.respond_to?(:clear_aggregation_cache, true)
         model.send(:clear_association_cache)
       end
     end
