@@ -1,5 +1,9 @@
 ## Change Log
 
+### [v2.1.7](https://github.com/khiav223577/active_model_cachers/compare/v2.1.6...v2.1.7) 2019/09/24
+- [#50](https://github.com/khiav223577/active_model_cachers/pull/50) Support Rails 6.0 (@khiav223577)
+- [#49](https://github.com/khiav223577/active_model_cachers/pull/49) Lock sqlite3 version to 1.3.x (@khiav223577)
+
 ### [v2.1.6](https://github.com/khiav223577/active_model_cachers/compare/v2.1.5...v2.1.6) 2019/01/20
 - [#48](https://github.com/khiav223577/active_model_cachers/pull/48) Support `has_and_belongs_to_many` && `has_many through` (@khiav223577)
 - [#47](https://github.com/khiav223577/active_model_cachers/pull/47) Fix: broken test cases after bundler 2.0 was released (@khiav223577)
