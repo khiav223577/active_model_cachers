@@ -79,7 +79,7 @@ class CacheActiveUserCountTest < BaseTest
     assert_queries(0){ assert_equal 2, User.cacher.active_count }
     assert_cache('active_model_cachers_User_at_active_count' => 2)
   ensure
-    user.update_attributes(name: 'John4')
+    user.update(name: 'John4')
   end
 
   def test_update
@@ -89,14 +89,14 @@ class CacheActiveUserCountTest < BaseTest
     assert_queries(0){ assert_equal 2, User.cacher.active_count }
     assert_cache('active_model_cachers_User_at_active_count' => 2)
 
-    assert_queries(1){ user.update_attributes(last_login_at: Time.now) }
+    assert_queries(1){ user.update(last_login_at: Time.now) }
     assert_cache({})
 
     assert_queries(1){ assert_equal 3, User.cacher.active_count }
     assert_queries(0){ assert_equal 3, User.cacher.active_count }
     assert_cache('active_model_cachers_User_at_active_count' => 3)
   ensure
-    user.update_attributes(last_login_at: nil)
+    user.update(last_login_at: nil)
   end
 
   # ----------------------------------------------------------------

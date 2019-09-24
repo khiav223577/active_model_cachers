@@ -19,6 +19,7 @@ ActiveRecord::Base.establish_connection(
 )
 
 require 'lib/rails_cache'
+require 'lib/patches'
 require 'lib/seeds'
 
 def user_destroy_dependents_count

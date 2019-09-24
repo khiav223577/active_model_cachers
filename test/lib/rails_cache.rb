@@ -31,8 +31,8 @@ module Rails
     end
 
     def write(key, val, options = {})
-      ActiveSupport::Notifications.instrument('cache.active_record', sql: "write cache at #{key} with val: #{val}")
       @cache[key] ||= { data: Marshal.dump(val), expired_at: Time.now + 30.minutes }
+      ActiveSupport::Notifications.instrument('cache.active_record', sql: "write cache at #{key} with val: #{val}")
       return val
     end
 

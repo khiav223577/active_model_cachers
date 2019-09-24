@@ -70,14 +70,14 @@ class CacheSelfTest < BaseTest
     assert_queries(0){ assert_equal 10, Profile.cacher.find_by(id: profile.id).point }
     assert_cache('active_model_cachers_Profile_1' => profile)
 
-    assert_queries(1){ profile.update_attributes(point: 12) }
+    assert_queries(1){ profile.update(point: 12) }
     assert_cache({})
 
     assert_queries(1){ assert_equal 12, Profile.cacher.find_by(id: profile.id).point }
     assert_queries(0){ assert_equal 12, Profile.cacher.find_by(id: profile.id).point }
     assert_cache('active_model_cachers_Profile_1' => profile)
   ensure
-    profile.update_attributes(point: 10)
+    profile.update(point: 10)
   end
 
   def test_touch
