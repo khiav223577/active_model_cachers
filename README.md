@@ -361,7 +361,16 @@ Monitor on the specific model. Clean the cached objects if targets are changed.
 
 ### :primary_key
 
-- Is needed to know which attribute should be passed to the parameter when using the instance `cacher`. For example, if a query, named `email_valid?`, uses `user.email` as parameter, and you call it from instance: `user.cacher.email_valid?`, pass `user.id` as the argument.
+- Determine which column is going to pass to the query lambda, and to be part of the cache key.<br>
+  For example:
+  
+  - **User.cache_at :arbitrary, ->(id){ id }** 
+  
+    The cache key will be `active_model_cachers_User_at_arbitrary_#{user.id}`
+    
+  - **User.cache_at :arbitrary, ->(email){ email }, primary_key: :email** 
+  
+    The cache key will be `active_model_cachers_User_at_arbitrary_#{user.email}`
 
 - Has the default value `:id`.
 
