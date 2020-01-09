@@ -34,7 +34,7 @@ end
 def assert_queries(expected_count, event_key = 'sql.active_record')
   sqls = []
   subscriber = ActiveSupport::Notifications.subscribe(event_key) do |_, _, _, _, payload|
-    sqls << "  ● #{payload[:sql]}" if payload[:sql] !~ /\A(?:BEGIN TRANSACTION|COMMIT TRANSACTION)/i
+    sqls << "  ● #{payload[:sql]}" if payload[:sql] !~ /\A(?:BEGIN TRANSACTION|COMMIT TRANSACTION|BEGIN|COMMIT|PRAGMA table_info)\z/i
   end
   yield
   if expected_count != sqls.size # show all sql queries if query count doesn't equal to expected count.
