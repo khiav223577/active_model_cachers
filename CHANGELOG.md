@@ -1,5 +1,12 @@
 ## Change Log
 
+### [v2.1.8](https://github.com/khiav223577/active_model_cachers/compare/v2.1.7...v2.1.8) 2021/04/01
+- [#56](https://github.com/khiav223577/active_model_cachers/pull/56) update the dependency of request_store (@khiav223577)
+- [#54](https://github.com/khiav223577/active_model_cachers/pull/54) Migrating from Travis CI to GitHub Actions (@khiav223577)
+- [#53](https://github.com/khiav223577/active_model_cachers/pull/53) Fix: test files should not be included in coverage (@khiav223577)
+- [#52](https://github.com/khiav223577/active_model_cachers/pull/52) Fix travis: ignore queries of table info (@khiav223577)
+- [#51](https://github.com/khiav223577/active_model_cachers/pull/51) Support Ruby 2.7 (@khiav223577)
+
 ### [v2.1.7](https://github.com/khiav223577/active_model_cachers/compare/v2.1.6...v2.1.7) 2019/09/24
 - [#50](https://github.com/khiav223577/active_model_cachers/pull/50) Support Rails 6.0 (@khiav223577)
 - [#49](https://github.com/khiav223577/active_model_cachers/pull/49) Lock sqlite3 version to 1.3.x (@khiav223577)
