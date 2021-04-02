@@ -146,7 +146,6 @@ users = User.create([
     :contact       => Contact.create(phone: '12345'),
     :language      => languages[1],
     :last_login_at => Time.now,
-    :birthday      => 10.year.ago - 3.days,
   }, {
     :name          => 'John2',
     :email         => 'john2@example.com',

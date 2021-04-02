@@ -122,16 +122,18 @@ class CacheAtAttributeTest < BaseTest
   end
 
   def test_update_birthday
-    user = User.find_by(name: 'John1')
+    user = User.create(birthday: 10.year.ago - 3.days)
 
     assert_equal 10, user.cacher.age
-    assert_cache('active_model_cachers_User_at_age_1' => 10)
+    assert_cache("active_model_cachers_User_at_age_#{user.id}" => 10)
 
     user.update(birthday: 10.years.ago + 3.days)
     assert_cache({})
 
     assert_equal 9, user.cacher.age
-    assert_cache('active_model_cachers_User_at_age_1' => 9)
+    assert_cache("active_model_cachers_User_at_age_#{user.id}" => 9)
+  ensure
+    user.destroy
   end
 
   # ----------------------------------------------------------------
