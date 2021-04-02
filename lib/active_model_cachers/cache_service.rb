@@ -87,7 +87,7 @@ module ActiveModelCachers
 
     def clean_cache(binding: nil, reflect: nil)
       @cached_data = nil
-      Rails.cache.delete(cache_key)
+      ActiveModelCachers.config.store.delete(cache_key)
       return nil
     end
 
