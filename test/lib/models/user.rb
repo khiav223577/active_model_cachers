@@ -24,6 +24,10 @@ class User < ActiveRecord::Base
 
   cache_at :count, ->{ count }, expire_by: 'User', on: [:create, :destroy]
   cache_at :active_count, ->{ active.count }, expire_by: 'User#last_login_at'
+  cache_at :age, -> {
+    now = Time.now.utc.to_date
+    next now.year - birthday.year - ((now.month > birthday.month || (now.month == birthday.month && now.day >= birthday.day)) ? 0 : 1)
+  }, expire_by: 'User#birthday'
 
   cache_at :has_post?, ->(id){ Post.where(user_id: id).exists? }, expire_by: 'Post#user_id', foreign_key: :user_id
   cache_at :has_post2?, ->{ posts.exists? }, expire_by: :posts

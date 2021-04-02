@@ -12,6 +12,7 @@ ActiveRecord::Schema.define do
     t.integer :language2_id
     t.text :serialized_attribute
     t.datetime :last_login_at
+    t.date :birthday
   end
 
   create_table :posts, :force => true do |t|
@@ -145,6 +146,7 @@ users = User.create([
     :contact       => Contact.create(phone: '12345'),
     :language      => languages[1],
     :last_login_at => Time.now,
+    :birthday      => 10.year.ago - 3.days,
   }, {
     :name          => 'John2',
     :email         => 'john2@example.com',
