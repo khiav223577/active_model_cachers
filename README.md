@@ -12,8 +12,12 @@ ActiveModelCachers:
 
 - Uses multiple levels of cache ([Multi-level Cache](#multi-level-cache))
 - Does not pollute the original ActiveModel API
-- Supports ActiveRecord 3.2, 4.2, 5.2, 6.0.
 - Has high test coverage
+
+## Supports
+
+- Ruby 2.3 ~ 2.7
+- Rails 3.2, 4.2, 5.0, 5.1, 5.2, 6.0
 
 ## Table of contents
 
