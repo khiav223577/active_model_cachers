@@ -7,7 +7,7 @@ Gem::Specification.new do |spec|
   spec.name          = "active_model_cachers"
   spec.version       = ActiveModelCachers::VERSION
   spec.authors       = ["khiav reoy"]
-  spec.email         = ["mrtmrt15xn@yahoo.com.tw"]
+  spec.email         = ["khiav223577@gmail.com"]
 
   spec.summary       = %q{Simply cache whatever you want by using cachers. Support Rails 3, 4, 5.}
   spec.description   = %q{Simply cache whatever you want by using cachers which will help you maintain cached objects and expire them when they are changed. Support Rails 3, 4, 5.}
